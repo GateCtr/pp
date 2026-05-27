@@ -19,7 +19,7 @@ Ce système remplace les formulaires physiques de collecte terrain par une appli
 
 ```
 ┌─────────────────────┐        ┌───────────────────┐        ┌─────────────────┐
-│   Agent Terrain     │        │    Next.js 15     │        │  Neon Postgres  │
+│   Agent Terrain     │        │   Next.js 16.2    │        │  Neon Postgres  │
 │  (PWA Smartphone)   │───────▶│  API + Frontend   │───────▶│   (Database)    │
 │                     │        │    (Vercel)       │        │   500 Mo Free   │
 └─────────────────────┘        └────────┬──────────┘        └─────────────────┘
@@ -39,7 +39,7 @@ Ce système remplace les formulaires physiques de collecte terrain par une appli
 
 | Composant | Technologie | Plan |
 |-----------|------------|------|
-| Frontend + API | **Next.js 15** (App Router) + **Tailwind CSS v4** + **shadcn/ui** | — |
+| Frontend + API | **Next.js 16.2** (App Router) + **Tailwind CSS v4** + **shadcn/ui** | — |
 | Base de données | **Neon Postgres** (via **Drizzle ORM**) | Free 500 Mo |
 | Auth Administrateurs | **Clerk** (email / Google) | Free 10k MAU |
 | Auth Collecteurs | **JWT custom** (cookies HTTP-Only, 12h) | — |
@@ -251,7 +251,7 @@ parcellaire/
 │   │   ├── auth.ts                # Helpers session collecteur (JWT)
 │   │   ├── validations.ts         # Schémas Zod (formulaire)
 │   │   └── plate-generator.ts     # Moteur génération SVG + QR Code
-│   └── middleware.ts              # Clerk middleware (protection /admin)
+│   └── proxy.ts                   # Proxy Clerk (protection /admin) — Next.js 16
 ├── .env.example                    # Template variables d'environnement
 ├── package.json
 └── tsconfig.json
@@ -326,7 +326,7 @@ parcellaire/
 
 - **Admin** : Authentification Clerk (OAuth, MFA possible)
 - **Collecteur** : JWT signé en cookie HTTP-Only, SameSite=Lax, Secure en prod
-- **Middleware** : Toutes les routes `/admin/*` protégées côté serveur
+- **Proxy (proxy.ts)** : Toutes les routes `/admin/*` protégées côté serveur avant le rendu
 - **Validation** : Schémas Zod côté serveur pour toutes les entrées API
 - **QR Public** : Aucune donnée personnelle exposée (ni noms ni téléphones des résidents)
 
@@ -339,6 +339,51 @@ L'application est installable sur smartphone :
 2. Menu → "Ajouter à l'écran d'accueil"
 3. L'app fonctionne comme une application native
 4. Cache hors-ligne pour les pages déjà visitées
+
+---
+
+## 🔀 Migration `middleware.ts` → `proxy.ts` (Next.js 16)
+
+À partir de Next.js 16, le fichier `middleware.ts` est **déprécié** et remplacé par `proxy.ts`. Ce projet utilise déjà le nouveau format.
+
+### Pourquoi ce changement ?
+
+Le terme « Proxy » reflète mieux la nature de ce code : il s'exécute à la **bordure réseau** (Edge Runtime), en amont de l'application, et agit comme un proxy réseau capable de réécrire, rediriger ou modifier les requêtes avant qu'elles n'atteignent les routes.
+
+### Ce qui change concrètement
+
+| Avant (Next.js ≤ 15) | Après (Next.js 16+) |
+|----------------------|---------------------|
+| `src/middleware.ts` | `src/proxy.ts` |
+| Export par défaut | Export par défaut (inchangé avec Clerk) |
+| Edge Runtime | Edge Runtime (inchangé) |
+
+### Notre fichier `src/proxy.ts`
+
+```typescript
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isAdminRoute(req)) {
+    await auth.protect();
+  }
+});
+
+export const config = {
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
+};
+```
+
+### Références
+
+- [Next.js — Getting Started: Proxy](https://nextjs.org/docs/app/getting-started/proxy)
+- [Next.js — Migration middleware → proxy](https://nextjs.org/docs/messages/middleware-to-proxy)
+- [Clerk — Quickstart Next.js 16 (proxy.ts)](https://clerk.com/docs/nextjs/getting-started/quickstart)
 
 ---
 
