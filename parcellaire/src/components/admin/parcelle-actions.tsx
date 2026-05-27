@@ -27,7 +27,7 @@ export function ParcelleActions({ parcelleId }: { parcelleId: string }) {
 
       toast.success(
         action === "valide"
-          ? "Parcelle validée ! Plaque en génération..."
+          ? "Parcelle validée ! Plaque en cours de génération..."
           : "Parcelle rejetée."
       );
       router.refresh();
@@ -39,31 +39,31 @@ export function ParcelleActions({ parcelleId }: { parcelleId: string }) {
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="flex items-center gap-2">
       <Button
         size="sm"
-        className="bg-green-600 hover:bg-green-700"
+        className="h-8 px-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white text-xs font-medium shadow-sm shadow-emerald-500/20"
         onClick={() => handleAction("valide")}
         disabled={loading !== null}
       >
         {loading === "valide" ? (
-          <Loader2 className="w-4 h-4 animate-spin mr-1" />
+          <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
         ) : (
-          <CheckCircle className="w-4 h-4 mr-1" />
+          <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
         )}
         Valider
       </Button>
       <Button
         size="sm"
         variant="outline"
-        className="text-red-600 border-red-200 hover:bg-red-50"
+        className="h-8 px-3 text-xs font-medium text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
         onClick={() => handleAction("rejete")}
         disabled={loading !== null}
       >
         {loading === "rejete" ? (
-          <Loader2 className="w-4 h-4 animate-spin mr-1" />
+          <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
         ) : (
-          <XCircle className="w-4 h-4 mr-1" />
+          <XCircle className="w-3.5 h-3.5 mr-1.5" />
         )}
         Rejeter
       </Button>

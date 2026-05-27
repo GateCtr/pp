@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, UserPlus } from "lucide-react";
+import { Loader2, UserPlus, Shuffle } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -41,7 +41,7 @@ export function AddCollectorForm() {
         return;
       }
 
-      toast.success("Agent collecteur ajouté !");
+      toast.success("Agent collecteur ajouté avec succès !");
       setNom("");
       setTelephone("");
       setCodeAcces("");
@@ -59,52 +59,71 @@ export function AddCollectorForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base flex items-center gap-2">
-          <UserPlus className="w-4 h-4" />
-          Ajouter un Agent
+    <Card className="border-0 shadow-md shadow-gray-200/50 sticky top-24">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-gray-900">
+          <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
+            <UserPlus className="w-4 h-4 text-violet-600" />
+          </div>
+          Nouvel Agent
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <Label>Nom complet *</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-gray-600">
+              Nom complet <span className="text-red-400">*</span>
+            </Label>
             <Input
               value={nom}
               onChange={(e) => setNom(e.target.value)}
               placeholder="Nom de l'agent"
+              className="h-10 bg-gray-50/50"
             />
           </div>
-          <div className="space-y-1">
-            <Label>Téléphone</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-gray-600">Téléphone</Label>
             <Input
               value={telephone}
               onChange={(e) => setTelephone(e.target.value)}
-              placeholder="+243..."
+              placeholder="+243 ..."
+              className="h-10 bg-gray-50/50"
             />
           </div>
-          <div className="space-y-1">
-            <Label>Code d&apos;accès *</Label>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-gray-600">
+              Code d&apos;accès <span className="text-red-400">*</span>
+            </Label>
             <div className="flex gap-2">
               <Input
                 value={codeAcces}
-                onChange={(e) => setCodeAcces(e.target.value)}
-                placeholder="Code unique"
-                className="font-mono"
+                onChange={(e) => setCodeAcces(e.target.value.toUpperCase())}
+                placeholder="AGT-XXXXXX"
+                className="h-10 font-mono text-sm tracking-wider bg-gray-50/50"
               />
-              <Button type="button" variant="outline" size="sm" onClick={generateCode}>
-                Générer
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={generateCode}
+                className="h-10 px-3 flex-shrink-0"
+                title="Générer automatiquement"
+              >
+                <Shuffle className="w-4 h-4" />
               </Button>
             </div>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full h-10 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white text-sm font-medium shadow-md shadow-violet-500/20"
+            disabled={loading}
+          >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
             ) : (
               <UserPlus className="w-4 h-4 mr-2" />
             )}
-            Ajouter
+            Ajouter l&apos;agent
           </Button>
         </form>
       </CardContent>
