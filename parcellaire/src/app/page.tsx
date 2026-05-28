@@ -2,7 +2,11 @@ import {
   LandingHeader,
   LandingHero,
   LandingFeatures,
+  LandingStats,
   LandingHowItWorks,
+  LandingGallery,
+  LandingTestimonials,
+  LandingCTA,
   LandingFooter,
 } from "@/components/landing";
 
@@ -21,8 +25,12 @@ export default function HomePage() {
 
       <main className="relative z-10">
         <LandingHero />
+        <LandingStats />
         <LandingFeatures />
         <LandingHowItWorks />
+        <LandingGallery />
+        <LandingTestimonials />
+        <LandingCTA />
       </main>
 
       <LandingFooter />
