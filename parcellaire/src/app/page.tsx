@@ -21,7 +21,7 @@ export default function HomePage() {
               <MapPin className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-white font-bold text-lg leading-tight">Parcellaire RDC</h1>
+              <h1 className="text-white font-bold text-lg leading-tight">Lopango</h1>
               <p className="text-blue-300/70 text-xs hidden sm:block">Cartographie & Recensement</p>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default function HomePage() {
         <footer className="border-t border-white/5 mt-8">
           <div className="container mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <p className="text-blue-300/40 text-xs">
-              Système Digital de Cartographie Parcellaire — RDC
+              Lopango — Cartographie & Recensement RDC
             </p>
             <p className="text-blue-300/40 text-xs">
               Propulsé par Next.js 16 & Vercel

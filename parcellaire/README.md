@@ -1,4 +1,4 @@
-# 🇨🇩 Parcellaire RDC — Système Digital de Cartographie, Recensement et Signalétique Parcellaire
+# 🇨🇩 Lopango — Système Digital de Cartographie, Recensement et Signalétique Parcellaire
 
 > Plateforme web et mobile (PWA) intégrée pour la dématérialisation et la sécurisation de la collecte des données foncières, le recensement des ménages et l'adressage urbain en République Démocratique du Congo.
 

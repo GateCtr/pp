@@ -5,7 +5,7 @@ import { PWARegister } from "@/components/pwa-register";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Parcellaire RDC - Système de Cartographie et Recensement",
+  title: "Lopango - Système de Cartographie et Recensement RDC",
   description:
     "Plateforme digitale de cartographie, recensement et signalétique parcellaire - République Démocratique du Congo",
   manifest: "/manifest.json",

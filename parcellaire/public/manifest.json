@@ -1,6 +1,6 @@
 {
-  "name": "Parcellaire RDC - Cartographie et Recensement",
-  "short_name": "Parcellaire",
+  "name": "Lopango - Cartographie et Recensement RDC",
+  "short_name": "Lopango",
   "description": "Système Digital de Cartographie, Recensement et Signalétique Parcellaire",
   "start_url": "/collecteur",
   "display": "standalone",

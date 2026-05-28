@@ -60,7 +60,7 @@ export default async function AdminDashboard() {
       {/* Welcome */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900">Tableau de Bord</h2>
-        <p className="text-gray-500 text-sm mt-1">Vue d&apos;ensemble du système de cartographie parcellaire</p>
+        <p className="text-gray-500 text-sm mt-1">Vue d&apos;ensemble du système Lopango</p>
       </div>
 
       {/* Stats Grid */}

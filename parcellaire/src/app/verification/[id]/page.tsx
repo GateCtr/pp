@@ -121,7 +121,7 @@ export default async function VerificationPage({
                   <MapPin className="w-2.5 h-2.5 text-white" />
                 </div>
                 <span className="text-[10px] text-gray-500 font-medium">
-                  Système Digital de Cartographie Parcellaire — RDC
+                  Lopango — Cartographie & Recensement RDC
                 </span>
               </div>
             </div>

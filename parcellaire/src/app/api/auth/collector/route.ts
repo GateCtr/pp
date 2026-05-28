@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import { SignJWT } from "jose";
 
 const SECRET = new TextEncoder().encode(
-  process.env.COLLECTOR_JWT_SECRET || "parcellaire-collector-secret-key-2024"
+  process.env.COLLECTOR_JWT_SECRET || "lopango-collector-secret-key-2024"
 );
 
 export async function POST(request: NextRequest) {

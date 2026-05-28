@@ -69,7 +69,7 @@ export default function CollectorLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 shadow-xl shadow-blue-500/25 mb-4">
             <MapPin className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-white font-bold text-xl">Parcellaire RDC</h1>
+          <h1 className="text-white font-bold text-xl">Lopango</h1>
           <p className="text-blue-300/60 text-sm mt-1">Portail Agent Collecteur</p>
         </div>
 

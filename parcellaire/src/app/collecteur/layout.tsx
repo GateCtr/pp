@@ -24,7 +24,7 @@ export default async function CollecteurLayout({
               <MapPin className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="font-semibold text-gray-900 text-sm">Parcellaire</span>
+              <span className="font-semibold text-gray-900 text-sm">Lopango</span>
               <span className="text-gray-400 text-xs ml-2 hidden sm:inline">Collecte terrain</span>
             </div>
           </div>
