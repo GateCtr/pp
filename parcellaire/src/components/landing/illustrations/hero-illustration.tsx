@@ -10,11 +10,9 @@ export function HeroIllustration() {
         <div className="absolute inset-2 rounded-[2rem] bg-gradient-to-b from-blue-950 to-indigo-950 overflow-hidden">
           {/* App header */}
           <div className="px-4 pt-10 pb-3 flex items-center gap-2 border-b border-white/10">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+            <div className="w-7 h-7 rounded-lg overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/favicon-96x96.png" alt="Lopango" className="w-full h-full object-contain" />
             </div>
             <span className="text-white text-xs font-semibold">Lopango</span>
           </div>

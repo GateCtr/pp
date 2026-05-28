@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, MapPin, Shield, QrCode } from "lucide-react";
+import Image from "next/image";
 
 export const dynamic = "force-dynamic";
 
@@ -117,9 +118,7 @@ export default async function VerificationPage({
             {/* Footer */}
             <div className="pt-3 border-t border-gray-100 text-center">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 border border-gray-100">
-                <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded flex items-center justify-center">
-                  <MapPin className="w-2.5 h-2.5 text-white" />
-                </div>
+                <Image src="/favicon-96x96.png" alt="Lopango" width={16} height={16} className="w-4 h-4 rounded" />
                 <span className="text-[10px] text-gray-500 font-medium">
                   Lopango — Cartographie & Recensement RDC
                 </span>

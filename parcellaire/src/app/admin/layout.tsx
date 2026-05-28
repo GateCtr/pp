@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  MapPin,
   LayoutDashboard,
   Users,
   FileText,
@@ -13,6 +12,7 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 const navItems = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
@@ -47,9 +47,7 @@ export default function AdminLayout({
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100">
           <Link href="/admin" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-              <MapPin className="w-4 h-4 text-white" />
-            </div>
+            <Logo size="sm" />
             <div>
               <span className="font-bold text-gray-900 text-sm">Lopango</span>
               <span className="text-gray-400 text-[10px] block -mt-0.5">Administration</span>

@@ -1,6 +1,7 @@
 import { getCollectorSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { MapPin, LogOut, Menu } from "lucide-react";
+import { LogOut } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
 
 export default async function CollecteurLayout({
@@ -20,9 +21,7 @@ export default async function CollecteurLayout({
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-white" />
-            </div>
+            <Logo size="sm" />
             <div>
               <span className="font-semibold text-gray-900 text-sm">Lopango</span>
               <span className="text-gray-400 text-xs ml-2 hidden sm:inline">Collecte terrain</span>

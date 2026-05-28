@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Loader2, ArrowLeft, KeyRound } from "lucide-react";
+import { Loader2, ArrowLeft, KeyRound } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -66,8 +67,8 @@ export default function CollectorLoginPage() {
       <div className="w-full max-w-sm relative z-10 animate-scale-in">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-500 shadow-xl shadow-blue-500/25 mb-4">
-            <MapPin className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-4">
+            <Logo size="xl" className="shadow-xl shadow-blue-500/25" />
           </div>
           <h1 className="text-white font-bold text-xl">Lopango</h1>
           <p className="text-blue-300/60 text-sm mt-1">Portail Agent Collecteur</p>
