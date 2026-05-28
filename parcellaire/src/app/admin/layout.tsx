@@ -51,7 +51,7 @@ export default function AdminLayout({
               <MapPin className="w-4 h-4 text-white" />
             </div>
             <div>
-              <span className="font-bold text-gray-900 text-sm">Parcellaire</span>
+              <span className="font-bold text-gray-900 text-sm">Lopango</span>
               <span className="text-gray-400 text-[10px] block -mt-0.5">Administration</span>
             </div>
           </Link>
