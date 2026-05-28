@@ -1,4 +1,4 @@
-import { MapPin } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 
 export function LandingFooter() {
   return (
@@ -7,9 +7,7 @@ export function LandingFooter() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-lg flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-white" />
-            </div>
+            <Logo size="sm" />
             <div>
               <p className="text-white font-semibold text-sm">Lopango</p>
               <p className="text-blue-300/50 text-xs">
