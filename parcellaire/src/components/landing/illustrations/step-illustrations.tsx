@@ -67,74 +67,72 @@ export function StepPlaqueIllustration() {
   return (
     <div className="flex items-center justify-center py-4">
       <svg viewBox="0 0 340 220" fill="none" className="w-full max-w-[340px]">
-        {/* Plaque - outer border (white frame) */}
-        <rect x="20" y="10" width="260" height="140" rx="10" fill="white" />
-        {/* Plaque - inner blue background */}
-        <rect x="26" y="16" width="248" height="128" rx="7" fill="#1e3a8a" />
+        {/* ===== PLAQUE: fidèle au modèle officiel ===== */}
+        {/* Outer white frame */}
+        <rect x="20" y="10" width="260" height="130" rx="10" fill="white" />
+        {/* Inner blue plate */}
+        <rect x="26" y="16" width="248" height="118" rx="7" fill="#1a3a7a" />
 
-        {/* DRC Flag (simplified) */}
-        <rect x="36" y="24" width="36" height="24" rx="2" fill="#007FFF" />
-        <line x1="36" y1="24" x2="72" y2="48" stroke="#CE1021" strokeWidth="4" />
-        <polygon points="44,30 46,34 50,34 47,37 48,41 44,38 40,41 41,37 38,34 42,34" fill="#F7D618" />
+        {/* DRC Flag */}
+        <rect x="34" y="22" width="34" height="22" rx="2" fill="#007FFF" />
+        <line x1="34" y1="22" x2="68" y2="44" stroke="#CE1021" strokeWidth="3.5" />
+        <polygon points="42,27 44,31 48,31 45,34 46,38 42,35.5 38,38 39,34 36,31 40,31" fill="#F7D618" />
 
-        {/* COMMUNE DE text */}
-        <text x="150" y="30" textAnchor="middle" fill="#93c5fd" fontSize="6" fontWeight="normal">COMMUNE DE</text>
+        {/* COMMUNE DE */}
+        <text x="150" y="28" textAnchor="middle" fill="#a3c4f7" fontSize="5.5">COMMUNE DE</text>
         {/* Commune name */}
-        <text x="150" y="42" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">NGIRI NGIRI</text>
+        <text x="150" y="40" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">NGIRI NGIRI</text>
 
-        {/* City seal (simplified circle) */}
-        <circle cx="244" cy="36" r="14" fill="none" stroke="white" strokeWidth="1" opacity="0.7" />
-        <circle cx="244" cy="36" r="10" fill="none" stroke="white" strokeWidth="0.5" opacity="0.5" />
-        <circle cx="244" cy="36" r="3" fill="white" opacity="0.5" />
+        {/* Seal */}
+        <circle cx="246" cy="33" r="11" fill="none" stroke="white" strokeWidth="0.8" opacity="0.6" />
+        <circle cx="246" cy="33" r="7" fill="none" stroke="white" strokeWidth="0.4" opacity="0.4" />
 
         {/* QUARTIER */}
-        <text x="150" y="58" textAnchor="middle" fill="#60a5fa" fontSize="7" fontWeight="medium">QUARTIER ELENGESA</text>
+        <text x="150" y="55" textAnchor="middle" fill="#7db8f9" fontSize="7" fontWeight="bold">QUARTIER ELENGESA</text>
 
-        {/* Divider line */}
-        <line x1="40" y1="64" x2="220" y2="64" stroke="#3b82f6" strokeWidth="0.5" opacity="0.4" />
+        {/* White band for avenue */}
+        <rect x="32" y="60" width="236" height="24" rx="3" fill="#e8edf5" />
+        <text x="150" y="76" textAnchor="middle" fill="#1a3a7a" fontSize="11" fontWeight="bold">AVENUE ELENGESA</text>
 
-        {/* AVENUE (main street name - large) */}
-        <text x="140" y="84" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">AVENUE ELENGESA</text>
+        {/* N° (large, blue) */}
+        <text x="110" y="115" textAnchor="middle" fill="#4da3ff" fontSize="24" fontWeight="bold">N° 6</text>
 
-        {/* N° (house number - largest) */}
-        <text x="120" y="120" textAnchor="middle" fill="white" fontSize="26" fontWeight="bold">N° 6</text>
+        {/* QR Code */}
+        <rect x="218" y="90" width="38" height="38" rx="3" fill="white" />
+        {/* QR corners */}
+        <rect x="222" y="94" width="8" height="8" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+        <rect x="224" y="96" width="4" height="4" fill="#1e293b" />
+        <rect x="244" y="94" width="8" height="8" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+        <rect x="246" y="96" width="4" height="4" fill="#1e293b" />
+        <rect x="222" y="116" width="8" height="8" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+        <rect x="224" y="118" width="4" height="4" fill="#1e293b" />
+        {/* QR data */}
+        <rect x="234" y="106" width="3" height="3" fill="#1e293b" />
+        <rect x="239" y="106" width="3" height="3" fill="#1e293b" />
+        <rect x="244" y="106" width="3" height="3" fill="#1e293b" />
+        <rect x="234" y="111" width="3" height="3" fill="#1e293b" />
+        <rect x="244" y="111" width="3" height="3" fill="#1e293b" />
+        <rect x="234" y="116" width="3" height="3" fill="#1e293b" />
+        <rect x="239" y="118" width="3" height="3" fill="#1e293b" />
+        <rect x="246" y="116" width="3" height="3" fill="#1e293b" />
+        <rect x="250" y="118" width="3" height="3" fill="#1e293b" />
 
-        {/* QR Code (bottom right) */}
-        <rect x="218" y="92" width="40" height="40" rx="3" fill="white" />
-        {/* QR pattern */}
-        <rect x="222" y="96" width="8" height="8" fill="#1e293b" />
-        <rect x="232" y="96" width="4" height="4" fill="#1e293b" />
-        <rect x="238" y="96" width="4" height="4" fill="#1e293b" />
-        <rect x="246" y="96" width="8" height="8" fill="#1e293b" />
-        <rect x="222" y="106" width="4" height="4" fill="#1e293b" />
-        <rect x="228" y="106" width="4" height="4" fill="#1e293b" />
-        <rect x="238" y="106" width="4" height="4" fill="#1e293b" />
-        <rect x="246" y="106" width="4" height="4" fill="#1e293b" />
-        <rect x="222" y="112" width="8" height="8" fill="#1e293b" />
-        <rect x="234" y="112" width="4" height="4" fill="#1e293b" />
-        <rect x="240" y="112" width="4" height="4" fill="#1e293b" />
-        <rect x="246" y="112" width="8" height="8" fill="#1e293b" />
-        <rect x="222" y="122" width="4" height="4" fill="#1e293b" />
-        <rect x="232" y="122" width="4" height="4" fill="#1e293b" />
-        <rect x="244" y="122" width="4" height="4" fill="#1e293b" />
-        <rect x="250" y="122" width="4" height="4" fill="#1e293b" />
-
-        {/* Phone scanning the QR code */}
-        <rect x="200" y="160" width="52" height="52" rx="10" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
-        <rect x="205" y="166" width="42" height="40" rx="6" fill="#0f172a" />
-        {/* Camera viewfinder corners */}
-        <path d="M212 172 L212 176 L216 176" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        <path d="M240 172 L240 176 L236 176" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        <path d="M212 200 L212 196 L216 196" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        <path d="M240 200 L240 196 L236 196" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        {/* Scan line animated */}
-        <line x1="214" y1="186" x2="238" y2="186" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" opacity="0.8">
-          <animate attributeName="y1" values="174;198;174" dur="2s" repeatCount="indefinite" />
-          <animate attributeName="y2" values="174;198;174" dur="2s" repeatCount="indefinite" />
+        {/* ===== Phone scanning ===== */}
+        <rect x="200" y="155" width="52" height="55" rx="10" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
+        <rect x="205" y="161" width="42" height="43" rx="6" fill="#0f172a" />
+        {/* Camera viewfinder */}
+        <path d="M212 167 L212 171 L216 171" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        <path d="M240 167 L240 171 L236 171" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        <path d="M212 198 L212 194 L216 194" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        <path d="M240 198 L240 194 L236 194" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        {/* Scan line */}
+        <line x1="214" y1="182" x2="238" y2="182" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" opacity="0.8">
+          <animate attributeName="y1" values="169;196;169" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="y2" values="169;196;169" dur="2s" repeatCount="indefinite" />
         </line>
 
-        {/* Arrow from QR to phone */}
-        <path d="M242 136 C248 148, 230 155, 226 160" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 2" fill="none" opacity="0.6" />
+        {/* Arrow QR → phone */}
+        <path d="M240 132 C248 145, 232 152, 228 155" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 2" fill="none" opacity="0.6" />
 
         {/* Checkmark badge */}
         <circle cx="56" cy="170" r="18" fill="#10b98120" stroke="#10b981" strokeWidth="1.5" />

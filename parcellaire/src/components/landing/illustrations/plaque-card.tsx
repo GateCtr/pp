@@ -7,71 +7,76 @@ interface PlaqueCardProps {
 
 export function PlaqueCard({ commune, quartier, avenue, numero }: PlaqueCardProps) {
   return (
-    <svg viewBox="0 0 320 160" fill="none" className="w-full">
-      {/* Outer white frame */}
-      <rect x="4" y="4" width="312" height="152" rx="10" fill="white" />
-      {/* Inner blue background */}
-      <rect x="10" y="10" width="300" height="140" rx="7" fill="#1e3a8a" />
+    <svg viewBox="0 0 360 200" fill="none" className="w-full">
+      {/* ===== Outer white rounded frame ===== */}
+      <rect x="4" y="4" width="352" height="192" rx="12" fill="white" />
+      {/* ===== Inner blue plate ===== */}
+      <rect x="12" y="12" width="336" height="176" rx="8" fill="#1a3a7a" />
 
-      {/* DRC Flag (simplified) */}
-      <rect x="20" y="18" width="34" height="22" rx="2" fill="#007FFF" />
-      <line x1="20" y1="18" x2="54" y2="40" stroke="#CE1021" strokeWidth="3.5" />
+      {/* ===== TOP SECTION: Commune header ===== */}
+      {/* DRC Flag */}
+      <rect x="24" y="22" width="44" height="30" rx="3" fill="#007FFF" />
+      {/* Diagonal red stripe */}
+      <line x1="24" y1="22" x2="68" y2="52" stroke="#CE1021" strokeWidth="5" />
+      {/* Yellow star */}
       <polygon
-        points="28,23 30,27 34,27 31,29 32,33 28,30 24,33 25,29 22,27 26,27"
+        points="34,28 36.5,34 43,34 38,37.5 39.5,44 34,40.5 28.5,44 30,37.5 25,34 31.5,34"
         fill="#F7D618"
       />
 
-      {/* COMMUNE DE */}
-      <text x="160" y="24" textAnchor="middle" fill="#93c5fd" fontSize="7">
+      {/* COMMUNE DE label */}
+      <text x="180" y="30" textAnchor="middle" fill="#a3c4f7" fontSize="8" fontFamily="sans-serif">
         COMMUNE DE
       </text>
-      {/* Commune name */}
-      <text x="160" y="37" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">
+      {/* Commune name (large) */}
+      <text x="180" y="48" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold" fontFamily="sans-serif">
         {commune}
       </text>
 
-      {/* City seal */}
-      <circle cx="282" cy="30" r="13" fill="none" stroke="white" strokeWidth="0.8" opacity="0.6" />
-      <circle cx="282" cy="30" r="9" fill="none" stroke="white" strokeWidth="0.4" opacity="0.4" />
-      <circle cx="282" cy="30" r="3" fill="white" opacity="0.4" />
+      {/* City/commune seal (top right) */}
+      <circle cx="318" cy="38" r="16" fill="none" stroke="white" strokeWidth="1.2" opacity="0.7" />
+      <circle cx="318" cy="38" r="11" fill="none" stroke="white" strokeWidth="0.6" opacity="0.5" />
+      <text x="318" y="42" textAnchor="middle" fill="white" fontSize="4" opacity="0.5">SCEAU</text>
 
-      {/* QUARTIER */}
-      <text x="160" y="55" textAnchor="middle" fill="#60a5fa" fontSize="8">
+      {/* QUARTIER line (blue lighter text) */}
+      <text x="180" y="70" textAnchor="middle" fill="#7db8f9" fontSize="10" fontWeight="bold" fontFamily="sans-serif">
         QUARTIER {quartier}
       </text>
 
-      {/* Divider */}
-      <line x1="30" y1="62" x2="240" y2="62" stroke="#3b82f6" strokeWidth="0.4" opacity="0.4" />
-
-      {/* AVENUE */}
-      <text x="150" y="85" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">
+      {/* ===== MIDDLE SECTION: Avenue (white background band) ===== */}
+      <rect x="22" y="80" width="316" height="36" rx="4" fill="#e8edf5" />
+      <text x="180" y="104" textAnchor="middle" fill="#1a3a7a" fontSize="16" fontWeight="bold" fontFamily="sans-serif">
         {avenue}
       </text>
 
-      {/* N° */}
-      <text x="120" y="125" textAnchor="middle" fill="white" fontSize="30" fontWeight="bold">
+      {/* ===== BOTTOM SECTION: Numéro + QR Code ===== */}
+      {/* Numéro (large, blue text) */}
+      <text x="140" y="160" textAnchor="middle" fill="#4da3ff" fontSize="36" fontWeight="bold" fontFamily="sans-serif">
         N° {numero}
       </text>
 
-      {/* QR Code */}
-      <rect x="248" y="90" width="44" height="44" rx="4" fill="white" />
-      {/* QR pattern */}
-      <rect x="253" y="95" width="8" height="8" fill="#1e293b" />
-      <rect x="263" y="95" width="4" height="4" fill="#1e293b" />
-      <rect x="269" y="95" width="4" height="4" fill="#1e293b" />
-      <rect x="279" y="95" width="8" height="8" fill="#1e293b" />
-      <rect x="253" y="105" width="4" height="4" fill="#1e293b" />
-      <rect x="259" y="107" width="4" height="4" fill="#1e293b" />
-      <rect x="269" y="105" width="4" height="4" fill="#1e293b" />
-      <rect x="279" y="105" width="4" height="4" fill="#1e293b" />
-      <rect x="253" y="113" width="8" height="8" fill="#1e293b" />
-      <rect x="265" y="113" width="4" height="4" fill="#1e293b" />
-      <rect x="271" y="115" width="4" height="4" fill="#1e293b" />
-      <rect x="279" y="113" width="8" height="8" fill="#1e293b" />
-      <rect x="255" y="123" width="4" height="4" fill="#1e293b" />
-      <rect x="265" y="123" width="4" height="4" fill="#1e293b" />
-      <rect x="275" y="123" width="4" height="4" fill="#1e293b" />
-      <rect x="283" y="123" width="4" height="4" fill="#1e293b" />
+      {/* QR Code (bottom right, white background) */}
+      <rect x="278" y="124" width="52" height="52" rx="4" fill="white" />
+      {/* QR corner markers */}
+      <rect x="284" y="130" width="12" height="12" rx="1" fill="none" stroke="#1e293b" strokeWidth="2" />
+      <rect x="287" y="133" width="6" height="6" fill="#1e293b" />
+      <rect x="312" y="130" width="12" height="12" rx="1" fill="none" stroke="#1e293b" strokeWidth="2" />
+      <rect x="315" y="133" width="6" height="6" fill="#1e293b" />
+      <rect x="284" y="158" width="12" height="12" rx="1" fill="none" stroke="#1e293b" strokeWidth="2" />
+      <rect x="287" y="161" width="6" height="6" fill="#1e293b" />
+      {/* QR data pattern */}
+      <rect x="300" y="145" width="4" height="4" fill="#1e293b" />
+      <rect x="306" y="145" width="4" height="4" fill="#1e293b" />
+      <rect x="312" y="145" width="4" height="4" fill="#1e293b" />
+      <rect x="300" y="151" width="4" height="4" fill="#1e293b" />
+      <rect x="308" y="153" width="4" height="4" fill="#1e293b" />
+      <rect x="300" y="158" width="4" height="4" fill="#1e293b" />
+      <rect x="306" y="160" width="4" height="4" fill="#1e293b" />
+      <rect x="314" y="158" width="4" height="4" fill="#1e293b" />
+      <rect x="320" y="160" width="4" height="4" fill="#1e293b" />
+      <rect x="300" y="166" width="4" height="4" fill="#1e293b" />
+      <rect x="312" y="166" width="4" height="4" fill="#1e293b" />
+      <rect x="320" y="166" width="4" height="4" fill="#1e293b" />
     </svg>
   );
 }
