@@ -33,6 +33,9 @@ import {
   XCircle,
   Plus,
   Trash2,
+  QrCode,
+  RefreshCw,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Parcelle, Menage, AgentCollecteur } from "@/db/schema";
@@ -97,6 +100,7 @@ export function ParcelleDetailClient({
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [validating, setValidating] = useState<"valide" | "rejete" | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
 
   const status = statusConfig[parcelle.statutValidation];
 
@@ -196,6 +200,31 @@ export function ParcelleDetailClient({
   function handleCancel() {
     reset();
     setIsEditing(false);
+  }
+
+  async function handleRegeneratePlate() {
+    if (!window.confirm("Régénérer la plaque (duplicata) ? L'ancienne plaque sera remplacée.")) {
+      return;
+    }
+    setRegenerating(true);
+    try {
+      const res = await fetch(`/api/parcelles/${parcelle.id}/regenerate-plate`, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "Erreur lors de la régénération");
+        return;
+      }
+
+      toast.success("Plaque régénérée avec succès (duplicata) !");
+      router.refresh();
+    } catch {
+      toast.error("Erreur de connexion au serveur");
+    } finally {
+      setRegenerating(false);
+    }
   }
 
   // ============ VIEW MODE ============
@@ -412,6 +441,84 @@ export function ParcelleDetailClient({
           </Card>
         </div>
 
+
+        {/* Plaque & QR Code */}
+        {parcelle.statutValidation === "valide" && (
+          <Card className="border-0 shadow-md shadow-gray-200/50 mt-6">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <QrCode className="w-4.5 h-4.5 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold">Plaque & QR Code</CardTitle>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 px-3 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                  onClick={handleRegeneratePlate}
+                  disabled={regenerating}
+                >
+                  {regenerating ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  Régénérer (duplicata)
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col sm:flex-row items-start gap-4">
+                {parcelle.plaqueImageUrl && (
+                  <div className="flex-1">
+                    <p className="text-xs font-medium text-gray-600 mb-2">Plaque parcellaire</p>
+                    <div className="rounded-xl border border-gray-200 overflow-hidden bg-gray-50 p-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={parcelle.plaqueImageUrl}
+                        alt="Plaque parcellaire"
+                        className="w-full max-w-md rounded-lg"
+                      />
+                    </div>
+                    <a
+                      href={parcelle.plaqueImageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      Ouvrir en plein écran
+                    </a>
+                  </div>
+                )}
+                {parcelle.qrCodeUrl && (
+                  <div className="flex-shrink-0">
+                    <p className="text-xs font-medium text-gray-600 mb-2">QR Code de vérification</p>
+                    <div className="rounded-xl border border-gray-200 bg-white p-3 inline-block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={parcelle.qrCodeUrl}
+                        alt="QR Code"
+                        className="w-28 h-28"
+                      />
+                    </div>
+                  </div>
+                )}
+                {!parcelle.plaqueImageUrl && !parcelle.qrCodeUrl && (
+                  <div className="text-center py-6 w-full">
+                    <QrCode className="w-10 h-10 text-gray-200 mx-auto mb-2" />
+                    <p className="text-sm text-gray-400">Aucune plaque générée</p>
+                    <p className="text-xs text-gray-300 mt-1">
+                      Cliquez &quot;Régénérer&quot; pour créer la plaque
+                    </p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Audit Info */}
         <Card className="border-0 shadow-md shadow-gray-200/50 mt-6">
