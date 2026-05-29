@@ -32,18 +32,38 @@ export function ExportPdfButton({ parcelles, filterLabel }: ExportPdfButtonProps
       const headerBlue = "#1a3a7a";
       const lightBlue = "#e8f0fe";
 
-      // === HEADER ===
-      doc.setFillColor(headerBlue);
-      doc.rect(0, 0, pageWidth, 22, "F");
+      // === Load logo ===
+      let logoLoaded = false;
+      try {
+        const logoImg = new Image();
+        logoImg.crossOrigin = "anonymous";
+        await new Promise<void>((resolve, reject) => {
+          logoImg.onload = () => resolve();
+          logoImg.onerror = () => reject();
+          logoImg.src = "/favicon-96x96.png";
+        });
+        // Add logo to header area
+        doc.setFillColor(headerBlue);
+        doc.rect(0, 0, pageWidth, 22, "F");
+        doc.addImage(logoImg, "PNG", 10, 3, 16, 16);
+        logoLoaded = true;
+      } catch {
+        // Fallback: just draw the header without logo
+        doc.setFillColor(headerBlue);
+        doc.rect(0, 0, pageWidth, 22, "F");
+      }
+
+      // === HEADER TEXT ===
+      const textOffsetX = logoLoaded ? 30 : 14;
 
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text("LOPANGO", 14, 12);
+      doc.text("LOPANGO", textOffsetX, 12);
 
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.text("Système de Cartographie & Recensement — RDC", 14, 18);
+      doc.text("Système de Cartographie & Recensement — RDC", textOffsetX, 18);
 
       // === Filter info ===
       doc.setTextColor(0, 0, 0);

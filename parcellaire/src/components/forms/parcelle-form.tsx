@@ -92,7 +92,15 @@ export function ParcelleForm() {
       setSubmitted(true);
       toast.success("Parcelle enregistrée avec succès !");
     } catch {
-      toast.error("Erreur de connexion au serveur");
+      // Offline: save locally
+      try {
+        const { saveOfflineParcelle } = await import("@/lib/offline-storage");
+        await saveOfflineParcelle(data as unknown as Record<string, unknown>);
+        setSubmitted(true);
+        toast.success("Sauvegardé hors-ligne ! Sera synchronisé dès le retour de la connexion.");
+      } catch {
+        toast.error("Erreur de connexion au serveur");
+      }
     } finally {
       setLoading(false);
     }
