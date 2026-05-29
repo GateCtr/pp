@@ -73,32 +73,19 @@ export function StepPlaqueIllustration() {
         {/* Inner blue plate */}
         <rect x="26" y="16" width="248" height="118" rx="7" fill="#1a3a7a" />
 
-        {/* DRC Flag - using real image */}
-        <image
-          href="/drc.jpg"
-          x="34"
-          y="22"
-          width="34"
-          height="22"
-          rx="2"
-          clipPath="inset(0% round 2)"
-        />
+        {/* DRC Flag */}
+        <rect x="34" y="22" width="34" height="22" rx="2" fill="#007FFF" />
+        <line x1="34" y1="22" x2="68" y2="44" stroke="#CE1021" strokeWidth="3.5" />
+        <polygon points="42,27 44,31 48,31 45,34 46,38 42,35.5 38,38 39,34 36,31 40,31" fill="#F7D618" />
 
         {/* COMMUNE DE */}
         <text x="150" y="28" textAnchor="middle" fill="#a3c4f7" fontSize="5.5">COMMUNE DE</text>
         {/* Commune name */}
         <text x="150" y="40" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">NGIRI NGIRI</text>
 
-        {/* City/commune seal (top right) - using real image in circular frame */}
-        <circle cx="246" cy="33" r="11" fill="white" />
-        <image
-          href="/city.jpg"
-          x="235"
-          y="22"
-          width="22"
-          height="22"
-          clipPath="circle(11 11 11)"
-        />
+        {/* Seal */}
+        <circle cx="246" cy="33" r="11" fill="none" stroke="white" strokeWidth="0.8" opacity="0.6" />
+        <circle cx="246" cy="33" r="7" fill="none" stroke="white" strokeWidth="0.4" opacity="0.4" />
 
         {/* QUARTIER */}
         <text x="150" y="55" textAnchor="middle" fill="#7db8f9" fontSize="7" fontWeight="bold">QUARTIER ELENGESA</text>

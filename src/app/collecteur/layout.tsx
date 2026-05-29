@@ -1,5 +1,4 @@
 import { getCollectorSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
@@ -9,15 +8,12 @@ export default async function CollecteurLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Ne pas vérifier la session pour les routes dans (auth)
-  const pathname = ""; // Next.js 14+ : utiliser usePathname() côté client ou headers() côté serveur
-  
-  // Pour l'instant, vérifions toujours la session
-  // Dans une vraie implémentation, il faudrait vérifier si on est dans une route (auth)
   const session = await getCollectorSession();
 
+  // If no session, render children without authenticated layout
+  // The proxy handles redirection — login page renders here without session
   if (!session) {
-    redirect("/collecteur/(auth)/login");
+    return <>{children}</>;
   }
 
   return (

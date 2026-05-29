@@ -1,63 +1,94 @@
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const COLLECTOR_JWT_SECRET = process.env.COLLECTOR_JWT_SECRET || "parcellaire-collector-secret-key-2024";
-const SECRET = new TextEncoder().encode(COLLECTOR_JWT_SECRET);
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+
+// Collecteur protected routes (NOT login page)
+const isCollecteurProtectedRoute = createRouteMatcher([
+  "/collecteur",
+  "/collecteur/nouvelle",
+  "/collecteur/editer(.*)",
+]);
+
+// Public routes that should NEVER be blocked
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/collecteur/login",
+  "/verification(.*)",
+  "/api/auth/collector",
+  "/api/auth/collector/logout",
+]);
+
+const COLLECTOR_SECRET = new TextEncoder().encode(
+  process.env.COLLECTOR_JWT_SECRET || "lopango-collector-secret-key-2024"
+);
 
 /**
- * Next.js 16 Proxy (anciennement "middleware.ts")
+ * Next.js 16 Proxy (proxy.ts)
  *
- * Le fichier proxy.ts remplace middleware.ts à partir de Next.js 16.
- * Il s'exécute à la bordure réseau (Edge Runtime) avant chaque requête.
- *
- * @see https://nextjs.org/docs/app/getting-started/proxy
+ * Protection des routes :
+ * - /admin/* → Auth Clerk (administrateurs)
+ * - /collecteur/* (sauf login) → JWT cookie (agents collecteurs)
+ * - /verification/* → Public (scan QR Code)
+ * - /collecteur/login → Public (page de connexion)
+ * - / → Public (landing page)
  */
-export default async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export default clerkMiddleware(async (auth, req) => {
+  const { pathname } = req.nextUrl;
 
-  // Routes de collecteur
-  const isCollectorRoute = pathname.startsWith('/collecteur');
-  const isCollectorLogin = pathname === '/collecteur/login';
-  const isCollectorAuthAPI = pathname.startsWith('/api/auth/collector');
-  const isCollectorLogout = pathname === '/api/auth/collector/logout';
+  // Inject pathname in headers for layout detection
+  const response = NextResponse.next();
+  response.headers.set("x-pathname", pathname);
 
-  // Pour les routes de collecteur (sauf login et API auth)
-  if (isCollectorRoute && !isCollectorLogin && !isCollectorAuthAPI) {
-    // Vérifier le cookie collector-session
-    const sessionCookie = request.cookies.get('collector-session');
-    
-    if (!sessionCookie) {
-      // Pas de session, rediriger vers login
-      const loginUrl = new URL('/collecteur/login', request.url);
+  // ===== PUBLIC ROUTES =====
+  if (isPublicRoute(req)) {
+    return response;
+  }
+
+  // ===== ADMIN ROUTES → Clerk Auth =====
+  if (isAdminRoute(req)) {
+    await auth.protect();
+    return response;
+  }
+
+  // ===== COLLECTEUR PROTECTED ROUTES → JWT Cookie =====
+  if (isCollecteurProtectedRoute(req)) {
+    const token = req.cookies.get("collector-session")?.value;
+
+    if (!token) {
+      const loginUrl = new URL("/collecteur/login", req.url);
       return NextResponse.redirect(loginUrl);
     }
 
     try {
-      // Vérifier le JWT token
-      await jwtVerify(sessionCookie.value, SECRET);
-      // Token valide, continuer
-      return NextResponse.next();
-    } catch (error) {
-      // Token invalide ou expiré, rediriger vers login
-      const loginUrl = new URL('/collecteur/login', request.url);
-      const response = NextResponse.redirect(loginUrl);
-      // Supprimer le cookie invalide
-      response.cookies.delete('collector-session');
+      await jwtVerify(token, COLLECTOR_SECRET);
       return response;
+    } catch {
+      // Token expired or invalid → redirect to login
+      const loginUrl = new URL("/collecteur/login", req.url);
+      const res = NextResponse.redirect(loginUrl);
+      // Clear the bad cookie
+      res.cookies.delete("collector-session");
+      return res;
     }
   }
 
-  // Pour la déconnexion, supprimer le cookie
-  if (isCollectorLogout) {
-    const response = NextResponse.next();
-    response.cookies.delete('collector-session');
-    return response;
+  // ===== API ROUTES (collecteur protected) =====
+  if (pathname.startsWith("/api/parcelles") && req.method === "POST" && !pathname.includes("validate") && !pathname.includes("generate-plates") && !pathname.includes("regenerate-plate")) {
+    const token = req.cookies.get("collector-session")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+    try {
+      await jwtVerify(token, COLLECTOR_SECRET);
+    } catch {
+      return NextResponse.json({ error: "Session expirée" }, { status: 401 });
+    }
   }
 
-  // Pour toutes les autres routes, continuer
-  return NextResponse.next();
-}
+  return response;
+});
 
 export const config = {
   matcher: [

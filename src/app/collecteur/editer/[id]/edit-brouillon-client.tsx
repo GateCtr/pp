@@ -27,8 +27,13 @@ import {
   Send,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { Parcelle, Menage } from "@/db/schema";
+
 
 const STEPS = [
   { label: "Localisation", icon: MapPin, color: "blue" },
@@ -38,28 +43,46 @@ const STEPS = [
   { label: "Envoi", icon: Send, color: "indigo" },
 ];
 
-export function ParcelleForm() {
+interface EditBrouillonClientProps {
+  parcelle: Parcelle;
+  menages: Menage[];
+  sessionNom: string;
+}
+
+export function EditBrouillonClient({
+  parcelle,
+  menages: initialMenages,
+  sessionNom,
+}: EditBrouillonClientProps) {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const form = useForm<ParcelleFormData>({
     defaultValues: {
-      district: "",
-      commune: "",
-      secteur: "",
-      cite: "",
-      quartier: "",
-      avenue: "",
-      numero: "",
-      proprietaireNom: "",
-      proprietaireTel: "",
-      nombreMenages: 0,
-      nombreLocataires: 0,
-      valeurLocative: "",
-      menages: [],
+      district: parcelle.district || "",
+      commune: parcelle.commune,
+      secteur: parcelle.secteur || "",
+      cite: parcelle.cite || "",
+      quartier: parcelle.quartier,
+      avenue: parcelle.avenue,
+      numero: parcelle.numero,
+      proprietaireNom: parcelle.proprietaireNom,
+      proprietaireTel: parcelle.proprietaireTel || "",
+      statutJuridique: parcelle.statutJuridique || undefined,
+      typeLogement: parcelle.typeLogement || undefined,
+      nombreMenages: parcelle.nombreMenages || 0,
+      nombreLocataires: parcelle.nombreLocataires || 0,
+      valeurLocative: parcelle.valeurLocative || "",
+      menages: initialMenages.map((m) => ({
+        nomResponsable: m.nomResponsable,
+        telephone: m.telephone || "",
+        tailleMenage: m.tailleMenage || 1,
+      })),
     },
   });
+
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -77,30 +100,25 @@ export function ParcelleForm() {
   async function onSubmit(data: ParcelleFormData) {
     setLoading(true);
     try {
-      const res = await fetch("/api/parcelles", {
-        method: "POST",
+      const res = await fetch(`/api/parcelles/${parcelle.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          data,
+          modifiePar: sessionNom,
+        }),
       });
 
       if (!res.ok) {
         const err = await res.json();
-        toast.error(err.error || "Erreur lors de l'enregistrement");
+        toast.error(err.error || "Erreur lors de la mise à jour");
         return;
       }
 
       setSubmitted(true);
-      toast.success("Parcelle enregistrée avec succès !");
+      toast.success("Brouillon mis à jour avec succès !");
     } catch {
-      // Offline: save locally
-      try {
-        const { saveOfflineParcelle } = await import("@/lib/offline-storage");
-        await saveOfflineParcelle(data as unknown as Record<string, unknown>);
-        setSubmitted(true);
-        toast.success("Sauvegardé hors-ligne ! Sera synchronisé dès le retour de la connexion.");
-      } catch {
-        toast.error("Erreur de connexion au serveur");
-      }
+      toast.error("Erreur de connexion au serveur");
     } finally {
       setLoading(false);
     }
@@ -113,31 +131,47 @@ export function ParcelleForm() {
           <CheckCircle2 className="w-10 h-10 text-white" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Collecte Enregistrée !
+          Brouillon Mis à Jour !
         </h2>
         <p className="text-gray-500 text-center mb-8 max-w-xs">
-          La fiche a été soumise en tant que brouillon en attente de validation administrative.
+          Vos modifications ont été enregistrées avec succès.
         </p>
         <Button
-          onClick={() => {
-            setSubmitted(false);
-            setStep(0);
-            form.reset();
-          }}
+          onClick={() => router.push("/collecteur")}
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20"
         >
-          <Plus className="w-4 h-4 mr-2" />
-          Nouvelle Collecte
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Retour aux brouillons
         </Button>
       </div>
     );
   }
 
+
   return (
     <div>
+      {/* Back link */}
+      <div className="mb-4">
+        <Link
+          href="/collecteur"
+          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Retour aux brouillons
+        </Link>
+      </div>
+
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Éditer le Brouillon
+        </h1>
+        <p className="text-gray-500 text-sm mt-1">
+          Modifiez les informations de la parcelle
+        </p>
+      </div>
+
       {/* Step Progress */}
       <div className="mb-6">
-        {/* Mobile: compact */}
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-medium text-gray-500">
             Étape {step + 1} sur {STEPS.length}
@@ -146,14 +180,12 @@ export function ParcelleForm() {
             {STEPS[step].label}
           </span>
         </div>
-        {/* Progress bar */}
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
           />
         </div>
-        {/* Desktop step indicators */}
         <div className="hidden sm:flex items-center justify-between mt-4">
           {STEPS.map((s, i) => (
             <button
@@ -184,6 +216,7 @@ export function ParcelleForm() {
           ))}
         </div>
       </div>
+
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Step 0: Identification */}
@@ -230,6 +263,7 @@ export function ParcelleForm() {
                   <Input {...register("cite")} className="h-11 bg-gray-50/50" />
                 </div>
               </div>
+
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-gray-600">
                   Quartier <span className="text-red-400">*</span>
@@ -274,6 +308,7 @@ export function ParcelleForm() {
             </CardContent>
           </Card>
         )}
+
 
         {/* Step 1: Proprietaire */}
         {step === 1 && (
@@ -338,6 +373,7 @@ export function ParcelleForm() {
             </CardContent>
           </Card>
         )}
+
 
         {/* Step 2: Occupation */}
         {step === 2 && (
@@ -407,6 +443,7 @@ export function ParcelleForm() {
           </Card>
         )}
 
+
         {/* Step 3: Ménages */}
         {step === 3 && (
           <Card className="border-0 shadow-lg shadow-gray-200/50 animate-fade-in">
@@ -473,6 +510,7 @@ export function ParcelleForm() {
                 </div>
               ))}
 
+
               {fields.length < 10 && (
                 <Button
                   type="button"
@@ -498,6 +536,7 @@ export function ParcelleForm() {
           </Card>
         )}
 
+
         {/* Step 4: Validation */}
         {step === 4 && (
           <Card className="border-0 shadow-lg shadow-gray-200/50 animate-fade-in">
@@ -513,7 +552,6 @@ export function ParcelleForm() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Summary */}
               <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-4 space-y-3">
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
@@ -546,19 +584,19 @@ export function ParcelleForm() {
                 </div>
               </div>
 
-              {/* Info notice */}
               <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-100">
                 <div className="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-amber-700 text-xs font-bold">!</span>
                 </div>
                 <p className="text-xs text-amber-800 leading-relaxed">
-                  La fiche sera enregistrée en <strong>brouillon</strong> et devra être validée
-                  par un administrateur avant la génération de la plaque parcellaire.
+                  Le brouillon sera mis à jour. Il restera en attente de validation
+                  par un administrateur.
                 </p>
               </div>
             </CardContent>
           </Card>
         )}
+
 
         {/* Navigation */}
         <div className="flex items-center justify-between mt-6 gap-3">
@@ -605,12 +643,12 @@ export function ParcelleForm() {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Envoi...
+                  Mise à jour...
                 </>
               ) : (
                 <>
                   <Send className="w-4 h-4 mr-2" />
-                  Soumettre
+                  Mettre à jour
                 </>
               )}
             </Button>

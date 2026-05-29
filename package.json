@@ -17,6 +17,8 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.3",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",
     "next-themes": "^0.4.6",
@@ -32,17 +34,15 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",
+    "@types/jspdf": "^2.0.0",
     "@types/node": "^25.9.1",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
-    "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.6",
-    "pg": "^8.21.0",
     "tailwindcss": "^4.3.0",
-    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }
 }

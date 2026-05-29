@@ -14,15 +14,14 @@ export function PlaqueCard({ commune, quartier, avenue, numero }: PlaqueCardProp
       <rect x="12" y="12" width="336" height="176" rx="8" fill="#1a3a7a" />
 
       {/* ===== TOP SECTION: Commune header ===== */}
-      {/* DRC Flag - using real image */}
-      <image
-        href="/drc.jpg"
-        x="24"
-        y="22"
-        width="44"
-        height="30"
-        rx="3"
-        clipPath="inset(0% round 3)"
+      {/* DRC Flag */}
+      <rect x="24" y="22" width="44" height="30" rx="3" fill="#007FFF" />
+      {/* Diagonal red stripe */}
+      <line x1="24" y1="22" x2="68" y2="52" stroke="#CE1021" strokeWidth="5" />
+      {/* Yellow star */}
+      <polygon
+        points="34,28 36.5,34 43,34 38,37.5 39.5,44 34,40.5 28.5,44 30,37.5 25,34 31.5,34"
+        fill="#F7D618"
       />
 
       {/* COMMUNE DE label */}
@@ -34,16 +33,10 @@ export function PlaqueCard({ commune, quartier, avenue, numero }: PlaqueCardProp
         {commune}
       </text>
 
-      {/* City/commune seal (top right) - using real image in circular frame */}
-      <circle cx="318" cy="38" r="16" fill="white" />
-      <image
-        href="/city.jpg"
-        x="302"
-        y="22"
-        width="32"
-        height="32"
-        clipPath="circle(16 16 16)"
-      />
+      {/* City/commune seal (top right) */}
+      <circle cx="318" cy="38" r="16" fill="none" stroke="white" strokeWidth="1.2" opacity="0.7" />
+      <circle cx="318" cy="38" r="11" fill="none" stroke="white" strokeWidth="0.6" opacity="0.5" />
+      <text x="318" y="42" textAnchor="middle" fill="white" fontSize="4" opacity="0.5">SCEAU</text>
 
       {/* QUARTIER line (blue lighter text) */}
       <text x="180" y="70" textAnchor="middle" fill="#7db8f9" fontSize="10" fontWeight="bold" fontFamily="sans-serif">

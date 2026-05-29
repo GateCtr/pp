@@ -8,6 +8,7 @@ import {
   pgEnum,
   boolean,
   numeric,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 // Enums
@@ -31,6 +32,13 @@ export const typeLogementEnum = pgEnum("type_logement", [
   "autre",
 ]);
 
+export const statutAgentEnum = pgEnum("statut_agent", [
+  "actif",
+  "suspendu",
+  "revoque",
+  "archive",
+]);
+
 // Tables
 export const agentsCollecteurs = pgTable("agents_collecteurs", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -38,7 +46,10 @@ export const agentsCollecteurs = pgTable("agents_collecteurs", {
   telephone: varchar("telephone", { length: 20 }),
   codeAcces: varchar("code_acces", { length: 50 }).notNull().unique(),
   actif: boolean("actif").default(true),
+  statut: statutAgentEnum("statut").default("actif").notNull(),
   creeLe: timestamp("cree_le").defaultNow(),
+  misAJour: timestamp("mis_a_jour").defaultNow(),
+  modifiePar: varchar("modifie_par", { length: 255 }),
 });
 
 export const parcelles = pgTable("parcelles", {
@@ -71,6 +82,27 @@ export const parcelles = pgTable("parcelles", {
   // QR / Plaque
   qrCodeUrl: text("qr_code_url"),
   plaqueImageUrl: text("plaque_image_url"),
+  templateId: uuid("template_id").references(() => plateTemplates.id),
+  variantIndex: integer("variant_index"),
+  // Audit
+  creeLe: timestamp("cree_le").defaultNow(),
+  misAJour: timestamp("mis_a_jour").defaultNow(),
+  modifiePar: varchar("modifie_par", { length: 255 }),
+  motifModification: text("motif_modification"),
+});
+
+// Plate Templates
+export const plateTemplates = pgTable("plate_templates", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  nom: varchar("nom", { length: 255 }).notNull(),
+  description: text("description"),
+  // Design config (JSON with colors, fonts, shapes per variant)
+  variants: jsonb("variants").notNull().default("[]"),
+  // Shared assets
+  flagUrl: text("flag_url"),
+  sealUrl: text("seal_url"),
+  // Status
+  actif: boolean("actif").default(true),
   creeLe: timestamp("cree_le").defaultNow(),
   misAJour: timestamp("mis_a_jour").defaultNow(),
 });
@@ -93,3 +125,16 @@ export type Parcelle = typeof parcelles.$inferSelect;
 export type NewParcelle = typeof parcelles.$inferInsert;
 export type Menage = typeof menages.$inferSelect;
 export type NewMenage = typeof menages.$inferInsert;
+export type PlateTemplate = typeof plateTemplates.$inferSelect;
+export type NewPlateTemplate = typeof plateTemplates.$inferInsert;
+
+// Variant design type
+export interface VariantDesign {
+  name: string;
+  bgColor: string;
+  borderColor: string;
+  textColor: string;
+  accentColor: string;
+  fontFamily: string;
+  shape: "rectangle" | "rounded" | "rounded-lg";
+}
