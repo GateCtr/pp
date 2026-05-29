@@ -103,6 +103,7 @@ export function ParcelleDetailClient({
   const [saving, setSaving] = useState(false);
   const [validating, setValidating] = useState<"valide" | "rejete" | null>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const [resettingPlate, setResettingPlate] = useState(false);
   const [showPlatePreview, setShowPlatePreview] = useState(false);
 
   const status = statusConfig[parcelle.statutValidation];
@@ -227,6 +228,31 @@ export function ParcelleDetailClient({
       toast.error("Erreur de connexion au serveur");
     } finally {
       setRegenerating(false);
+    }
+  }
+
+  async function handleResetPlate() {
+    if (!window.confirm("Supprimer la plaque et réinitialiser ? Vous pourrez ensuite assigner un nouveau template et régénérer.")) {
+      return;
+    }
+    setResettingPlate(true);
+    try {
+      const res = await fetch(`/api/parcelles/${parcelle.id}/reset-plate`, {
+        method: "POST",
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        toast.error(err.error || "Erreur");
+        return;
+      }
+
+      toast.success("Plaque supprimée. Vous pouvez maintenant régénérer avec un autre template.");
+      router.refresh();
+    } catch {
+      toast.error("Erreur de connexion au serveur");
+    } finally {
+      setResettingPlate(false);
     }
   }
 
@@ -456,20 +482,36 @@ export function ParcelleDetailClient({
                   </div>
                   <CardTitle className="text-sm font-semibold">Plaque & QR Code</CardTitle>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 px-3 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
-                  onClick={handleRegeneratePlate}
-                  disabled={regenerating}
-                >
-                  {regenerating ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                  ) : (
-                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-                  )}
-                  Régénérer (duplicata)
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-3 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                    onClick={handleRegeneratePlate}
+                    disabled={regenerating || resettingPlate}
+                  >
+                    {regenerating ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                    ) : (
+                      <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    Duplicata
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-3 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={handleResetPlate}
+                    disabled={regenerating || resettingPlate}
+                  >
+                    {resettingPlate ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                    ) : (
+                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                    )}
+                    Supprimer
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
