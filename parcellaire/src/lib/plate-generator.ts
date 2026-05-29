@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import sharp from "sharp";
+import { Resvg } from "@resvg/resvg-js";
 import type { VariantDesign } from "@/db/schema";
 
 // Output: 2400x1200px PNG (print quality @ 300 DPI for ~20x10cm plate)
@@ -66,14 +66,19 @@ export async function generatePlateWithTemplate(
     ? generateTemplatePlateSVG(data, qrDataUrl, templateConfig)
     : generateDefaultPlateSVG(data, qrDataUrl);
 
-  // Convert SVG to high-definition PNG using sharp
-  const pngBuffer = await sharp(Buffer.from(plateSvg))
-    .resize(PLATE_WIDTH, PLATE_HEIGHT)
-    .png({ quality: 100, compressionLevel: 6 })
-    .toBuffer();
+  // Convert SVG to high-definition PNG using resvg (supports fonts in serverless)
+  const resvg = new Resvg(plateSvg, {
+    fitTo: { mode: "width", value: PLATE_WIDTH },
+    font: {
+      loadSystemFonts: false,
+      defaultFontFamily: "Arial",
+    },
+  });
+  const pngData = resvg.render();
+  const pngBuffer = pngData.asPng();
 
   // Store as base64 PNG data URL (or upload to R2 in production)
-  const plateDataUrl = `data:image/png;base64,${pngBuffer.toString("base64")}`;
+  const plateDataUrl = `data:image/png;base64,${Buffer.from(pngBuffer).toString("base64")}`;
 
   // QR code as separate PNG data URL
   const qrPngUrl = `data:image/png;base64,${qrBuffer.toString("base64")}`;
