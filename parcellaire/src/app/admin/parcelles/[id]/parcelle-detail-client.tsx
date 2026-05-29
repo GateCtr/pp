@@ -188,7 +188,7 @@ export function ParcelleDetailClient({
 
       toast.success(
         action === "valide"
-          ? "Parcelle validée ! Plaque en cours de génération..."
+          ? "Parcelle validée ! Vous pouvez maintenant assigner un template et générer la plaque."
           : "Parcelle rejetée."
       );
       router.refresh();

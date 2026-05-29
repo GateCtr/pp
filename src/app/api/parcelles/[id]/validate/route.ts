@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { parcelles } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { generatePlate } from "@/lib/plate-generator";
 
 export async function POST(
   request: NextRequest,
@@ -33,26 +32,17 @@ export async function POST(
       );
     }
 
-    // Update status
-    const updateData: Record<string, unknown> = {
-      statutValidation: statut,
-      dateValidation: new Date(),
-    };
-
-    // If validated, generate plate
-    if (statut === "valide") {
-      const { plaqueUrl, qrCodeUrl } = await generatePlate({
-        id: parcelle.id,
-        commune: parcelle.commune,
-        quartier: parcelle.quartier,
-        avenue: parcelle.avenue,
-        numero: parcelle.numero,
-      });
-      updateData.plaqueImageUrl = plaqueUrl;
-      updateData.qrCodeUrl = qrCodeUrl;
-    }
-
-    await db.update(parcelles).set(updateData).where(eq(parcelles.id, id));
+    // Update status only — no plate generation
+    // Plate generation is done separately by the admin after assigning a template variant
+    await db
+      .update(parcelles)
+      .set({
+        statutValidation: statut,
+        dateValidation: new Date(),
+        misAJour: new Date(),
+        modifiePar: "admin",
+      })
+      .where(eq(parcelles.id, id));
 
     return NextResponse.json({ success: true });
   } catch (error) {
