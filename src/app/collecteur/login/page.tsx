@@ -49,8 +49,7 @@ export default function CollectorLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Background effects */}
+    <div className="fixed inset-0 bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 overflow-auto flex items-center justify-center p-4">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-0 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
