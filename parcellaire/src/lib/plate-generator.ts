@@ -100,11 +100,11 @@ function generateTemplatePlateSVG(
   const innerRx = String(Math.max(0, Number(rx) - 4));
 
   const qrSvgContent = sealUrl
-    ? `<image x="1900" y="760" width="360" height="360" href="${qrDataUrl}"/>
-       <circle cx="2080" cy="940" r="60" fill="white"/>
-       <clipPath id="qrSeal"><circle cx="2080" cy="940" r="48"/></clipPath>
-       <image x="2032" y="892" width="96" height="96" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
-    : `<image x="1920" y="760" width="360" height="360" href="${qrDataUrl}"/>`;
+    ? `<image x="1900" y="700" width="360" height="360" href="${qrDataUrl}"/>
+       <circle cx="2080" cy="880" r="60" fill="white"/>
+       <clipPath id="qrSeal"><circle cx="2080" cy="880" r="48"/></clipPath>
+       <image x="2032" y="832" width="96" height="96" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
+    : `<image x="1920" y="720" width="360" height="360" href="${qrDataUrl}"/>`;
 
   const flagContent = flagUrl
     ? `<image x="100" y="80" width="280" height="200" href="${escapeXml(flagUrl)}" preserveAspectRatio="xMidYMid meet"/>`
@@ -150,19 +150,16 @@ function generateTemplatePlateSVG(
     QUARTIER ${escapeXml(quartier)}
   </text>
   
-  <!-- Separator line -->
-  <line x1="200" y1="440" x2="2200" y2="440" stroke="${escapeXml(variant.borderColor)}" stroke-width="4" opacity="0.5"/>
+  <!-- Avenue band (lighter background like real plate model) -->
+  <rect x="40" y="430" width="2320" height="200" rx="16" fill="${escapeXml(variant.borderColor)}" opacity="0.15"/>
   
   <!-- Avenue name -->
-  <text x="1200" y="620" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="112" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">
+  <text x="1200" y="555" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="112" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">
     ${escapeXml(avenue)}
   </text>
   
-  <!-- Separator line -->
-  <line x1="200" y1="700" x2="2200" y2="700" stroke="${escapeXml(variant.borderColor)}" stroke-width="4" opacity="0.5"/>
-  
   <!-- Numero -->
-  <text x="1000" y="1020" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="192" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">
+  <text x="900" y="920" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="192" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">
     ${escapeXml(numero)}
   </text>
   
@@ -196,11 +193,10 @@ function generateDefaultPlateSVG(data: PlateData, qrDataUrl: string): string {
   <text x="1200" y="140" text-anchor="middle" fill="#ffffff" font-size="56" font-family="Arial, sans-serif">COMMUNE DE</text>
   <text x="1200" y="240" text-anchor="middle" fill="#ffffff" font-size="88" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(commune)}</text>
   <text x="1200" y="380" text-anchor="middle" fill="#87CEEB" font-size="64" font-family="Arial, sans-serif" font-weight="bold">QUARTIER ${escapeXml(quartier)}</text>
-  <line x1="200" y1="440" x2="2200" y2="440" stroke="#ffffff" stroke-width="4" opacity="0.5"/>
-  <text x="1200" y="620" text-anchor="middle" fill="#ffffff" font-size="112" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
-  <line x1="200" y1="700" x2="2200" y2="700" stroke="#ffffff" stroke-width="4" opacity="0.5"/>
-  <text x="1000" y="1020" text-anchor="middle" fill="#ffffff" font-size="192" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
-  <image x="1920" y="760" width="360" height="360" href="${qrDataUrl}"/>
+  <rect x="40" y="430" width="2320" height="200" rx="16" fill="#ffffff" opacity="0.12"/>
+  <text x="1200" y="555" text-anchor="middle" fill="#ffffff" font-size="112" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
+  <text x="900" y="920" text-anchor="middle" fill="#ffffff" font-size="192" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
+  <image x="1920" y="720" width="360" height="360" href="${qrDataUrl}"/>
 </svg>`;
 }
 

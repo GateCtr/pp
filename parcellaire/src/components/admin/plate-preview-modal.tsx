@@ -23,9 +23,10 @@ export function PlatePreviewModal({
   function handleDownload() {
     const link = document.createElement("a");
     link.href = plaqueImageUrl;
-    link.download = `plaque-${parcelle.commune}-${parcelle.avenue}-${parcelle.numero}.svg`;
-    link.target = "_blank";
+    link.download = `plaque-${parcelle.commune}-${parcelle.avenue}-N${parcelle.numero}.png`;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   }
 
   function handlePrint() {
