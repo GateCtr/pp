@@ -39,6 +39,7 @@ import {
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import type { Parcelle, Menage, AgentCollecteur } from "@/db/schema";
 import { PlatePreviewModal } from "@/components/admin/plate-preview-modal";
 
@@ -105,6 +106,7 @@ export function ParcelleDetailClient({
   const [regenerating, setRegenerating] = useState(false);
   const [resettingPlate, setResettingPlate] = useState(false);
   const [showPlatePreview, setShowPlatePreview] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   const status = statusConfig[parcelle.statutValidation];
 
@@ -232,9 +234,6 @@ export function ParcelleDetailClient({
   }
 
   async function handleResetPlate() {
-    if (!window.confirm("Supprimer la plaque et réinitialiser ? Vous pourrez ensuite assigner un nouveau template et régénérer.")) {
-      return;
-    }
     setResettingPlate(true);
     try {
       const res = await fetch(`/api/parcelles/${parcelle.id}/reset-plate`, {
@@ -248,6 +247,7 @@ export function ParcelleDetailClient({
       }
 
       toast.success("Plaque supprimée. Vous pouvez maintenant régénérer avec un autre template.");
+      setConfirmReset(false);
       router.refresh();
     } catch {
       toast.error("Erreur de connexion au serveur");
@@ -260,6 +260,18 @@ export function ParcelleDetailClient({
   if (!isEditing) {
     return (
       <div className="animate-fade-in">
+        {/* Confirm Reset Modal */}
+        <ConfirmModal
+          open={confirmReset}
+          title="Supprimer la plaque"
+          message="Cette action supprimera la plaque générée et réinitialisera le template assigné. Vous pourrez ensuite choisir un nouveau template et régénérer la plaque."
+          confirmLabel="Supprimer la plaque"
+          variant="danger"
+          loading={resettingPlate}
+          onConfirm={handleResetPlate}
+          onCancel={() => setConfirmReset(false)}
+        />
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -501,7 +513,7 @@ export function ParcelleDetailClient({
                     size="sm"
                     variant="outline"
                     className="h-8 px-3 text-xs text-red-600 border-red-200 hover:bg-red-50"
-                    onClick={handleResetPlate}
+                    onClick={() => setConfirmReset(true)}
                     disabled={regenerating || resettingPlate}
                   >
                     {resettingPlate ? (
