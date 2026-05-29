@@ -11,8 +11,8 @@ const stats = [
   {
     icon: Building2,
     value: "26",
-    label: "Communes",
-    description: "Couverture Kinshasa",
+    label: "Provinces",
+    description: "Couverture nationale RDC",
     color: "indigo",
   },
   {
