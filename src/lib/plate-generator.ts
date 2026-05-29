@@ -36,7 +36,17 @@ export async function generatePlateWithTemplate(
   plaqueUrl: string;
   qrCodeUrl: string;
 }> {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  // Determine the public URL for QR codes automatically
+  // Priority: NEXT_PUBLIC_APP_URL > VERCEL_PROJECT_PRODUCTION_URL > VERCEL_URL > fallback
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : null) ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
+
   const verificationUrl = `${appUrl}/verification/${data.id}`;
 
   // Generate QR code as PNG buffer (high res)
@@ -90,11 +100,11 @@ function generateTemplatePlateSVG(
   const innerRx = String(Math.max(0, Number(rx) - 4));
 
   const qrSvgContent = sealUrl
-    ? `<image x="1800" y="780" width="440" height="440" href="${qrDataUrl}"/>
-       <circle cx="2020" cy="1000" r="72" fill="white"/>
-       <clipPath id="qrSeal"><circle cx="2020" cy="1000" r="60"/></clipPath>
-       <image x="1960" y="940" width="120" height="120" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
-    : `<image x="1800" y="800" width="400" height="400" href="${qrDataUrl}"/>`;
+    ? `<image x="1900" y="760" width="360" height="360" href="${qrDataUrl}"/>
+       <circle cx="2080" cy="940" r="60" fill="white"/>
+       <clipPath id="qrSeal"><circle cx="2080" cy="940" r="48"/></clipPath>
+       <image x="2032" y="892" width="96" height="96" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
+    : `<image x="1920" y="760" width="360" height="360" href="${qrDataUrl}"/>`;
 
   const flagContent = flagUrl
     ? `<image x="100" y="80" width="280" height="200" href="${escapeXml(flagUrl)}" preserveAspectRatio="xMidYMid meet"/>`
@@ -190,7 +200,7 @@ function generateDefaultPlateSVG(data: PlateData, qrDataUrl: string): string {
   <text x="1200" y="620" text-anchor="middle" fill="#ffffff" font-size="112" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
   <line x1="200" y1="700" x2="2200" y2="700" stroke="#ffffff" stroke-width="4" opacity="0.5"/>
   <text x="1000" y="1020" text-anchor="middle" fill="#ffffff" font-size="192" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
-  <image x="1800" y="800" width="400" height="400" href="${qrDataUrl}"/>
+  <image x="1920" y="760" width="360" height="360" href="${qrDataUrl}"/>
 </svg>`;
 }
 
