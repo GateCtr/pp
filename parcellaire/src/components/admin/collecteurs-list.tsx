@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { SearchBar } from "@/components/ui/search-bar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,12 +54,31 @@ interface CollecteursListProps {
 }
 
 export function CollecteursList({ agents }: CollecteursListProps) {
+  const [search, setSearch] = useState("");
   const activeAgents = agents.filter((a) => a.statut !== "archive");
   const archivedAgents = agents.filter((a) => a.statut === "archive");
   const [showArchived, setShowArchived] = useState(false);
 
+  const filteredActive = activeAgents.filter((a) =>
+    [a.nom, a.telephone, a.codeAcces].some((f) =>
+      f?.toLowerCase().includes(search.toLowerCase())
+    )
+  );
+
+  const filteredArchived = archivedAgents.filter((a) =>
+    [a.nom, a.telephone, a.codeAcces].some((f) =>
+      f?.toLowerCase().includes(search.toLowerCase())
+    )
+  );
+
   return (
     <div>
+      <SearchBar
+        placeholder="Rechercher un agent..."
+        onSearch={setSearch}
+        className="mb-4"
+      />
+
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-gray-700">
           Agents enregistrés
@@ -82,9 +102,14 @@ export function CollecteursList({ agents }: CollecteursListProps) {
       ) : (
         <>
           <div className="space-y-3">
-            {activeAgents.map((agent) => (
+            {filteredActive.map((agent) => (
               <AgentCard key={agent.id} agent={agent} />
             ))}
+            {filteredActive.length === 0 && search && (
+              <p className="text-center text-gray-400 text-sm py-6">
+                Aucun agent actif trouvé pour &quot;{search}&quot;
+              </p>
+            )}
           </div>
 
           {archivedAgents.length > 0 && (
@@ -98,9 +123,14 @@ export function CollecteursList({ agents }: CollecteursListProps) {
               </button>
               {showArchived && (
                 <div className="space-y-3 opacity-60">
-                  {archivedAgents.map((agent) => (
+                  {filteredArchived.map((agent) => (
                     <AgentCard key={agent.id} agent={agent} />
                   ))}
+                  {filteredArchived.length === 0 && search && (
+                    <p className="text-center text-gray-400 text-sm py-6">
+                      Aucun agent archivé trouvé pour &quot;{search}&quot;
+                    </p>
+                  )}
                 </div>
               )}
             </div>
