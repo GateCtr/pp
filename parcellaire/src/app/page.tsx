@@ -9,7 +9,7 @@ import {
   LandingFooter,
 } from "@/components/landing";
 
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 relative overflow-hidden">
       {/* Background decorations */}
