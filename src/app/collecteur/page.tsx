@@ -2,17 +2,27 @@ import { db } from "@/db";
 import { parcelles } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { getCollectorSession } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrouillonsList } from "@/components/collecteur/brouillons-list";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function CollecteurPage() {
   const session = await getCollectorSession();
-  if (!session) redirect("/collecteur/login");
+
+  // Le proxy gère la redirection — si on arrive ici sans session,
+  // on affiche un état vide plutôt que de rediriger (évite la boucle)
+  if (!session) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-gray-500">Chargement de la session...</p>
+        <script dangerouslySetInnerHTML={{ __html: `window.location.reload()` }} />
+      </div>
+    );
+  }
 
   const mesBrouillons = await db
     .select()

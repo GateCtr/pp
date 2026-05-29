@@ -1,17 +1,13 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
-import { jwtVerify } from "jose";
 
 const isAdminSignIn = createRouteMatcher(["/admin/sign-in(.*)"]);
 
-const COLLECTOR_SECRET = new TextEncoder().encode(
-  process.env.COLLECTOR_JWT_SECRET || "lopango-collector-secret-key-2024"
-);
-
 /**
- * Collecteur auth handler — completely independent from Clerk.
- * Returns a Response if handled, or null to pass to Clerk.
+ * Collecteur auth handler — vérifie juste la PRÉSENCE du cookie.
+ * La vérification JWT complète est faite par getCollectorSession() dans les server components.
+ * Ceci évite les problèmes d'env vars Edge vs Node runtime.
  */
 async function collecteurAuth(req: NextRequest): Promise<NextResponse | null> {
   const { pathname } = req.nextUrl;
@@ -26,7 +22,10 @@ async function collecteurAuth(req: NextRequest): Promise<NextResponse | null> {
     return NextResponse.next();
   }
 
-  // Collecteur pages — JWT auth
+  // Collecteur pages — check cookie exists
+  // La vérification JWT complète est faite par getCollectorSession() côté serveur.
+  // Ici on vérifie juste la PRÉSENCE du cookie pour éviter les problèmes
+  // d'environnement Edge vs Node (env vars différentes).
   if (pathname.startsWith("/collecteur")) {
     const token = req.cookies.get("collector-session")?.value;
 
@@ -34,57 +33,40 @@ async function collecteurAuth(req: NextRequest): Promise<NextResponse | null> {
       return NextResponse.redirect(new URL("/collecteur/login", req.url));
     }
 
-    try {
-      await jwtVerify(token, COLLECTOR_SECRET);
-      return NextResponse.next();
-    } catch {
-      // Clear invalid cookie
-      const res = NextResponse.redirect(new URL("/collecteur/login", req.url));
-      res.cookies.set("collector-session", "", { maxAge: 0, path: "/" });
-      return res;
-    }
+    // Cookie existe → laisser passer, le server component vérifiera le JWT
+    return NextResponse.next();
   }
 
   // Collecteur API — POST /api/parcelles (create)
   if (pathname === "/api/parcelles" && req.method === "POST") {
-    return verifyCollectorToken(req);
+    const token = req.cookies.get("collector-session")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+    // Juste vérifier la présence — le server vérifie le JWT complet
+    return NextResponse.next();
   }
 
   // Collecteur API — GET /api/parcelles/mes-brouillons
   if (pathname === "/api/parcelles/mes-brouillons") {
-    return verifyCollectorToken(req);
+    const token = req.cookies.get("collector-session")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+    return NextResponse.next();
   }
 
   // Collecteur API — PUT /api/parcelles/[id] (edit brouillon)
   if (pathname.match(/^\/api\/parcelles\/[^/]+$/) && req.method === "PUT") {
-    // Allow both collector and admin
     const token = req.cookies.get("collector-session")?.value;
     if (token) {
-      try {
-        await jwtVerify(token, COLLECTOR_SECRET);
-        return NextResponse.next();
-      } catch {
-        // Fall through to Clerk (admin might be editing)
-      }
+      return NextResponse.next();
     }
     return null; // Let Clerk handle (admin)
   }
 
   // Not a collecteur route → let Clerk handle
   return null;
-}
-
-async function verifyCollectorToken(req: NextRequest): Promise<NextResponse> {
-  const token = req.cookies.get("collector-session")?.value;
-  if (!token) {
-    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-  }
-  try {
-    await jwtVerify(token, COLLECTOR_SECRET);
-    return NextResponse.next();
-  } catch {
-    return NextResponse.json({ error: "Session expirée" }, { status: 401 });
-  }
 }
 
 /**

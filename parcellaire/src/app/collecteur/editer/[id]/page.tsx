@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { EditBrouillonClient } from "./edit-brouillon-client";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function EditerBrouillonPage({
   params,
@@ -13,7 +14,16 @@ export default async function EditerBrouillonPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await getCollectorSession();
-  if (!session) redirect("/collecteur/login");
+
+  // Le proxy protège cette route — si pas de session ici, reload
+  if (!session) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-gray-500">Chargement...</p>
+        <script dangerouslySetInnerHTML={{ __html: `window.location.reload()` }} />
+      </div>
+    );
+  }
 
   const { id } = await params;
 
