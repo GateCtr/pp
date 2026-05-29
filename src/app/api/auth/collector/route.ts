@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       .where(eq(agentsCollecteurs.codeAcces, codeAcces))
       .limit(1);
 
-    if (!agent || !agent.actif || agent.statut !== "actif") {
+    if (!agent || !agent.actif || (agent.statut && agent.statut !== "actif")) {
       return NextResponse.json(
         { error: "Code d'accès invalide ou compte désactivé" },
         { status: 401 }
