@@ -145,7 +145,17 @@ function TemplateCard({
   return (
     <Card className="border-0 shadow-md shadow-gray-200/50 hover:shadow-lg transition-all">
       <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          {/* Plate Preview */}
+          <div className="flex-shrink-0 w-48 hidden sm:block">
+            <PlatePreview
+              variant={variants[0]}
+              flagUrl={template.flagUrl || ""}
+              sealUrl={template.sealUrl || ""}
+            />
+          </div>
+
+          {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
               <h3 className="font-semibold text-gray-900">{template.nom}</h3>
@@ -158,7 +168,7 @@ function TemplateCard({
             )}
 
             {/* Variant color swatches */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {variants.map((v, i) => (
                 <div key={i} className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-50 border border-gray-100">
                   <div
@@ -170,8 +180,9 @@ function TemplateCard({
               ))}
             </div>
           </div>
+
+          {/* Actions */}
           <div className="flex items-center gap-1.5 flex-shrink-0">
-            {/* Assets preview */}
             <div className="flex items-center gap-1 mr-2">
               {template.flagUrl && (
                 <div className="w-8 h-6 rounded border border-gray-200 overflow-hidden">
