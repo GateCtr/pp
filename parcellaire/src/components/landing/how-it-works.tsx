@@ -122,10 +122,10 @@ function StepPlaqueFromTemplate({ variant, flagUrl, sealUrl }: {
 
   return (
     <div className="flex items-center justify-center py-2">
-      <svg viewBox="0 0 360 200" fill="none" className="w-full max-w-[340px]">
+      <svg viewBox="0 0 360 240" fill="none" className="w-full max-w-[340px]">
         {/* Plaque */}
-        <rect x="10" y="10" width="340" height="170" rx={rx} fill={v.borderColor} />
-        <rect x="14" y="14" width="332" height="162" rx={String(Math.max(0, Number(rx) - 2))} fill={v.bgColor} />
+        <rect x="10" y="10" width="340" height="130" rx={rx} fill={v.borderColor} />
+        <rect x="14" y="14" width="332" height="122" rx={String(Math.max(0, Number(rx) - 2))} fill={v.bgColor} />
 
         {/* Flag */}
         {flagUrl ? (
@@ -158,29 +158,47 @@ function StepPlaqueFromTemplate({ variant, flagUrl, sealUrl }: {
         <text x="180" y="85" textAnchor="middle" fill={v.textColor} fontSize="11" fontWeight="bold" fontFamily={v.fontFamily}>AVENUE ELENGESA</text>
 
         {/* N° */}
-        <text x="130" y="140" textAnchor="middle" fill={v.accentColor} fontSize="30" fontWeight="bold" fontFamily={v.fontFamily}>N° 6</text>
+        <text x="120" y="115" textAnchor="middle" fill={v.accentColor} fontSize="22" fontWeight="bold" fontFamily={v.fontFamily}>N° 6</text>
 
-        {/* QR */}
-        <rect x="270" y="102" width="52" height="52" rx="4" fill="white" />
-        <rect x="275" y="107" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-        <rect x="277" y="109" width="5" height="5" fill="#1e293b" />
-        <rect x="308" y="107" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-        <rect x="310" y="109" width="5" height="5" fill="#1e293b" />
-        <rect x="275" y="138" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-        <rect x="277" y="140" width="5" height="5" fill="#1e293b" />
-        {/* Seal in QR center */}
+        {/* QR on plate */}
+        <rect x="275" y="86" width="38" height="38" rx="3" fill="white" />
+        <rect x="279" y="90" width="7" height="7" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+        <rect x="280" y="91" width="4" height="4" fill="#1e293b" />
+        <rect x="303" y="90" width="7" height="7" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+        <rect x="304" y="91" width="4" height="4" fill="#1e293b" />
+        <rect x="279" y="113" width="7" height="7" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+        <rect x="280" y="114" width="4" height="4" fill="#1e293b" />
+        {/* Seal in QR */}
         <clipPath id="step3qrSeal">
-          <circle cx="296" cy="128" r="7" />
+          <circle cx="294" cy="105" r="5" />
         </clipPath>
         {sealUrl ? (
-          <image href={sealUrl} x="289" y="121" width="14" height="14" clipPath="url(#step3qrSeal)" preserveAspectRatio="xMidYMid slice" />
+          <image href={sealUrl} x="289" y="100" width="10" height="10" clipPath="url(#step3qrSeal)" preserveAspectRatio="xMidYMid slice" />
         ) : (
-          <circle cx="296" cy="128" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+          <circle cx="294" cy="105" r="5" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
         )}
 
+        {/* ===== Phone scanning animation ===== */}
+        <rect x="230" y="160" width="56" height="70" rx="10" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
+        <rect x="235" y="167" width="46" height="56" rx="6" fill="#0f172a" />
+        {/* Camera viewfinder corners */}
+        <path d="M242 173 L242 177 L246 177" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        <path d="M274 173 L274 177 L270 177" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        <path d="M242 217 L242 213 L246 213" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        <path d="M274 217 L274 213 L270 213" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        {/* Animated scan line */}
+        <line x1="244" y1="195" x2="272" y2="195" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" opacity="0.8">
+          <animate attributeName="y1" values="175;215;175" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="y2" values="175;215;175" dur="2s" repeatCount="indefinite" />
+        </line>
+
+        {/* Arrow from QR to phone */}
+        <path d="M294 126 C297 140, 272 150, 260 158" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 2" fill="none" opacity="0.6" />
+
         {/* Checkmark badge */}
-        <circle cx="40" y="155" r="16" fill="#10b98120" stroke="#10b981" strokeWidth="1.5" />
-        <path d="M32 155l5 5 10-10" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="60" cy="185" r="18" fill="#10b98120" stroke="#10b981" strokeWidth="1.5" />
+        <path d="M51 185l6 6 12-12" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <text x="60" y="210" textAnchor="middle" fill="#10b981" fontSize="6" fontWeight="medium">Vérifié</text>
       </svg>
     </div>
   );
