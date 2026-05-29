@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { CollectorSessionProvider } from "@/components/collecteur/session-provider";
 import { CollectorHeader } from "@/components/collecteur/collector-header";
 
@@ -6,6 +9,18 @@ export default function CollecteurLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const isLoginPage = pathname === "/collecteur/login";
+
+  // Login page gets rendered without the app shell (header, bg, container)
+  if (isLoginPage) {
+    return (
+      <CollectorSessionProvider>
+        {children}
+      </CollectorSessionProvider>
+    );
+  }
+
   return (
     <CollectorSessionProvider>
       <div className="min-h-screen bg-gray-50">
