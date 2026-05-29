@@ -3,12 +3,15 @@
 import { useCollectorSession } from "./session-provider";
 import { Logo } from "@/components/ui/logo";
 import { LogOut } from "lucide-react";
-import Link from "next/link";
 
 export function CollectorHeader() {
   const { session, loading } = useCollectorSession();
 
   if (loading || !session) return null;
+
+  function handleLogout() {
+    window.location.href = "/api/auth/collector/logout";
+  }
 
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm">
@@ -25,13 +28,13 @@ export function CollectorHeader() {
             <div className="w-2 h-2 rounded-full bg-green-400" />
             <span className="text-blue-700 text-xs font-medium">{session.nom}</span>
           </div>
-          <Link
-            href="/api/auth/collector/logout"
+          <button
+            onClick={handleLogout}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
             title="Déconnexion"
           >
             <LogOut className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
       </div>
     </header>
