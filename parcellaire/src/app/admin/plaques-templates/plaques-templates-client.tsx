@@ -12,6 +12,7 @@ import {
   Edit3, Eye, Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Portal } from "@/components/ui/portal";
 import type { PlateTemplate, VariantDesign } from "@/db/schema";
 
 
@@ -297,7 +298,8 @@ function TemplateEditor({
 
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto">
+    <Portal>
+    <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-8 overflow-y-auto">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl animate-scale-in mb-8">
         {/* Header */}
@@ -484,6 +486,7 @@ function TemplateEditor({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
 
