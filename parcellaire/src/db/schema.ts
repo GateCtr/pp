@@ -31,6 +31,13 @@ export const typeLogementEnum = pgEnum("type_logement", [
   "autre",
 ]);
 
+export const statutAgentEnum = pgEnum("statut_agent", [
+  "actif",
+  "suspendu",
+  "revoque",
+  "archive",
+]);
+
 // Tables
 export const agentsCollecteurs = pgTable("agents_collecteurs", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -38,7 +45,10 @@ export const agentsCollecteurs = pgTable("agents_collecteurs", {
   telephone: varchar("telephone", { length: 20 }),
   codeAcces: varchar("code_acces", { length: 50 }).notNull().unique(),
   actif: boolean("actif").default(true),
+  statut: statutAgentEnum("statut").default("actif").notNull(),
   creeLe: timestamp("cree_le").defaultNow(),
+  misAJour: timestamp("mis_a_jour").defaultNow(),
+  modifiePar: varchar("modifie_par", { length: 255 }),
 });
 
 export const parcelles = pgTable("parcelles", {
@@ -71,8 +81,11 @@ export const parcelles = pgTable("parcelles", {
   // QR / Plaque
   qrCodeUrl: text("qr_code_url"),
   plaqueImageUrl: text("plaque_image_url"),
+  // Audit
   creeLe: timestamp("cree_le").defaultNow(),
   misAJour: timestamp("mis_a_jour").defaultNow(),
+  modifiePar: varchar("modifie_par", { length: 255 }),
+  motifModification: text("motif_modification"),
 });
 
 export const menages = pgTable("menages", {

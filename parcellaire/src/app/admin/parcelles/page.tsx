@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ParcelleActions } from "@/components/admin/parcelle-actions";
 import { MapPin, User, Calendar, ExternalLink, FileText } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -133,81 +134,84 @@ function ParcelleCard({
   const status = statusConfig[parcelle.statutValidation];
 
   return (
-    <Card className="border-0 shadow-md shadow-gray-200/50 hover:shadow-lg transition-all duration-300 overflow-hidden">
-      <CardContent className="p-4 sm:p-5">
-        {/* Top row: address + status */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-5 h-5 text-blue-600" />
+    <Link href={`/admin/parcelles/${parcelle.id}`}>
+      <Card className="border-0 shadow-md shadow-gray-200/50 hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer">
+        <CardContent className="p-4 sm:p-5">
+          {/* Top row: address + status */}
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-blue-600" />
+              </div>
+              <div className="min-w-0">
+                <h4 className="font-semibold text-gray-900 text-sm truncate">
+                  {parcelle.avenue} N° {parcelle.numero}
+                </h4>
+                <p className="text-xs text-gray-500 mt-0.5 truncate">
+                  {parcelle.commune} &bull; Q. {parcelle.quartier}
+                </p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h4 className="font-semibold text-gray-900 text-sm truncate">
-                {parcelle.avenue} N° {parcelle.numero}
-              </h4>
-              <p className="text-xs text-gray-500 mt-0.5 truncate">
-                {parcelle.commune} &bull; Q. {parcelle.quartier}
-              </p>
+            <Badge className={`${status.class} border text-[10px] font-semibold px-2 py-0.5 flex-shrink-0`}>
+              <div className={`w-1.5 h-1.5 rounded-full ${status.dot} mr-1.5`} />
+              {status.label}
+            </Badge>
+          </div>
+
+          {/* Details grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4 pl-[52px]">
+            <div>
+              <span className="text-gray-400 block">Propriétaire</span>
+              <span className="text-gray-700 font-medium flex items-center gap-1 mt-0.5">
+                <User className="w-3 h-3 text-gray-300" />
+                {parcelle.proprietaireNom}
+              </span>
+            </div>
+            <div>
+              <span className="text-gray-400 block">Ménages</span>
+              <span className="text-gray-700 font-medium mt-0.5">{parcelle.nombreMenages || 0}</span>
+            </div>
+            <div>
+              <span className="text-gray-400 block">Collecteur</span>
+              <span className="text-gray-700 font-medium mt-0.5">{agent?.nom || "—"}</span>
+            </div>
+            <div>
+              <span className="text-gray-400 block">Date</span>
+              <span className="text-gray-700 font-medium flex items-center gap-1 mt-0.5">
+                <Calendar className="w-3 h-3 text-gray-300" />
+                {parcelle.creeLe
+                  ? new Date(parcelle.creeLe).toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "short",
+                    })
+                  : "—"}
+              </span>
             </div>
           </div>
-          <Badge className={`${status.class} border text-[10px] font-semibold px-2 py-0.5 flex-shrink-0`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${status.dot} mr-1.5`} />
-            {status.label}
-          </Badge>
-        </div>
 
-        {/* Details grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mb-4 pl-[52px]">
-          <div>
-            <span className="text-gray-400 block">Propriétaire</span>
-            <span className="text-gray-700 font-medium flex items-center gap-1 mt-0.5">
-              <User className="w-3 h-3 text-gray-300" />
-              {parcelle.proprietaireNom}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-400 block">Ménages</span>
-            <span className="text-gray-700 font-medium mt-0.5">{parcelle.nombreMenages || 0}</span>
-          </div>
-          <div>
-            <span className="text-gray-400 block">Collecteur</span>
-            <span className="text-gray-700 font-medium mt-0.5">{agent?.nom || "—"}</span>
-          </div>
-          <div>
-            <span className="text-gray-400 block">Date</span>
-            <span className="text-gray-700 font-medium flex items-center gap-1 mt-0.5">
-              <Calendar className="w-3 h-3 text-gray-300" />
-              {parcelle.creeLe
-                ? new Date(parcelle.creeLe).toLocaleDateString("fr-FR", {
-                    day: "2-digit",
-                    month: "short",
-                  })
-                : "—"}
-            </span>
-          </div>
-        </div>
+          {/* Actions */}
+          {showActions && (
+            <div className="pl-[52px]" onClick={(e) => e.preventDefault()}>
+              <ParcelleActions parcelleId={parcelle.id} />
+            </div>
+          )}
 
-        {/* Actions */}
-        {showActions && (
-          <div className="pl-[52px]">
-            <ParcelleActions parcelleId={parcelle.id} />
-          </div>
-        )}
-
-        {parcelle.statutValidation === "valide" && parcelle.plaqueImageUrl && (
-          <div className="pl-[52px]">
-            <a
-              href={parcelle.plaqueImageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              <ExternalLink className="w-3 h-3" />
-              Voir la plaque générée
-            </a>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {parcelle.statutValidation === "valide" && parcelle.plaqueImageUrl && (
+            <div className="pl-[52px]">
+              <a
+                href={parcelle.plaqueImageUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="w-3 h-3" />
+                Voir la plaque générée
+              </a>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
