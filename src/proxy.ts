@@ -23,17 +23,23 @@ async function collecteurAuth(req: NextRequest): Promise<NextResponse | null> {
   }
 
   // Collecteur pages — check cookie exists
-  // La vérification JWT complète est faite par getCollectorSession() côté serveur.
-  // Ici on vérifie juste la PRÉSENCE du cookie pour éviter les problèmes
-  // d'environnement Edge vs Node (env vars différentes).
+  // IMPORTANT: Ne PAS rediriger les RSC fetch (soft navigation).
+  // Un 302/307 sur un RSC fetch est interprété par Next.js comme
+  // une redirection de page → déconnexion de l'utilisateur.
+  // Seules les navigations directes (full page load) sont redirigées.
   if (pathname.startsWith("/collecteur")) {
     const token = req.cookies.get("collector-session")?.value;
+    const isRSCFetch = req.headers.get("rsc") === "1"
+      || req.headers.get("next-router-state-tree") !== null
+      || req.headers.get("next-url") !== null;
 
-    if (!token) {
+    if (!token && !isRSCFetch) {
+      // Navigation directe sans cookie → redirect login
       return NextResponse.redirect(new URL("/collecteur/login", req.url));
     }
 
-    // Cookie existe → laisser passer, le server component vérifiera le JWT
+    // Cookie présent OU RSC fetch → laisser passer
+    // Le SessionProvider client vérifie la session et redirige si nécessaire
     return NextResponse.next();
   }
 
