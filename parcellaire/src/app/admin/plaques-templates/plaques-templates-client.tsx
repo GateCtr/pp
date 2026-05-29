@@ -1,16 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Plus, Trash2, Save, X, Loader2, Upload, Palette,
-  Edit3, Eye, Image as ImageIcon,
-} from "lucide-react";
+import { Plus, Trash2, Save, X, Loader2, Upload, Palette, Edit3, Eye, Image as ImageIcon, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Portal } from "@/components/ui/portal";
 import type { PlateTemplate, VariantDesign } from "@/db/schema";
@@ -44,6 +41,7 @@ const SHAPE_OPTIONS: { value: VariantDesign["shape"]; label: string }[] = [
 interface Props {
   templates: PlateTemplate[];
 }
+
 
 
 export function PlaquesTemplatesClient({ templates }: Props) {
@@ -85,6 +83,7 @@ export function PlaquesTemplatesClient({ templates }: Props) {
         />
       )}
 
+
       {/* Template list */}
       {templates.length === 0 && !creating ? (
         <Card className="border-0 shadow-md">
@@ -111,6 +110,7 @@ export function PlaquesTemplatesClient({ templates }: Props) {
     </div>
   );
 }
+
 
 
 // ============ TEMPLATE CARD ============
@@ -156,6 +156,7 @@ function TemplateCard({
             {template.description && (
               <p className="text-sm text-gray-500 mb-3">{template.description}</p>
             )}
+
             {/* Variant color swatches */}
             <div className="flex items-center gap-2">
               {variants.map((v, i) => (
@@ -203,6 +204,193 @@ function TemplateCard({
 }
 
 
+
+// ============ ASSETS MANAGER MODAL ============
+function AssetsManager({
+  type,
+  onSelect,
+  onClose,
+}: {
+  type: "flag" | "seal";
+  onSelect: (url: string) => void;
+  onClose: () => void;
+}) {
+  const [assets, setAssets] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [deletingUrl, setDeletingUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchAssets();
+  }, []);
+
+  async function fetchAssets() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/plate-templates");
+      if (!res.ok) throw new Error("Failed to fetch");
+      const templates: PlateTemplate[] = await res.json();
+      const urls = new Set<string>();
+      for (const t of templates) {
+        const url = type === "flag" ? t.flagUrl : t.sealUrl;
+        if (url) urls.add(url);
+      }
+      setAssets(Array.from(urls));
+    } catch {
+      toast.error("Erreur lors du chargement des assets");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
+  async function handleUpload() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/png,image/jpeg,image/svg+xml,image/webp";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      setUploading(true);
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("type", type);
+        const res = await fetch("/api/uploads", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!res.ok) { toast.error(data.error || "Erreur upload"); return; }
+        toast.success(`${type === "flag" ? "Drapeau" : "Sceau"} uploadé`);
+        setAssets((prev) => [data.url, ...prev]);
+      } catch {
+        toast.error("Erreur upload");
+      } finally {
+        setUploading(false);
+      }
+    };
+    input.click();
+  }
+
+  async function handleDelete(url: string) {
+    if (!window.confirm("Supprimer cet asset ?")) return;
+    setDeletingUrl(url);
+    try {
+      // Remove asset from the list locally
+      setAssets((prev) => prev.filter((a) => a !== url));
+      toast.success("Asset supprimé");
+    } finally {
+      setDeletingUrl(null);
+    }
+  }
+
+
+  const title = type === "flag" ? "Drapeaux" : "Sceaux";
+
+  return (
+    <Portal>
+      <div className="fixed inset-0 z-[9999]">
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+        {/* Content - centered with scroll */}
+        <div className="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-auto">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                  <ImageIcon className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">Gérer les {title}</h3>
+                  <p className="text-xs text-gray-500">
+                    Sélectionnez ou uploadez un {type === "flag" ? "drapeau" : "sceau"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+
+            <div className="p-6">
+              {/* Upload button */}
+              <div className="mb-4">
+                <Button
+                  onClick={handleUpload}
+                  disabled={uploading}
+                  className="h-9 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Upload className="w-4 h-4 mr-2" />
+                  )}
+                  Uploader un nouveau {type === "flag" ? "drapeau" : "sceau"}
+                </Button>
+              </div>
+
+              {/* Assets grid */}
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                </div>
+              ) : assets.length === 0 ? (
+                <div className="text-center py-12">
+                  <ImageIcon className="w-12 h-12 text-gray-200 mx-auto mb-3" />
+                  <p className="text-gray-500 font-medium">Aucun {type === "flag" ? "drapeau" : "sceau"} disponible</p>
+                  <p className="text-gray-400 text-sm mt-1">Uploadez-en un pour commencer</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
+                  {assets.map((url) => (
+                    <div
+                      key={url}
+                      className="group relative border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-md transition-all"
+                    >
+                      <div className={`aspect-square flex items-center justify-center bg-gray-50 p-2 ${type === "seal" ? "rounded-full mx-auto w-3/4 mt-2" : ""}`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={type} className="w-full h-full object-contain" />
+                      </div>
+
+                      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
+                        <Button
+                          size="sm"
+                          className="h-7 px-2 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={() => { onSelect(url); onClose(); }}
+                        >
+                          <Check className="w-3 h-3 mr-1" /> Sélectionner
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-2 text-[10px] bg-white/90 text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={() => handleDelete(url)}
+                          disabled={deletingUrl === url}
+                        >
+                          {deletingUrl === url ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3 h-3" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Portal>
+  );
+}
+
+
+
 // ============ TEMPLATE EDITOR (Modal) ============
 function TemplateEditor({
   template,
@@ -226,9 +414,8 @@ function TemplateEditor({
   const [flagUrl, setFlagUrl] = useState(template?.flagUrl || "");
   const [sealUrl, setSealUrl] = useState(template?.sealUrl || "");
   const [saving, setSaving] = useState(false);
-  const [uploadingFlag, setUploadingFlag] = useState(false);
-  const [uploadingSeal, setUploadingSeal] = useState(false);
   const [previewIdx, setPreviewIdx] = useState(0);
+  const [assetsType, setAssetsType] = useState<"flag" | "seal" | null>(null);
 
   function addVariant() {
     if (variants.length >= 5) { toast.error("Maximum 5 variantes"); return; }
@@ -238,6 +425,7 @@ function TemplateEditor({
       bgColor: ["#1a3a7a", "#1b5e20", "#4a148c", "#b71c1c", "#e65100"][variants.length] || "#1a3a7a",
     }]);
   }
+
 
   function updateVariant(idx: number, field: keyof VariantDesign, value: string) {
     const updated = [...variants];
@@ -249,31 +437,6 @@ function TemplateEditor({
     if (variants.length <= 1) { toast.error("Au moins une variante requise"); return; }
     setVariants(variants.filter((_, i) => i !== idx));
     if (previewIdx >= variants.length - 1) setPreviewIdx(0);
-  }
-
-  async function uploadFile(type: "flag" | "seal") {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/png,image/jpeg,image/svg+xml,image/webp";
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-      const setter = type === "flag" ? setUploadingFlag : setUploadingSeal;
-      setter(true);
-      try {
-        const fd = new FormData();
-        fd.append("file", file);
-        fd.append("type", type);
-        const res = await fetch("/api/uploads", { method: "POST", body: fd });
-        const data = await res.json();
-        if (!res.ok) { toast.error(data.error); return; }
-        if (type === "flag") setFlagUrl(data.url);
-        else setSealUrl(data.url);
-        toast.success(`${type === "flag" ? "Drapeau" : "Sceau"} uploadé`);
-      } catch { toast.error("Erreur upload"); }
-      finally { setter(false); }
-    };
-    input.click();
   }
 
   async function handleSave() {
@@ -298,197 +461,250 @@ function TemplateEditor({
 
 
   return (
-    <Portal>
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 pt-8 overflow-y-auto">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl animate-scale-in mb-8">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Palette className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-gray-900">
-                {isEdit ? "Modifier le Template" : "Nouveau Template"}
-              </h3>
-              <p className="text-xs text-gray-500">Designez vos variantes de plaques</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
+    <>
+      {/* Assets Manager sub-modal */}
+      {assetsType && (
+        <AssetsManager
+          type={assetsType}
+          onSelect={(url) => {
+            if (assetsType === "flag") setFlagUrl(url);
+            else setSealUrl(url);
+          }}
+          onClose={() => setAssetsType(null)}
+        />
+      )}
 
-        <div className="p-6 space-y-6">
-          {/* Name & Description */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-gray-600">Nom du template *</Label>
-              <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Standard Kinshasa" className="h-10" />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-gray-600">Description</Label>
-              <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description optionnelle" className="h-10" />
-            </div>
-          </div>
-
-          {/* Assets upload */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Card className="border border-gray-200">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <Label className="text-xs font-medium text-gray-600">Drapeau national</Label>
-                  <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={() => uploadFile("flag")} disabled={uploadingFlag}>
-                    {uploadingFlag ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Upload className="w-3 h-3 mr-1" />}
-                    Upload
-                  </Button>
+      <Portal>
+        <div className="fixed inset-0 z-[9999]">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+          {/* Content - centered with scroll */}
+          <div className="absolute inset-0 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl my-auto">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Palette className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">
+                      {isEdit ? "Modifier le Template" : "Nouveau Template"}
+                    </h3>
+                    <p className="text-xs text-gray-500">Designez vos variantes de plaques</p>
+                  </div>
                 </div>
-                {flagUrl ? (
-                  <div className="w-16 h-12 rounded border border-gray-200 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={flagUrl} alt="Drapeau" className="w-full h-full object-contain" />
+                <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+
+              <div className="p-6 space-y-6">
+                {/* Name & Description */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-medium text-gray-600">Nom du template *</Label>
+                    <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Standard Kinshasa" className="h-10" />
                   </div>
-                ) : (
-                  <div className="w-16 h-12 rounded border border-dashed border-gray-300 flex items-center justify-center">
-                    <ImageIcon className="w-5 h-5 text-gray-300" />
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-medium text-gray-600">Description</Label>
+                    <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Description optionnelle" className="h-10" />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-            <Card className="border border-gray-200">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <Label className="text-xs font-medium text-gray-600">Sceau communal (rond)</Label>
-                  <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={() => uploadFile("seal")} disabled={uploadingSeal}>
-                    {uploadingSeal ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Upload className="w-3 h-3 mr-1" />}
-                    Upload
-                  </Button>
                 </div>
-                {sealUrl ? (
-                  <div className="w-12 h-12 rounded-full border border-gray-200 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={sealUrl} alt="Sceau" className="w-full h-full object-cover rounded-full" />
+
+                {/* Assets selection (no upload here — opens AssetsManager) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Flag */}
+                  <Card className="border border-gray-200">
+                    <CardContent className="p-4">
+                      <Label className="text-xs font-medium text-gray-600 mb-3 block">Drapeau national</Label>
+                      {flagUrl ? (
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-12 rounded border border-gray-200 overflow-hidden flex-shrink-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={flagUrl} alt="Drapeau" className="w-full h-full object-contain" />
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => setAssetsType("flag")}
+                          >
+                            <Edit3 className="w-3 h-3 mr-1" /> Changer
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-12 rounded border border-dashed border-gray-300 flex items-center justify-center flex-shrink-0">
+                            <ImageIcon className="w-5 h-5 text-gray-300" />
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => setAssetsType("flag")}
+                          >
+                            <ImageIcon className="w-3 h-3 mr-1" /> Sélectionner
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+
+                  {/* Seal */}
+                  <Card className="border border-gray-200">
+                    <CardContent className="p-4">
+                      <Label className="text-xs font-medium text-gray-600 mb-3 block">Sceau communal (rond)</Label>
+                      {sealUrl ? (
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full border border-gray-200 overflow-hidden flex-shrink-0">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={sealUrl} alt="Sceau" className="w-full h-full object-cover rounded-full" />
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => setAssetsType("seal")}
+                          >
+                            <Edit3 className="w-3 h-3 mr-1" /> Changer
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center flex-shrink-0">
+                            <ImageIcon className="w-5 h-5 text-gray-300" />
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => setAssetsType("seal")}
+                          >
+                            <ImageIcon className="w-3 h-3 mr-1" /> Sélectionner
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+
+                {/* Variants editor */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <Label className="text-sm font-semibold text-gray-900">Variantes ({variants.length}/5)</Label>
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={addVariant} disabled={variants.length >= 5}>
+                      <Plus className="w-3 h-3 mr-1" /> Ajouter
+                    </Button>
                   </div>
-                ) : (
-                  <div className="w-12 h-12 rounded-full border border-dashed border-gray-300 flex items-center justify-center">
-                    <ImageIcon className="w-5 h-5 text-gray-300" />
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Variants list */}
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                      {variants.map((v, i) => (
+                        <div
+                          key={i}
+                          className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                            previewIdx === i ? "border-blue-300 bg-blue-50/50 shadow-sm" : "border-gray-200 hover:border-gray-300"
+                          }`}
+                          onClick={() => setPreviewIdx(i)}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <Input
+                              value={v.name}
+                              onChange={(e) => updateVariant(i, "name", e.target.value)}
+                              className="h-7 text-xs font-semibold border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <div className="flex items-center gap-1">
+                              <button
+                                className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-blue-600"
+                                onClick={(e) => { e.stopPropagation(); setPreviewIdx(i); }}
+                              >
+                                <Eye className="w-3 h-3" />
+                              </button>
+                              <button
+                                className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-red-600"
+                                onClick={(e) => { e.stopPropagation(); removeVariant(i); }}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-2">
+                            <ColorField label="Fond" value={v.bgColor} onChange={(val) => updateVariant(i, "bgColor", val)} />
+                            <ColorField label="Bordure" value={v.borderColor} onChange={(val) => updateVariant(i, "borderColor", val)} />
+                            <ColorField label="Texte" value={v.textColor} onChange={(val) => updateVariant(i, "textColor", val)} />
+                            <ColorField label="Accent" value={v.accentColor} onChange={(val) => updateVariant(i, "accentColor", val)} />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 mt-2">
+                            <div>
+                              <span className="text-[9px] text-gray-500">Police</span>
+                              <select
+                                value={v.fontFamily}
+                                onChange={(e) => updateVariant(i, "fontFamily", e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-full h-7 text-[10px] rounded border border-gray-200 bg-white px-1"
+                              >
+                                {FONT_OPTIONS.map((f) => (
+                                  <option key={f} value={f}>{f.split(",")[0]}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <span className="text-[9px] text-gray-500">Forme</span>
+                              <select
+                                value={v.shape}
+                                onChange={(e) => updateVariant(i, "shape", e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-full h-7 text-[10px] rounded border border-gray-200 bg-white px-1"
+                              >
+                                {SHAPE_OPTIONS.map((s) => (
+                                  <option key={s.value} value={s.value}>{s.label}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+
+                    {/* Live Preview */}
+                    <div className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl border border-gray-200">
+                      <p className="text-[10px] text-gray-500 mb-3 font-medium">Aperçu — {activeVariant.name}</p>
+                      <PlatePreview variant={activeVariant} flagUrl={flagUrl} sealUrl={sealUrl} />
+                    </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </div>
 
-
-          {/* Variants editor */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <Label className="text-sm font-semibold text-gray-900">Variantes ({variants.length}/5)</Label>
-              <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={addVariant} disabled={variants.length >= 5}>
-                <Plus className="w-3 h-3 mr-1" /> Ajouter
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Variants list */}
-              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                {variants.map((v, i) => (
-                  <div
-                    key={i}
-                    className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                      previewIdx === i ? "border-blue-300 bg-blue-50/50 shadow-sm" : "border-gray-200 hover:border-gray-300"
-                    }`}
-                    onClick={() => setPreviewIdx(i)}
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+                  <Button variant="outline" onClick={onClose} disabled={saving} className="h-10 px-5">
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="h-10 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <Input
-                        value={v.name}
-                        onChange={(e) => updateVariant(i, "name", e.target.value)}
-                        className="h-7 text-xs font-semibold border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <div className="flex items-center gap-1">
-                        <button
-                          className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-blue-600"
-                          onClick={(e) => { e.stopPropagation(); setPreviewIdx(i); }}
-                        >
-                          <Eye className="w-3 h-3" />
-                        </button>
-                        <button
-                          className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-red-600"
-                          onClick={(e) => { e.stopPropagation(); removeVariant(i); }}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-2">
-                      <ColorField label="Fond" value={v.bgColor} onChange={(val) => updateVariant(i, "bgColor", val)} />
-                      <ColorField label="Bordure" value={v.borderColor} onChange={(val) => updateVariant(i, "borderColor", val)} />
-                      <ColorField label="Texte" value={v.textColor} onChange={(val) => updateVariant(i, "textColor", val)} />
-                      <ColorField label="Accent" value={v.accentColor} onChange={(val) => updateVariant(i, "accentColor", val)} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div>
-                        <span className="text-[9px] text-gray-500">Police</span>
-                        <select
-                          value={v.fontFamily}
-                          onChange={(e) => updateVariant(i, "fontFamily", e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-full h-7 text-[10px] rounded border border-gray-200 bg-white px-1"
-                        >
-                          {FONT_OPTIONS.map((f) => (
-                            <option key={f} value={f}>{f.split(",")[0]}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <span className="text-[9px] text-gray-500">Forme</span>
-                        <select
-                          value={v.shape}
-                          onChange={(e) => updateVariant(i, "shape", e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                          className="w-full h-7 text-[10px] rounded border border-gray-200 bg-white px-1"
-                        >
-                          {SHAPE_OPTIONS.map((s) => (
-                            <option key={s.value} value={s.value}>{s.label}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-
-              {/* Live Preview */}
-              <div className="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <p className="text-[10px] text-gray-500 mb-3 font-medium">Aperçu — {activeVariant.name}</p>
-                <PlatePreview variant={activeVariant} flagUrl={flagUrl} sealUrl={sealUrl} />
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                    {isEdit ? "Enregistrer" : "Créer le template"}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-            <Button variant="outline" onClick={onClose} disabled={saving} className="h-10 px-5">
-              Annuler
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              className="h-10 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-              {isEdit ? "Enregistrer" : "Créer le template"}
-            </Button>
-          </div>
         </div>
-      </div>
-    </div>
-    </Portal>
+      </Portal>
+    </>
   );
 }
+
 
 
 // ============ HELPERS ============
@@ -513,6 +729,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
     </div>
   );
 }
+
 
 function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; flagUrl: string; sealUrl: string }) {
   const rx = variant.shape === "rectangle" ? "4" : variant.shape === "rounded" ? "10" : "18";
@@ -545,6 +762,7 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
       <text x="180" y="24" textAnchor="middle" fill={variant.accentColor} fontSize="6" fontFamily={variant.fontFamily}>COMMUNE DE</text>
       <text x="180" y="38" textAnchor="middle" fill={variant.textColor} fontSize="11" fontWeight="bold" fontFamily={variant.fontFamily}>NGIRI NGIRI</text>
       <text x="180" y="56" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="bold" fontFamily={variant.fontFamily}>QUARTIER ELENGESA</text>
+
 
       {/* White band for avenue */}
       <rect x="14" y="64" width="332" height="28" rx="3" fill={variant.borderColor} opacity="0.15" />
