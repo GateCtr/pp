@@ -1,5 +1,4 @@
 import QRCode from "qrcode";
-import { Resvg } from "@resvg/resvg-js";
 import type { VariantDesign } from "@/db/schema";
 
 // Output: 2400x1200px PNG (print quality @ 300 DPI for ~20x10cm plate)
@@ -66,19 +65,9 @@ export async function generatePlateWithTemplate(
     ? generateTemplatePlateSVG(data, qrDataUrl, templateConfig)
     : generateDefaultPlateSVG(data, qrDataUrl);
 
-  // Convert SVG to high-definition PNG using resvg (supports fonts in serverless)
-  const resvg = new Resvg(plateSvg, {
-    fitTo: { mode: "width", value: PLATE_WIDTH },
-    font: {
-      loadSystemFonts: false,
-      defaultFontFamily: "Arial",
-    },
-  });
-  const pngData = resvg.render();
-  const pngBuffer = pngData.asPng();
-
-  // Store as base64 PNG data URL (or upload to R2 in production)
-  const plateDataUrl = `data:image/png;base64,${Buffer.from(pngBuffer).toString("base64")}`;
+  // SVG stocké directement (vectoriel = résolution infinie, parfait pour impression)
+  // Conversion PNG côté client via canvas si besoin de téléchargement
+  const plateDataUrl = `data:image/svg+xml;base64,${Buffer.from(plateSvg).toString("base64")}`;
 
   // QR code as separate PNG data URL
   const qrPngUrl = `data:image/png;base64,${qrBuffer.toString("base64")}`;

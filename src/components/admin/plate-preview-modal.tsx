@@ -21,12 +21,40 @@ export function PlatePreviewModal({
   onClose,
 }: PlatePreviewModalProps) {
   function handleDownload() {
-    const link = document.createElement("a");
-    link.href = plaqueImageUrl;
-    link.download = `plaque-${parcelle.commune}-${parcelle.avenue}-N${parcelle.numero}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Convert SVG to PNG côté client pour téléchargement haute déf
+    if (plaqueImageUrl.startsWith("data:image/svg")) {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = 2400;
+        canvas.height = 1200;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, 2400, 1200);
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `plaque-${parcelle.commune}-${parcelle.avenue}-N${parcelle.numero}.png`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+            }
+          }, "image/png");
+        }
+      };
+      img.src = plaqueImageUrl;
+    } else {
+      // Déjà un PNG
+      const link = document.createElement("a");
+      link.href = plaqueImageUrl;
+      link.download = `plaque-${parcelle.commune}-${parcelle.avenue}-N${parcelle.numero}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   }
 
   function handlePrint() {
