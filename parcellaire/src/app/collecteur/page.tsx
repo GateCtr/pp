@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { db } from "@/db";
 import { parcelles } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
@@ -9,6 +10,12 @@ import { BrouillonsList } from "@/components/collecteur/brouillons-list";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+export const metadata: Metadata = {
+  title: "Mes Collectes",
+  description: "Gérez vos fiches parcellaires en cours - Tableau de bord agent collecteur Lopango",
+  robots: { index: false, follow: false },
+};
 
 export default async function CollecteurPage() {
   const session = await getCollectorSession();
