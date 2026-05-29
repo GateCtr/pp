@@ -3,6 +3,9 @@ import { LogOut } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function CollecteurLayout({
   children,
 }: {
@@ -10,8 +13,7 @@ export default async function CollecteurLayout({
 }) {
   const session = await getCollectorSession();
 
-  // If no session, render children without authenticated layout
-  // The proxy handles redirection — login page renders here without session
+  // No session: render children raw (login page or proxy will handle redirect)
   if (!session) {
     return <>{children}</>;
   }

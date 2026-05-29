@@ -39,7 +39,8 @@ export default function CollectorLoginPage() {
       }
 
       toast.success(`Bienvenue, ${data.agent.nom}`);
-      router.push("/collecteur");
+      // Hard redirect pour forcer le rechargement complet avec le nouveau cookie
+      window.location.href = "/collecteur";
     } catch {
       toast.error("Erreur de connexion au serveur");
     } finally {
