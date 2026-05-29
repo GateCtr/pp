@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
 interface Session {
@@ -28,10 +28,9 @@ export function CollectorSessionProvider({ children }: { children: React.ReactNo
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const checkedRef = useRef(false);
 
   useEffect(() => {
-    // Ne pas vérifier sur la page login
+    // Page login — pas de vérification
     if (pathname === "/collecteur/login") {
       setLoading(false);
       return;
@@ -50,17 +49,16 @@ export function CollectorSessionProvider({ children }: { children: React.ReactNo
         if (res.ok) {
           const data = await res.json();
           setSession(data);
-          checkedRef.current = true;
         } else {
+          // 401 = pas de session valide ET on est en ligne → redirect login
           setSession(null);
-          // Ne rediriger que si on a déjà vérifié au moins une fois
-          // (évite de rediriger pendant le premier rendu après login)
-          if (checkedRef.current) {
+          if (navigator.onLine) {
             router.replace("/collecteur/login");
           }
+          // Offline → on ne redirige pas, l'app fonctionne en local
         }
       } catch {
-        // Erreur réseau — ne pas déconnecter (mode offline possible)
+        // Fetch échoue (offline) → garder la session existante, ne pas déconnecter
         if (cancelled) return;
       } finally {
         if (!cancelled) setLoading(false);
@@ -68,7 +66,6 @@ export function CollectorSessionProvider({ children }: { children: React.ReactNo
     }
 
     checkSession();
-
     return () => { cancelled = true; };
   }, [pathname, router]);
 
