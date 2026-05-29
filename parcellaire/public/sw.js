@@ -1,11 +1,12 @@
-const CACHE_NAME = "lopango-v2";
-const STATIC_CACHE = "lopango-static-v2";
+const CACHE_NAME = "lopango-v3";
+const STATIC_CACHE = "lopango-static-v3";
 
 // Pages à cacher pour l'accès hors-ligne
 const OFFLINE_PAGES = [
   "/collecteur",
   "/collecteur/login",
   "/collecteur/nouvelle",
+  "/offline",
 ];
 
 // Assets statiques à pré-cacher
@@ -14,6 +15,8 @@ const STATIC_ASSETS = [
   "/favicon-96x96.png",
   "/favicon.ico",
   "/site.webmanifest",
+  "/web-app-manifest-192x192.png",
+  "/web-app-manifest-512x512.png",
 ];
 
 // ===== INSTALL =====
@@ -48,12 +51,10 @@ self.addEventListener("fetch", (event) => {
 
   // Ne pas intercepter les requêtes API POST (collecte offline gérée côté client)
   if (request.method !== "GET") {
-    // Pour les POST vers /api/parcelles, on laisse passer normalement
-    // Si offline, le client gère la queue dans IndexedDB
     return;
   }
 
-  // Stratégie pour les pages Next.js (HTML) : Network first, fallback cache
+  // Stratégie pour les pages Next.js (HTML) : Network first, fallback cache, then offline page
   if (request.headers.get("accept")?.includes("text/html")) {
     event.respondWith(
       fetch(request)
@@ -69,8 +70,11 @@ self.addEventListener("fetch", (event) => {
         .catch(() => {
           return caches.match(request).then((cached) => {
             if (cached) return cached;
-            // Fallback vers la page collecteur (app shell)
-            return caches.match("/collecteur");
+            // Fallback: try collecteur page, then offline page
+            return caches.match("/collecteur").then((collecteurPage) => {
+              if (collecteurPage) return collecteurPage;
+              return caches.match("/offline");
+            });
           });
         })
     );
@@ -93,6 +97,9 @@ self.addEventListener("fetch", (event) => {
             });
           }
           return response;
+        }).catch(() => {
+          // Return empty response for non-critical assets
+          return new Response("", { status: 408, statusText: "Offline" });
         });
       })
     );
@@ -141,18 +148,55 @@ self.addEventListener("fetch", (event) => {
 });
 
 // ===== BACKGROUND SYNC =====
-// Quand la connexion revient, on synchronise les données offline
 self.addEventListener("sync", (event) => {
   if (event.tag === "sync-parcelles") {
-    event.respondWith(syncOfflineParcelles());
+    event.waitUntil(syncOfflineParcelles());
   }
 });
 
 async function syncOfflineParcelles() {
-  // La synchronisation réelle est gérée côté client via IndexedDB
-  // Le service worker notifie juste les clients qu'une sync est possible
   const clients = await self.clients.matchAll();
   clients.forEach((client) => {
     client.postMessage({ type: "SYNC_AVAILABLE" });
   });
 }
+
+// ===== PUSH NOTIFICATIONS (future) =====
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  const data = event.data.json();
+  const options = {
+    body: data.body || "Nouvelle notification Lopango",
+    icon: "/web-app-manifest-192x192.png",
+    badge: "/favicon-96x96.png",
+    vibrate: [100, 50, 100],
+    data: {
+      url: data.url || "/collecteur",
+    },
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title || "Lopango", options)
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/collecteur";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window" }).then((clientList) => {
+      // Focus existing window if available
+      for (const client of clientList) {
+        if (client.url.includes(url) && "focus" in client) {
+          return client.focus();
+        }
+      }
+      // Open new window
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
+      }
+    })
+  );
+});

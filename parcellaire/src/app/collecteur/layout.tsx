@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { CollectorSessionProvider } from "@/components/collecteur/session-provider";
 import { CollectorHeader } from "@/components/collecteur/collector-header";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
 export default function CollecteurLayout({
   children,
@@ -17,6 +18,7 @@ export default function CollecteurLayout({
     return (
       <CollectorSessionProvider>
         {children}
+        <PWAInstallPrompt />
       </CollectorSessionProvider>
     );
   }
@@ -28,6 +30,7 @@ export default function CollecteurLayout({
         <main className="container mx-auto px-4 py-6 max-w-2xl animate-fade-in">
           {children}
         </main>
+        <PWAInstallPrompt />
       </div>
     </CollectorSessionProvider>
   );
