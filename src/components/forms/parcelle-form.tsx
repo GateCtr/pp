@@ -185,7 +185,7 @@ export function ParcelleForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={(e) => e.preventDefault()}>
         {/* Step 0: Identification */}
         {step === 0 && (
           <Card className="border-0 shadow-lg shadow-gray-200/50 animate-fade-in">
@@ -598,8 +598,9 @@ export function ParcelleForm() {
             </Button>
           ) : (
             <Button
-              type="submit"
+              type="button"
               disabled={loading}
+              onClick={handleSubmit(onSubmit)}
               className="h-11 px-6 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/25"
             >
               {loading ? (
