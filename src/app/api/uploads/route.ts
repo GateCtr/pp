@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/db";
+import { assets } from "@/db/schema";
 
 // S3-compatible client for Cloudflare R2
 async function uploadToR2(
@@ -79,6 +81,14 @@ export async function POST(request: NextRequest) {
     const filename = `${prefix}-${safeName}`;
 
     const url = await uploadToR2(buffer, filename, file.type);
+
+    // Enregistrer l'asset en DB pour le retrouver plus tard
+    const assetType = type === "seal" ? "seal" : type === "flag" ? "flag" : "asset";
+    await db.insert(assets).values({
+      type: assetType,
+      url,
+      filename: file.name,
+    });
 
     return NextResponse.json({ success: true, url });
   } catch (error) {

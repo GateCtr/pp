@@ -215,10 +215,10 @@ function AssetsManager({
   onSelect: (url: string) => void;
   onClose: () => void;
 }) {
-  const [assets, setAssets] = useState<string[]>([]);
+  const [assets, setAssets] = useState<{ id: string; url: string; filename: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [deletingUrl, setDeletingUrl] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAssets();
@@ -227,15 +227,10 @@ function AssetsManager({
   async function fetchAssets() {
     setLoading(true);
     try {
-      const res = await fetch("/api/plate-templates");
+      const res = await fetch(`/api/assets?type=${type}`);
       if (!res.ok) throw new Error("Failed to fetch");
-      const templates: PlateTemplate[] = await res.json();
-      const urls = new Set<string>();
-      for (const t of templates) {
-        const url = type === "flag" ? t.flagUrl : t.sealUrl;
-        if (url) urls.add(url);
-      }
-      setAssets(Array.from(urls));
+      const data = await res.json();
+      setAssets(data);
     } catch {
       toast.error("Erreur lors du chargement des assets");
     } finally {
@@ -260,7 +255,8 @@ function AssetsManager({
         const data = await res.json();
         if (!res.ok) { toast.error(data.error || "Erreur upload"); return; }
         toast.success(`${type === "flag" ? "Drapeau" : "Sceau"} uploadé`);
-        setAssets((prev) => [data.url, ...prev]);
+        // Refresh list from DB
+        await fetchAssets();
       } catch {
         toast.error("Erreur upload");
       } finally {
@@ -270,15 +266,25 @@ function AssetsManager({
     input.click();
   }
 
-  async function handleDelete(url: string) {
+  async function handleDelete(id: string) {
     if (!window.confirm("Supprimer cet asset ?")) return;
-    setDeletingUrl(url);
+    setDeletingId(id);
     try {
-      // Remove asset from the list locally
-      setAssets((prev) => prev.filter((a) => a !== url));
-      toast.success("Asset supprimé");
+      const res = await fetch("/api/assets", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setAssets((prev) => prev.filter((a) => a.id !== id));
+        toast.success("Asset supprimé");
+      } else {
+        toast.error("Erreur suppression");
+      }
+    } catch {
+      toast.error("Erreur");
     } finally {
-      setDeletingUrl(null);
+      setDeletingId(null);
     }
   }
 
@@ -345,21 +351,21 @@ function AssetsManager({
                 </div>
               ) : (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                  {assets.map((url) => (
+                  {assets.map((asset) => (
                     <div
-                      key={url}
+                      key={asset.id}
                       className="group relative border border-gray-200 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-md transition-all"
                     >
                       <div className={`aspect-square flex items-center justify-center bg-gray-50 p-2 ${type === "seal" ? "rounded-full mx-auto w-3/4 mt-2" : ""}`}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={url} alt={type} className="w-full h-full object-contain" />
+                        <img src={asset.url} alt={type} className="w-full h-full object-contain" />
                       </div>
 
                       <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
                         <Button
                           size="sm"
                           className="h-7 px-2 text-[10px] bg-blue-600 hover:bg-blue-700 text-white"
-                          onClick={() => { onSelect(url); onClose(); }}
+                          onClick={() => { onSelect(asset.url); onClose(); }}
                         >
                           <Check className="w-3 h-3 mr-1" /> Sélectionner
                         </Button>
@@ -367,10 +373,10 @@ function AssetsManager({
                           size="sm"
                           variant="outline"
                           className="h-7 px-2 text-[10px] bg-white/90 text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={() => handleDelete(url)}
-                          disabled={deletingUrl === url}
+                          onClick={() => handleDelete(asset.id)}
+                          disabled={deletingId === asset.id}
                         >
-                          {deletingUrl === url ? (
+                          {deletingId === asset.id ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
                           ) : (
                             <Trash2 className="w-3 h-3" />

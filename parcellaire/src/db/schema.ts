@@ -107,6 +107,15 @@ export const plateTemplates = pgTable("plate_templates", {
   misAJour: timestamp("mis_a_jour").defaultNow(),
 });
 
+// Assets (uploaded files tracked in DB)
+export const assets = pgTable("assets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  type: varchar("type", { length: 20 }).notNull(), // "flag" | "seal"
+  url: text("url").notNull(),
+  filename: varchar("filename", { length: 255 }),
+  creeLe: timestamp("cree_le").defaultNow(),
+});
+
 export const menages = pgTable("menages", {
   id: uuid("id").defaultRandom().primaryKey(),
   parcelleId: uuid("parcelle_id")
@@ -127,6 +136,7 @@ export type Menage = typeof menages.$inferSelect;
 export type NewMenage = typeof menages.$inferInsert;
 export type PlateTemplate = typeof plateTemplates.$inferSelect;
 export type NewPlateTemplate = typeof plateTemplates.$inferInsert;
+export type Asset = typeof assets.$inferSelect;
 
 // Variant design type
 export interface VariantDesign {
