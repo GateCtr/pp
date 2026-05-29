@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { parcelles } from "@/db/schema";
+import { parcelles, plateTemplates } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { generatePlate } from "@/lib/plate-generator";
+import { generatePlateWithTemplate } from "@/lib/plate-generator";
+import type { VariantDesign } from "@/db/schema";
 
 export async function POST(
   request: NextRequest,
@@ -11,7 +12,6 @@ export async function POST(
   try {
     const { id } = await params;
 
-    // Get the parcelle
     const [parcelle] = await db
       .select()
       .from(parcelles)
@@ -19,76 +19,51 @@ export async function POST(
       .limit(1);
 
     if (!parcelle) {
-      return NextResponse.json(
-        { error: "Parcelle non trouvée" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Parcelle non trouvée" }, { status: 404 });
     }
 
-    // Only validated parcelles can have their plate regenerated
     if (parcelle.statutValidation !== "valide") {
-      return NextResponse.json(
-        { error: "Seules les parcelles validées peuvent avoir une plaque régénérée" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Seules les parcelles validées peuvent avoir une plaque régénérée" }, { status: 400 });
     }
 
-    // Si la plaque existe déjà dans le bucket (URL non base64), on la retourne directement
-    // C'est un duplicata : pas besoin de re-stocker, l'originale est dans le bucket
+    // Si la plaque existe dans le bucket (non base64), retourner l'existante
     if (parcelle.plaqueImageUrl && !parcelle.plaqueImageUrl.startsWith("data:")) {
-      // L'original est dans le bucket — on retourne les URLs existantes
-      return NextResponse.json({
-        success: true,
-        isDuplicate: true,
-        plaqueUrl: parcelle.plaqueImageUrl,
-        qrCodeUrl: parcelle.qrCodeUrl,
-        message: "Duplicata — la plaque originale du bucket est retournée",
-      });
+      await db.update(parcelles).set({ misAJour: new Date(), modifiePar: "admin (duplicata demandé)" }).where(eq(parcelles.id, id));
+      return NextResponse.json({ success: true, isDuplicate: true, plaqueUrl: parcelle.plaqueImageUrl, qrCodeUrl: parcelle.qrCodeUrl });
     }
 
-    // Si la plaque est en base64 (mode dev) ou n'existe pas, on regénère en mémoire
-    // On ne persiste PAS dans le bucket car c'est identique à l'originale
-    const { plaqueUrl, qrCodeUrl } = await generatePlate({
-      id: parcelle.id,
-      commune: parcelle.commune,
-      quartier: parcelle.quartier,
-      avenue: parcelle.avenue,
-      numero: parcelle.numero,
-    });
-
-    // On met à jour uniquement si la plaque n'existait pas encore
-    if (!parcelle.plaqueImageUrl) {
-      await db
-        .update(parcelles)
-        .set({
-          plaqueImageUrl: plaqueUrl,
-          qrCodeUrl: qrCodeUrl,
-          misAJour: new Date(),
-          modifiePar: "admin (duplicata plaque)",
-        })
-        .where(eq(parcelles.id, id));
-    } else {
-      // Juste mettre à jour la date pour traçabilité
-      await db
-        .update(parcelles)
-        .set({
-          misAJour: new Date(),
-          modifiePar: "admin (duplicata demandé)",
-        })
-        .where(eq(parcelles.id, id));
+    // Récupérer le template assigné si il existe (pour inclure le seal dans le QR)
+    let templateConfig = undefined;
+    if (parcelle.templateId && parcelle.variantIndex !== null) {
+      const [template] = await db.select().from(plateTemplates).where(eq(plateTemplates.id, parcelle.templateId)).limit(1);
+      if (template) {
+        const variants = (typeof template.variants === "string" ? JSON.parse(template.variants) : template.variants) as VariantDesign[];
+        if (variants[parcelle.variantIndex]) {
+          templateConfig = {
+            variant: variants[parcelle.variantIndex],
+            flagUrl: template.flagUrl,
+            sealUrl: template.sealUrl,
+          };
+        }
+      }
     }
 
-    return NextResponse.json({
-      success: true,
-      isDuplicate: false,
-      plaqueUrl: parcelle.plaqueImageUrl || plaqueUrl,
-      qrCodeUrl: parcelle.qrCodeUrl || qrCodeUrl,
-    });
+    // Régénérer avec le template (inclut le seal dans le QR)
+    const { plaqueUrl, qrCodeUrl } = await generatePlateWithTemplate(
+      { id: parcelle.id, commune: parcelle.commune, quartier: parcelle.quartier, avenue: parcelle.avenue, numero: parcelle.numero },
+      templateConfig
+    );
+
+    await db.update(parcelles).set({
+      plaqueImageUrl: plaqueUrl,
+      qrCodeUrl: qrCodeUrl,
+      misAJour: new Date(),
+      modifiePar: "admin (duplicata plaque)",
+    }).where(eq(parcelles.id, id));
+
+    return NextResponse.json({ success: true, isDuplicate: false, plaqueUrl, qrCodeUrl });
   } catch (error) {
     console.error("Regenerate plate error:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erreur interne du serveur" }, { status: 500 });
   }
 }

@@ -209,9 +209,6 @@ export function ParcelleDetailClient({
   }
 
   async function handleRegeneratePlate() {
-    if (!window.confirm("Régénérer la plaque (duplicata) ? L'ancienne plaque sera remplacée.")) {
-      return;
-    }
     setRegenerating(true);
     try {
       const res = await fetch(`/api/parcelles/${parcelle.id}/regenerate-plate`, {

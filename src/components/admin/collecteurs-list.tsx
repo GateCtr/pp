@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Portal } from "@/components/ui/portal";
 import type { AgentCollecteur } from "@/db/schema";
 
 const statutConfig: Record<
@@ -446,12 +447,10 @@ function AgentCard({ agent }: { agent: AgentCollecteur }) {
                 {menuOpen && (
                   <>
                     {/* Backdrop to close menu */}
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setMenuOpen(false)}
-                    />
-                    <div className="absolute right-0 bottom-full mb-1 z-[9999] w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
-                      <MenuButton
+                    <Portal>
+                      <div className="fixed inset-0 z-[99998]" onClick={() => setMenuOpen(false)} />
+                      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[99999] w-48 bg-white border border-gray-200 rounded-lg shadow-2xl py-1 animate-scale-in">
+                        <MenuButton
                         icon={<Edit3 className="w-3.5 h-3.5" />}
                         label="Éditer"
                         onClick={() => {
@@ -522,6 +521,7 @@ function AgentCard({ agent }: { agent: AgentCollecteur }) {
                         onClick={handleDelete}
                       />
                     </div>
+                    </Portal>
                   </>
                 )}
               </div>

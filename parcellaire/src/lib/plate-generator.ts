@@ -69,12 +69,23 @@ export async function generatePlateWithTemplate(
   // Conversion PNG côté client via canvas si besoin de téléchargement
   const plateDataUrl = `data:image/svg+xml;base64,${Buffer.from(plateSvg).toString("base64")}`;
 
-  // QR code as separate PNG data URL
-  const qrPngUrl = `data:image/png;base64,${qrBuffer.toString("base64")}`;
+  // QR code as separate data URL — with seal overlay if available
+  let qrFinalUrl = `data:image/png;base64,${qrBuffer.toString("base64")}`;
+
+  // If seal exists, generate a QR SVG with seal in center
+  if (templateConfig?.sealUrl) {
+    const qrWithSealSvg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 400 400" width="400" height="400">
+      <image x="0" y="0" width="400" height="400" href="${qrDataUrl}"/>
+      <circle cx="200" cy="200" r="56" fill="white"/>
+      <clipPath id="qrSealClipStandalone"><circle cx="200" cy="200" r="48"/></clipPath>
+      <image x="152" y="152" width="96" height="96" href="${escapeXml(templateConfig.sealUrl)}" clip-path="url(#qrSealClipStandalone)" preserveAspectRatio="xMidYMid slice"/>
+    </svg>`;
+    qrFinalUrl = `data:image/svg+xml;base64,${Buffer.from(qrWithSealSvg).toString("base64")}`;
+  }
 
   return {
     plaqueUrl: plateDataUrl,
-    qrCodeUrl: qrPngUrl,
+    qrCodeUrl: qrFinalUrl,
   };
 }
 
