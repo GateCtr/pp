@@ -5,7 +5,6 @@ import { SearchBar } from "@/components/ui/search-bar";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MapPin, Calendar, Edit3, FileText } from "lucide-react";
-import Link from "next/link";
 import type { Parcelle } from "@/db/schema";
 
 interface BrouillonsListProps {
@@ -75,7 +74,7 @@ export function BrouillonsList({ brouillons }: BrouillonsListProps) {
                       )}
                     </div>
                   </div>
-                  <Link href={`/collecteur/editer/${parcelle.id}`}>
+                  <a href={`/collecteur/editer/${parcelle.id}`}>
                     <Button
                       variant="outline"
                       size="sm"
@@ -84,7 +83,7 @@ export function BrouillonsList({ brouillons }: BrouillonsListProps) {
                       <Edit3 className="w-3 h-3 mr-1.5" />
                       Éditer
                     </Button>
-                  </Link>
+                  </a>
                 </div>
               </CardContent>
             </Card>
