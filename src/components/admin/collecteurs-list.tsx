@@ -450,7 +450,7 @@ function AgentCard({ agent }: { agent: AgentCollecteur }) {
                       className="fixed inset-0 z-40"
                       onClick={() => setMenuOpen(false)}
                     />
-                    <div className="absolute right-0 top-full mt-1 z-50 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
+                    <div className="absolute right-0 bottom-full mb-1 z-[9999] w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-1">
                       <MenuButton
                         icon={<Edit3 className="w-3.5 h-3.5" />}
                         label="Éditer"
