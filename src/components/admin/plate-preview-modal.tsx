@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { X, Download, Printer } from "lucide-react";
+import { Portal } from "@/components/ui/portal";
 
 interface PlatePreviewModalProps {
   plaqueImageUrl: string;
@@ -55,8 +56,9 @@ export function PlatePreviewModal({
       `}</style>
 
       {/* Backdrop */}
+      <Portal>
       <div
-        className="plate-preview-modal fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+        className="plate-preview-modal fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
         onClick={(e) => {
           if (e.target === e.currentTarget) onClose();
         }}
@@ -141,6 +143,7 @@ export function PlatePreviewModal({
           </div>
         </div>
       </div>
+      </Portal>
     </>
   );
 }

@@ -10,7 +10,6 @@ import {
   MapPin,
   User,
   Calendar,
-  ExternalLink,
   FileText,
   Archive,
   Trash2,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { PlatePreviewModal } from "@/components/admin/plate-preview-modal";
 import type { Parcelle } from "@/db/schema";
 
 interface ParcelleWithAgent extends Parcelle {
@@ -51,6 +51,7 @@ export function ParcellesListClient({ allParcelles }: ParcellesListClientProps) 
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [previewParcelle, setPreviewParcelle] = useState<ParcelleWithAgent | null>(null);
 
   const filtered = allParcelles.filter((p) => {
     if (!search) return true;
@@ -94,6 +95,20 @@ export function ParcellesListClient({ allParcelles }: ParcellesListClientProps) 
 
   return (
     <div>
+      {/* Plate Preview Modal */}
+      {previewParcelle && previewParcelle.plaqueImageUrl && (
+        <PlatePreviewModal
+          plaqueImageUrl={previewParcelle.plaqueImageUrl}
+          parcelle={{
+            commune: previewParcelle.commune,
+            quartier: previewParcelle.quartier,
+            avenue: previewParcelle.avenue,
+            numero: previewParcelle.numero,
+          }}
+          onClose={() => setPreviewParcelle(null)}
+        />
+      )}
+
       <SearchBar
         placeholder="Rechercher par commune, quartier, avenue, numéro, propriétaire..."
         onSearch={setSearch}
@@ -134,6 +149,7 @@ export function ParcellesListClient({ allParcelles }: ParcellesListClientProps) 
                     onCloseMenu={() => setOpenMenu(null)}
                     onArchive={handleArchive}
                     onDelete={handleDelete}
+                    onShowPlaque={setPreviewParcelle}
                   />
                 ))}
               </div>
@@ -160,6 +176,7 @@ export function ParcellesListClient({ allParcelles }: ParcellesListClientProps) 
                     onCloseMenu={() => setOpenMenu(null)}
                     onArchive={handleArchive}
                     onDelete={handleDelete}
+                    onShowPlaque={setPreviewParcelle}
                   />
                 ))}
               </div>
@@ -179,6 +196,7 @@ function ParcelleCard({
   onCloseMenu,
   onArchive,
   onDelete,
+  onShowPlaque,
 }: {
   parcelle: ParcelleWithAgent;
   showActions: boolean;
@@ -187,6 +205,7 @@ function ParcelleCard({
   onCloseMenu: () => void;
   onArchive: (id: string) => void;
   onDelete: (id: string) => void;
+  onShowPlaque: (p: ParcelleWithAgent) => void;
 }) {
   const status = statusConfig[parcelle.statutValidation];
 
@@ -300,16 +319,22 @@ function ParcelleCard({
         )}
 
         {parcelle.statutValidation === "valide" && parcelle.plaqueImageUrl && (
-          <div className="pl-[52px]">
-            <a
-              href={parcelle.plaqueImageUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
+          <div className="pl-[52px] flex items-center gap-3">
+            {/* Thumbnail plaque */}
+            <button
+              onClick={() => onShowPlaque(parcelle)}
+              className="flex items-center gap-2 p-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all group"
             >
-              <ExternalLink className="w-3 h-3" />
-              Voir la plaque générée
-            </a>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={parcelle.plaqueImageUrl}
+                alt="Plaque"
+                className="h-10 w-auto rounded object-contain"
+              />
+              <span className="text-[10px] text-blue-600 font-medium group-hover:text-blue-800">
+                Voir la plaque
+              </span>
+            </button>
           </div>
         )}
       </CardContent>
