@@ -10,8 +10,6 @@ export default function AdminSignInPage() {
             cardBox: "shadow-2xl",
           },
         }}
-        afterSignInUrl="/admin"
-        signUpUrl={undefined}
       />
     </div>
   );
