@@ -63,7 +63,7 @@ export async function LandingGallery() {
           <span className="text-gradient">selon vos besoins</span>
         </h3>
         <p className="text-blue-200/60 max-w-lg mx-auto text-sm sm:text-base">
-          L&apos;administrateur choisit un template et une variante pour chaque parcelle.
+          Chaque plaque est unique, normalisée et vérifiable instantanément via QR Code.
           Couleurs, polices et formes sont entièrement configurables.
         </p>
       </div>
