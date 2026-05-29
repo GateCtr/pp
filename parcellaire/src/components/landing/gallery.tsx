@@ -32,14 +32,15 @@ export function LandingGallery() {
     <section className="container mx-auto px-4 sm:px-6 py-20">
       <div className="text-center mb-14 animate-fade-in">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-4">
-          <span className="text-blue-300/80 text-xs font-medium">Exemples</span>
+          <span className="text-blue-300/80 text-xs font-medium">Templates & Variantes</span>
         </div>
         <h3 className="text-2xl sm:text-4xl font-bold text-white mb-4">
-          Plaques parcellaires<br />
-          <span className="text-gradient">générées automatiquement</span>
+          Des plaques personnalisables<br />
+          <span className="text-gradient">selon vos besoins</span>
         </h3>
         <p className="text-blue-200/60 max-w-lg mx-auto text-sm sm:text-base">
-          Chaque plaque est unique, normalisée et vérifiable instantanément via QR Code
+          L&apos;administrateur choisit un template et une variante pour chaque parcelle.
+          Couleurs, polices et formes sont entièrement configurables.
         </p>
       </div>
 

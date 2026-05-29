@@ -17,8 +17,8 @@ const steps = [
   },
   {
     number: "03",
-    title: "Plaque & QR Code",
-    description: "Dès validation, une plaque parcellaire officielle est automatiquement générée avec un QR Code unique. Tout citoyen peut scanner et vérifier les informations.",
+    title: "Assignation & Génération",
+    description: "L'administrateur assigne un template et une variante à la parcelle validée. La plaque haute définition avec QR Code est générée — prête pour l'impression et la vérification citoyenne.",
     illustration: StepPlaqueIllustration,
     accent: "emerald",
   },
