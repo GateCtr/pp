@@ -30,6 +30,11 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
 
+  // Sign-in page renders without the authenticated layout
+  if (pathname?.includes("/sign-in")) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50/50">
       {/* Mobile overlay */}

@@ -18,6 +18,7 @@ const isPublicRoute = createRouteMatcher([
   "/verification(.*)",
   "/api/auth/collector",
   "/api/auth/collector/logout",
+  "/admin/sign-in(.*)",
 ]);
 
 const COLLECTOR_SECRET = new TextEncoder().encode(
