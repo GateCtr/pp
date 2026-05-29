@@ -16,11 +16,15 @@ export async function getCollectorSession(): Promise<CollectorSession | null> {
     const cookieStore = await cookies();
     const token = cookieStore.get("collector-session")?.value;
 
-    if (!token) return null;
+    if (!token) {
+      return null;
+    }
 
     const { payload } = await jwtVerify(token, SECRET);
     return payload as unknown as CollectorSession;
-  } catch {
+  } catch (error) {
+    // Log en production pour debug
+    console.error("[auth] getCollectorSession failed:", error instanceof Error ? error.message : error);
     return null;
   }
 }

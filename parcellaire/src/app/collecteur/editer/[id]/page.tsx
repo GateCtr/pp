@@ -15,14 +15,9 @@ export default async function EditerBrouillonPage({
 }) {
   const session = await getCollectorSession();
 
-  // Le proxy protège cette route — si pas de session ici, reload
+  // Pas de session → le SessionProvider client gère la redirection
   if (!session) {
-    return (
-      <div className="text-center py-16">
-        <p className="text-gray-500">Chargement...</p>
-        <script dangerouslySetInnerHTML={{ __html: `window.location.reload()` }} />
-      </div>
-    );
+    return null;
   }
 
   const { id } = await params;
@@ -37,12 +32,10 @@ export default async function EditerBrouillonPage({
     redirect("/collecteur");
   }
 
-  // Verify ownership
   if (parcelle.agentId !== session.agentId) {
     redirect("/collecteur");
   }
 
-  // Verify still a brouillon
   if (parcelle.statutValidation !== "brouillon") {
     redirect("/collecteur");
   }

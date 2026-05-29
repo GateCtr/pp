@@ -13,15 +13,9 @@ export const revalidate = 0;
 export default async function CollecteurPage() {
   const session = await getCollectorSession();
 
-  // Le proxy gère la redirection — si on arrive ici sans session,
-  // on affiche un état vide plutôt que de rediriger (évite la boucle)
+  // Pas de session → le SessionProvider client gère la redirection
   if (!session) {
-    return (
-      <div className="text-center py-16">
-        <p className="text-gray-500">Chargement de la session...</p>
-        <script dangerouslySetInnerHTML={{ __html: `window.location.reload()` }} />
-      </div>
-    );
+    return null;
   }
 
   const mesBrouillons = await db
@@ -37,7 +31,6 @@ export default async function CollecteurPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -56,7 +49,6 @@ export default async function CollecteurPage() {
         </Link>
       </div>
 
-      {/* Mes Brouillons Section */}
       <div>
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-4 h-4 text-amber-500" />
@@ -67,7 +59,6 @@ export default async function CollecteurPage() {
             {mesBrouillons.length}
           </span>
         </div>
-
         <BrouillonsList brouillons={mesBrouillons} />
       </div>
     </div>
