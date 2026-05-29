@@ -2,6 +2,7 @@ import { db } from "@/db";
 import { parcelles } from "@/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { getCollectorSession } from "@/lib/auth";
+import Link from "next/link";
 import { Plus, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BrouillonsList } from "@/components/collecteur/brouillons-list";
@@ -46,13 +47,13 @@ export default async function CollecteurPage() {
             Gérez vos fiches parcellaires en cours
           </p>
         </div>
-        <a href="/collecteur/nouvelle">
+        <Link href="/collecteur/nouvelle">
           <Button className="h-10 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-500/20">
             <Plus className="w-4 h-4 mr-2" />
             <span className="hidden sm:inline">Nouvelle Collecte</span>
             <span className="sm:hidden">Nouveau</span>
           </Button>
-        </a>
+        </Link>
       </div>
 
       {/* Mes Brouillons Section */}
