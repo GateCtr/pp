@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ParcelleActions } from "@/components/admin/parcelle-actions";
 import { GeneratePlatesButton } from "@/components/admin/generate-plates-button";
+import { ExportPdfButton } from "@/components/admin/export-pdf-button";
 import { MapPin, User, Calendar, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
 
@@ -57,6 +58,13 @@ export default async function AdminParcellesPage() {
         </div>
         {/* Summary badges */}
         <div className="flex items-center gap-2 flex-wrap">
+          <ExportPdfButton
+            parcelles={allParcelles.map(({ parcelle, agent }) => ({
+              ...parcelle,
+              agentNom: agent?.nom || "—",
+            }))}
+            filterLabel="Toutes les parcelles"
+          />
           <GeneratePlatesButton
             validatedParcelles={allParcelles
               .filter((p) => p.parcelle.statutValidation === "valide")

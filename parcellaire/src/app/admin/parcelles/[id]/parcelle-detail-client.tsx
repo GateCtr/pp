@@ -36,9 +36,11 @@ import {
   QrCode,
   RefreshCw,
   ExternalLink,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Parcelle, Menage, AgentCollecteur } from "@/db/schema";
+import { PlatePreviewModal } from "@/components/admin/plate-preview-modal";
 
 
 const statusConfig = {
@@ -101,6 +103,7 @@ export function ParcelleDetailClient({
   const [saving, setSaving] = useState(false);
   const [validating, setValidating] = useState<"valide" | "rejete" | null>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const [showPlatePreview, setShowPlatePreview] = useState(false);
 
   const status = statusConfig[parcelle.statutValidation];
 
@@ -491,6 +494,15 @@ export function ParcelleDetailClient({
                       <ExternalLink className="w-3 h-3" />
                       Ouvrir en plein écran
                     </a>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-9 px-3 text-xs ml-3 mt-3"
+                      onClick={() => setShowPlatePreview(true)}
+                    >
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                      Voir en grand
+                    </Button>
                   </div>
                 )}
                 {parcelle.qrCodeUrl && (
@@ -518,6 +530,20 @@ export function ParcelleDetailClient({
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Plate Preview Modal */}
+        {showPlatePreview && parcelle.plaqueImageUrl && (
+          <PlatePreviewModal
+            plaqueImageUrl={parcelle.plaqueImageUrl}
+            parcelle={{
+              commune: parcelle.commune,
+              quartier: parcelle.quartier,
+              avenue: parcelle.avenue,
+              numero: parcelle.numero,
+            }}
+            onClose={() => setShowPlatePreview(false)}
+          />
         )}
 
         {/* Audit Info */}
