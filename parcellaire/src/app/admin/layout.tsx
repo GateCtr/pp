@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Palette,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/admin", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/parcelles", label: "Parcelles", icon: FileText },
   { href: "/admin/collecteurs", label: "Collecteurs", icon: Users },
+  { href: "/admin/plaques-templates", label: "Plaques Templates", icon: Palette },
 ];
 
 export default function AdminLayout({

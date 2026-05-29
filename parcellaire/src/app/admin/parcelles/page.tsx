@@ -4,6 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ParcelleActions } from "@/components/admin/parcelle-actions";
+import { GeneratePlatesButton } from "@/components/admin/generate-plates-button";
 import { MapPin, User, Calendar, ExternalLink, FileText } from "lucide-react";
 import Link from "next/link";
 
@@ -56,6 +57,11 @@ export default async function AdminParcellesPage() {
         </div>
         {/* Summary badges */}
         <div className="flex items-center gap-2 flex-wrap">
+          <GeneratePlatesButton
+            validatedParcelles={allParcelles
+              .filter((p) => p.parcelle.statutValidation === "valide")
+              .map((p) => p.parcelle)}
+          />
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100 text-xs font-medium text-amber-700">
             <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
             {brouillons.length} en attente
