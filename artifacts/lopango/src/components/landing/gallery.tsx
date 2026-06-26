@@ -132,25 +132,25 @@ function VariantPlaque({ commune, quartier, avenue, numero, variant, flagUrl, se
       {/* N° — centré pleine largeur, gros */}
       <text x="180" y="147" textAnchor="middle" fill={variant.accentColor} fontSize="44" fontWeight="bold" fontFamily={variant.fontFamily}>N° {numero}</text>
 
-      {/* QR — 56×56, droite, centre vertical = 133 (même ligne que N°) */}
-      <rect x="291" y="105" width="56" height="56" rx="4" fill="white" />
+      {/* QR — 44×44, droite, centre vertical = 133 (même ligne que N°) */}
+      <rect x="303" y="111" width="44" height="44" rx="3" fill="white" />
       {/* TL corner */}
-      <rect x="294" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="296" y="110" width="7" height="7" fill="#1e293b" />
+      <rect x="306" y="114" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
+      <rect x="308" y="116" width="5" height="5" fill="#1e293b" />
       {/* TR corner */}
-      <rect x="333" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="335" y="110" width="7" height="7" fill="#1e293b" />
+      <rect x="335" y="114" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
+      <rect x="337" y="116" width="5" height="5" fill="#1e293b" />
       {/* BL corner */}
-      <rect x="294" y="147" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="296" y="149" width="7" height="7" fill="#1e293b" />
+      <rect x="306" y="143" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
+      <rect x="308" y="145" width="5" height="5" fill="#1e293b" />
       {/* Seal in QR center */}
       <clipPath id={`qrSeal-${commune}`}>
-        <circle cx="319" cy="133" r="7" />
+        <circle cx="325" cy="133" r="6" />
       </clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="312" y="126" width="14" height="14" clipPath={`url(#qrSeal-${commune})`} preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="319" y="127" width="12" height="12" clipPath={`url(#qrSeal-${commune})`} preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="319" cy="133" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="325" cy="133" r="6" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );

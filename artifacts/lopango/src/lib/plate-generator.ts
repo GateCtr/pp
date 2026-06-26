@@ -104,12 +104,15 @@ function generateTemplatePlateSVG(
   const rx = variant.shape === "rectangle" ? "8" : variant.shape === "rounded" ? "24" : "40";
   const innerRx = String(Math.max(0, Number(rx) - 4));
 
+  // QR 280×280, right side, vertical center aligned with N° center (~y=860)
+  // Plate inner right: 2384 — QR right edge: 2384-60=2324 — QR left: 2044
+  // QR vertical: center y=860 → top y=720, bottom y=1000
   const qrSvgContent = sealUrl
-    ? `<image x="1900" y="700" width="360" height="360" href="${qrDataUrl}"/>
-       <circle cx="2080" cy="880" r="60" fill="white"/>
-       <clipPath id="qrSeal"><circle cx="2080" cy="880" r="48"/></clipPath>
-       <image x="2032" y="832" width="96" height="96" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
-    : `<image x="1920" y="720" width="360" height="360" href="${qrDataUrl}"/>`;
+    ? `<image x="2044" y="720" width="280" height="280" href="${qrDataUrl}"/>
+       <circle cx="2184" cy="860" r="44" fill="white"/>
+       <clipPath id="qrSeal"><circle cx="2184" cy="860" r="36"/></clipPath>
+       <image x="2148" y="824" width="72" height="72" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
+    : `<image x="2044" y="720" width="280" height="280" href="${qrDataUrl}"/>`;
 
   const flagContent = flagUrl
     ? `<image x="100" y="80" width="280" height="200" href="${escapeXml(flagUrl)}" preserveAspectRatio="xMidYMid meet"/>`
@@ -163,8 +166,8 @@ function generateTemplatePlateSVG(
     ${escapeXml(avenue)}
   </text>
   
-  <!-- Numero -->
-  <text x="900" y="920" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="192" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">
+  <!-- Numero — centré pleine largeur, même ligne verticale que QR (centre ~y=860) -->
+  <text x="1200" y="940" text-anchor="middle" fill="${escapeXml(variant.accentColor)}" font-size="192" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">
     ${escapeXml(numero)}
   </text>
   
@@ -200,8 +203,8 @@ function generateDefaultPlateSVG(data: PlateData, qrDataUrl: string): string {
   <text x="1200" y="380" text-anchor="middle" fill="#87CEEB" font-size="64" font-family="Arial, sans-serif" font-weight="bold">QUARTIER ${escapeXml(quartier)}</text>
   <rect x="40" y="430" width="2320" height="200" rx="16" fill="#ffffff" opacity="0.12"/>
   <text x="1200" y="555" text-anchor="middle" fill="#ffffff" font-size="112" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
-  <text x="900" y="920" text-anchor="middle" fill="#ffffff" font-size="192" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
-  <image x="1920" y="720" width="360" height="360" href="${qrDataUrl}"/>
+  <text x="1200" y="940" text-anchor="middle" fill="#87CEEB" font-size="192" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
+  <image x="2044" y="720" width="280" height="280" href="${qrDataUrl}"/>
 </svg>`;
 }
 
