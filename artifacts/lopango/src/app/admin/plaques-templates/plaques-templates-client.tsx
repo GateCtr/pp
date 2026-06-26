@@ -777,33 +777,36 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
 
       {/* Text */}
       <text x="180" y="24" textAnchor="middle" fill={variant.accentColor} fontSize="6" fontFamily={variant.fontFamily}>COMMUNE DE</text>
-      <text x="180" y="38" textAnchor="middle" fill={variant.textColor} fontSize="11" fontWeight="bold" fontFamily={variant.fontFamily}>NGIRI NGIRI</text>
-      <text x="180" y="56" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="bold" fontFamily={variant.fontFamily}>QUARTIER ELENGESA</text>
+      <text x="180" y="38" textAnchor="middle" fill={variant.textColor} fontSize="11" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
+      <text x="180" y="56" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="bold" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
-
-      {/* White band for avenue */}
+      {/* Avenue band */}
       <rect x="14" y="64" width="332" height="28" rx="3" fill={variant.borderColor} opacity="0.15" />
-      <text x="180" y="82" textAnchor="middle" fill={variant.textColor} fontSize="12" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE ELENGESA</text>
+      <text x="180" y="82" textAnchor="middle" fill={variant.textColor} fontSize="12" fontWeight="bold" fontFamily={variant.fontFamily}>AV. DE L&apos;INDÉPENDANCE</text>
 
-      {/* N° */}
-      <text x="130" y="140" textAnchor="middle" fill={variant.accentColor} fontSize="32" fontWeight="bold" fontFamily={variant.fontFamily}>N° 6</text>
+      {/* ── Bottom section: N° (left) + QR (right), same vertical center ── */}
+      {/* N° — large, left side, vertically centered at y=133 */}
+      <text x="148" y="147" textAnchor="middle" fill={variant.accentColor} fontSize="44" fontWeight="bold" fontFamily={variant.fontFamily}>N° 6</text>
 
-      {/* QR placeholder with seal center */}
-      <rect x="290" y="100" width="48" height="48" rx="4" fill="white" />
-      <rect x="294" y="104" width="10" height="10" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="296" y="106" width="6" height="6" fill="#1e293b" />
-      <rect x="324" y="104" width="10" height="10" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="326" y="106" width="6" height="6" fill="#1e293b" />
-      <rect x="294" y="132" width="10" height="10" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="296" y="134" width="6" height="6" fill="#1e293b" />
+      {/* QR — 56×56, right side, top-left at (271,105), center at (299,133) */}
+      <rect x="271" y="105" width="56" height="56" rx="4" fill="white" />
+      {/* TL corner */}
+      <rect x="274" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="276" y="110" width="7" height="7" fill="#1e293b" />
+      {/* TR corner */}
+      <rect x="313" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="315" y="110" width="7" height="7" fill="#1e293b" />
+      {/* BL corner */}
+      <rect x="274" y="147" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="276" y="149" width="7" height="7" fill="#1e293b" />
       {/* Seal in QR center */}
       <clipPath id="qrSealClip">
-        <circle cx="314" cy="124" r="8" />
+        <circle cx="299" cy="133" r="7" />
       </clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="306" y="116" width="16" height="16" clipPath="url(#qrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="292" y="126" width="14" height="14" clipPath="url(#qrSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="314" cy="124" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="299" cy="133" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );
