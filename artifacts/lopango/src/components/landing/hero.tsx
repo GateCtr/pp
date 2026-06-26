@@ -12,19 +12,20 @@ export function LandingHero() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm mb-6">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse-soft" />
-            <span className="text-blue-200 text-xs font-medium">Plateforme Active &mdash; RDC</span>
+            <span className="text-blue-200 text-xs font-medium">Province du Kongo Central &mdash; RDC</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl lg:text-[3.5rem] font-bold text-gradient leading-[1.1] mb-6">
             Cartographie &<br />Recensement<br />
             <span className="bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent">
-              Parcellaire Digital
+              Parcellaire Kongo Central
             </span>
           </h2>
 
           <p className="text-blue-200/80 text-base sm:text-lg max-w-xl mb-8 leading-relaxed">
-            Plateforme intégrée de collecte foncière, recensement des ménages
-            et génération automatique de plaques parcellaires connectées avec QR Code.
+            Plateforme officielle de collecte foncière et de recensement des ménages
+            pour la province du Kongo Central. Plaques parcellaires avec QR Code, 
+            données géolocalisées, mode hors-ligne.
           </p>
 
           {/* CTA */}
@@ -44,18 +45,18 @@ export function LandingHero() {
           {/* Stats */}
           <div className="flex items-center gap-8 mt-10 justify-center lg:justify-start">
             <div>
-              <p className="text-2xl font-bold text-white">100%</p>
-              <p className="text-blue-300/60 text-xs">Digital & Mobile</p>
+              <p className="text-2xl font-bold text-white">10</p>
+              <p className="text-blue-300/60 text-xs">Territoires</p>
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div>
-              <p className="text-2xl font-bold text-white">QR Code</p>
-              <p className="text-blue-300/60 text-xs">Vérification Instant.</p>
+              <p className="text-2xl font-bold text-white">2</p>
+              <p className="text-blue-300/60 text-xs">Villes (Matadi · Boma)</p>
             </div>
             <div className="w-px h-10 bg-white/10" />
             <div>
-              <p className="text-2xl font-bold text-white">PWA</p>
-              <p className="text-blue-300/60 text-xs">Mode Hors-ligne</p>
+              <p className="text-2xl font-bold text-white">QR</p>
+              <p className="text-blue-300/60 text-xs">Plaques connectées</p>
             </div>
           </div>
         </div>

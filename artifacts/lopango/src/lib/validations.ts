@@ -9,6 +9,7 @@ export const menageSchema = z.object({
 export const parcelleFormSchema = z.object({
   // A. Identification
   district: z.string().optional(),
+  avenueId: z.string().optional(), // FK to structured geo (populated when agent has affectation)
   commune: z.string().min(2, "Commune requise"),
   secteur: z.string().optional(),
   cite: z.string().optional(),

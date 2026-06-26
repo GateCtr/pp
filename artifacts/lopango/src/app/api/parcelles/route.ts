@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
         quartier: data.quartier,
         avenue: data.avenue,
         numero: data.numero,
+        avenueId: data.avenueId || null,
         proprietaireNom: data.proprietaireNom,
         proprietaireTel: data.proprietaireTel || null,
         statutJuridique: data.statutJuridique || null,

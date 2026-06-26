@@ -12,7 +12,7 @@ export function LandingHeader() {
           <Logo size="md" className="shadow-lg shadow-blue-500/25" />
           <div>
             <h1 className="text-white font-bold text-lg leading-tight">Lopango</h1>
-            <p className="text-blue-300/70 text-xs hidden sm:block">Cartographie & Recensement</p>
+            <p className="text-blue-300/70 text-xs hidden sm:block">Kongo Central — RDC</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

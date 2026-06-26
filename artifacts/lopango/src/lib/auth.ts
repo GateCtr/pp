@@ -5,10 +5,20 @@ const SECRET = new TextEncoder().encode(
   process.env.COLLECTOR_JWT_SECRET || "lopango-collector-secret-key-2024"
 );
 
+export interface ZoneInfo {
+  avenueId: string;
+  avenueNom: string;
+  quartierId: string;
+  quartierNom: string;
+  communeNom: string;
+  villeOuTerritoireNom: string;
+}
+
 export interface CollectorSession {
   agentId: string;
   nom: string;
   role: "collecteur";
+  zone?: ZoneInfo;
 }
 
 export async function getCollectorSession(): Promise<CollectorSession | null> {

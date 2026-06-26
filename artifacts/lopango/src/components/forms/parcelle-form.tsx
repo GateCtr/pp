@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { type ParcelleFormData } from "@/lib/validations";
+import { type ZoneInfo } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,6 +28,8 @@ import {
   Send,
   ChevronLeft,
   ChevronRight,
+  Lock,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,19 +41,28 @@ const STEPS = [
   { label: "Envoi", icon: Send, color: "indigo" },
 ];
 
-export function ParcelleForm() {
+interface Props {
+  zone?: ZoneInfo;
+}
+
+export function ParcelleForm({ zone }: Props) {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [numeroExists, setNumeroExists] = useState(false);
+  const [checkingNumero, setCheckingNumero] = useState(false);
+
+  const hasZone = Boolean(zone?.avenueId);
 
   const form = useForm<ParcelleFormData>({
     defaultValues: {
-      district: "",
-      commune: "",
+      district: zone?.villeOuTerritoireNom ?? "",
+      commune: zone?.communeNom ?? "",
       secteur: "",
       cite: "",
-      quartier: "",
-      avenue: "",
+      quartier: zone?.quartierNom ?? "",
+      avenue: zone?.avenueNom ?? "",
+      avenueId: zone?.avenueId ?? "",
       numero: "",
       proprietaireNom: "",
       proprietaireTel: "",
@@ -74,7 +86,42 @@ export function ParcelleForm() {
     formState: { errors },
   } = form;
 
+  const watchNumero = watch("numero");
+
+  const checkDuplicate = useCallback(
+    async (numero: string) => {
+      if (!zone?.avenueId || !numero.trim()) {
+        setNumeroExists(false);
+        return;
+      }
+      setCheckingNumero(true);
+      try {
+        const res = await fetch(
+          `/api/parcelles/check-numero?avenueId=${encodeURIComponent(zone.avenueId)}&numero=${encodeURIComponent(numero)}`
+        );
+        const data = await res.json();
+        setNumeroExists(data.exists);
+      } catch {
+        // offline — skip check
+      } finally {
+        setCheckingNumero(false);
+      }
+    },
+    [zone?.avenueId]
+  );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (watchNumero) checkDuplicate(watchNumero);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [watchNumero, checkDuplicate]);
+
   async function onSubmit(data: ParcelleFormData) {
+    if (numeroExists) {
+      toast.error("Ce numéro existe déjà sur cette avenue — vérifiez avant de soumettre.");
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/parcelles", {
@@ -92,7 +139,6 @@ export function ParcelleForm() {
       setSubmitted(true);
       toast.success("Parcelle enregistrée avec succès !");
     } catch {
-      // Offline: save locally
       try {
         const { saveOfflineParcelle } = await import("@/lib/offline-storage");
         await saveOfflineParcelle(data as unknown as Record<string, unknown>);
@@ -112,9 +158,7 @@ export function ParcelleForm() {
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/25">
           <CheckCircle2 className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Collecte Enregistrée !
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Collecte Enregistrée !</h2>
         <p className="text-gray-500 text-center mb-8 max-w-xs">
           La fiche a été soumise en tant que brouillon en attente de validation administrative.
         </p>
@@ -122,7 +166,23 @@ export function ParcelleForm() {
           onClick={() => {
             setSubmitted(false);
             setStep(0);
-            form.reset();
+            form.reset({
+              district: zone?.villeOuTerritoireNom ?? "",
+              commune: zone?.communeNom ?? "",
+              secteur: "",
+              cite: "",
+              quartier: zone?.quartierNom ?? "",
+              avenue: zone?.avenueNom ?? "",
+              avenueId: zone?.avenueId ?? "",
+              numero: "",
+              proprietaireNom: "",
+              proprietaireTel: "",
+              nombreMenages: 0,
+              nombreLocataires: 0,
+              valeurLocative: "",
+              menages: [],
+            });
+            setNumeroExists(false);
           }}
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20"
         >
@@ -137,7 +197,6 @@ export function ParcelleForm() {
     <div>
       {/* Step Progress */}
       <div className="mb-6">
-        {/* Mobile: compact */}
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs font-medium text-gray-500">
             Étape {step + 1} sur {STEPS.length}
@@ -146,14 +205,12 @@ export function ParcelleForm() {
             {STEPS[step].label}
           </span>
         </div>
-        {/* Progress bar */}
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
           />
         </div>
-        {/* Desktop step indicators */}
         <div className="hidden sm:flex items-center justify-between mt-4">
           {STEPS.map((s, i) => (
             <button
@@ -201,76 +258,154 @@ export function ParcelleForm() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">District</Label>
-                  <Input {...register("district")} placeholder="ex: Funa" className="h-11 bg-gray-50/50" />
+              {/* Zone locked banner */}
+              {hasZone ? (
+                <div className="rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-blue-700 text-xs font-semibold">
+                    <Lock className="w-3.5 h-3.5" />
+                    Zone affectée — pré-remplie automatiquement
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                    <div>
+                      <span className="text-gray-400">Ville / Territoire</span>
+                      <p className="font-semibold text-gray-800">{zone?.villeOuTerritoireNom || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Commune</span>
+                      <p className="font-semibold text-gray-800">{zone?.communeNom || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Quartier</span>
+                      <p className="font-semibold text-gray-800">{zone?.quartierNom || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-gray-400">Avenue</span>
+                      <p className="font-semibold text-gray-800">{zone?.avenueNom || "—"}</p>
+                    </div>
+                  </div>
+
+                  {/* Hidden fields */}
+                  <input type="hidden" {...register("avenueId")} />
+                  <input type="hidden" {...register("commune")} />
+                  <input type="hidden" {...register("quartier")} />
+                  <input type="hidden" {...register("avenue")} />
+                  <input type="hidden" {...register("district")} />
+
+                  {/* Only numero is editable */}
+                  <div className="space-y-1.5 pt-1">
+                    <Label className="text-xs font-semibold text-gray-700">
+                      Numéro de parcelle <span className="text-red-400">*</span>
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        {...register("numero")}
+                        placeholder="ex: 47"
+                        className={`h-12 text-lg font-bold text-center ${
+                          numeroExists
+                            ? "border-red-300 bg-red-50 text-red-700"
+                            : "bg-white border-blue-200 focus:border-blue-400"
+                        }`}
+                        autoFocus
+                      />
+                      {checkingNumero && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <Loader2 className="w-4 h-4 animate-spin text-gray-300" />
+                        </div>
+                      )}
+                    </div>
+                    {errors.numero && (
+                      <p className="text-red-500 text-xs">{errors.numero.message}</p>
+                    )}
+                    {numeroExists && !checkingNumero && (
+                      <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-100 text-xs text-red-700">
+                        <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                        <span>
+                          Ce numéro existe déjà sur cette avenue. Vérifiez sur le terrain avant de continuer.
+                        </span>
+                      </div>
+                    )}
+                    {!numeroExists && watchNumero && !checkingNumero && zone?.avenueId && (
+                      <p className="text-emerald-600 text-xs flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Numéro disponible
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">
-                    Commune <span className="text-red-400">*</span>
-                  </Label>
-                  <Input
-                    {...register("commune")}
-                    placeholder="ex: Ngiri Ngiri"
-                    className="h-11 bg-gray-50/50"
-                  />
-                  {errors.commune && (
-                    <p className="text-red-500 text-xs">{errors.commune.message}</p>
-                  )}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">Secteur</Label>
-                  <Input {...register("secteur")} className="h-11 bg-gray-50/50" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">Cité</Label>
-                  <Input {...register("cite")} className="h-11 bg-gray-50/50" />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-gray-600">
-                  Quartier <span className="text-red-400">*</span>
-                </Label>
-                <Input
-                  {...register("quartier")}
-                  placeholder="ex: Elengesa"
-                  className="h-11 bg-gray-50/50"
-                />
-                {errors.quartier && (
-                  <p className="text-red-500 text-xs">{errors.quartier.message}</p>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2 space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">
-                    Avenue / Rue <span className="text-red-400">*</span>
-                  </Label>
-                  <Input
-                    {...register("avenue")}
-                    placeholder="ex: Avenue Elengesa"
-                    className="h-11 bg-gray-50/50"
-                  />
-                  {errors.avenue && (
-                    <p className="text-red-500 text-xs">{errors.avenue.message}</p>
-                  )}
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-medium text-gray-600">
-                    N° <span className="text-red-400">*</span>
-                  </Label>
-                  <Input
-                    {...register("numero")}
-                    placeholder="6"
-                    className="h-11 bg-gray-50/50 text-center font-semibold"
-                  />
-                  {errors.numero && (
-                    <p className="text-red-500 text-xs">{errors.numero.message}</p>
-                  )}
-                </div>
-              </div>
+              ) : (
+                /* No zone — free-form input (legacy) */
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-600">District / Ville</Label>
+                      <Input {...register("district")} placeholder="ex: Matadi" className="h-11 bg-gray-50/50" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-600">
+                        Commune <span className="text-red-400">*</span>
+                      </Label>
+                      <Input
+                        {...register("commune")}
+                        placeholder="ex: Commune Matadi"
+                        className="h-11 bg-gray-50/50"
+                      />
+                      {errors.commune && (
+                        <p className="text-red-500 text-xs">{errors.commune.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-600">Secteur</Label>
+                      <Input {...register("secteur")} className="h-11 bg-gray-50/50" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-600">Cité</Label>
+                      <Input {...register("cite")} className="h-11 bg-gray-50/50" />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-medium text-gray-600">
+                      Quartier <span className="text-red-400">*</span>
+                    </Label>
+                    <Input
+                      {...register("quartier")}
+                      placeholder="ex: Soyo"
+                      className="h-11 bg-gray-50/50"
+                    />
+                    {errors.quartier && (
+                      <p className="text-red-500 text-xs">{errors.quartier.message}</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="col-span-2 space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-600">
+                        Avenue / Rue <span className="text-red-400">*</span>
+                      </Label>
+                      <Input
+                        {...register("avenue")}
+                        placeholder="ex: Avenue de l'Indépendance"
+                        className="h-11 bg-gray-50/50"
+                      />
+                      {errors.avenue && (
+                        <p className="text-red-500 text-xs">{errors.avenue.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium text-gray-600">
+                        N° <span className="text-red-400">*</span>
+                      </Label>
+                      <Input
+                        {...register("numero")}
+                        placeholder="6"
+                        className="h-11 bg-gray-50/50 text-center font-semibold"
+                      />
+                      {errors.numero && (
+                        <p className="text-red-500 text-xs">{errors.numero.message}</p>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         )}
@@ -513,21 +648,43 @@ export function ParcelleForm() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Summary */}
               <div className="rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 p-4 space-y-3">
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <span className="text-gray-500 text-xs">Commune</span>
-                    <p className="font-medium text-gray-900">{watch("commune") || "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 text-xs">Quartier</span>
-                    <p className="font-medium text-gray-900">{watch("quartier") || "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 text-xs">Avenue</span>
-                    <p className="font-medium text-gray-900">{watch("avenue") || "—"}</p>
-                  </div>
+                  {hasZone ? (
+                    <>
+                      <div>
+                        <span className="text-gray-500 text-xs">Ville / Territoire</span>
+                        <p className="font-medium text-gray-900">{zone?.villeOuTerritoireNom || "—"}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 text-xs">Commune</span>
+                        <p className="font-medium text-gray-900">{zone?.communeNom || "—"}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 text-xs">Quartier</span>
+                        <p className="font-medium text-gray-900">{zone?.quartierNom || "—"}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 text-xs">Avenue</span>
+                        <p className="font-medium text-gray-900">{zone?.avenueNom || "—"}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <span className="text-gray-500 text-xs">Commune</span>
+                        <p className="font-medium text-gray-900">{watch("commune") || "—"}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 text-xs">Quartier</span>
+                        <p className="font-medium text-gray-900">{watch("quartier") || "—"}</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500 text-xs">Avenue</span>
+                        <p className="font-medium text-gray-900">{watch("avenue") || "—"}</p>
+                      </div>
+                    </>
+                  )}
                   <div>
                     <span className="text-gray-500 text-xs">Numéro</span>
                     <p className="font-bold text-lg text-blue-700">N° {watch("numero") || "—"}</p>
@@ -546,7 +703,15 @@ export function ParcelleForm() {
                 </div>
               </div>
 
-              {/* Info notice */}
+              {numeroExists && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-red-50 border border-red-200">
+                  <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-red-700">
+                    <strong>Attention :</strong> Le numéro N°{watch("numero")} existe déjà sur {zone?.avenueNom}. Retournez à l&apos;étape 1 pour corriger.
+                  </p>
+                </div>
+              )}
+
               <div className="flex items-start gap-3 p-3 rounded-lg bg-amber-50 border border-amber-100">
                 <div className="w-5 h-5 rounded-full bg-amber-200 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-amber-700 text-xs font-bold">!</span>
@@ -574,7 +739,6 @@ export function ParcelleForm() {
             <span className="sm:hidden">Retour</span>
           </Button>
 
-          {/* Step dots (mobile only) */}
           <div className="flex items-center gap-1.5 sm:hidden">
             {STEPS.map((_, i) => (
               <div
@@ -599,9 +763,9 @@ export function ParcelleForm() {
           ) : (
             <Button
               type="button"
-              disabled={loading}
+              disabled={loading || numeroExists}
               onClick={handleSubmit(onSubmit)}
-              className="h-11 px-6 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/25"
+              className="h-11 px-6 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg shadow-emerald-500/25 disabled:opacity-50"
             >
               {loading ? (
                 <>

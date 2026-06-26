@@ -3,10 +3,20 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
+interface ZoneInfo {
+  avenueId: string;
+  avenueNom: string;
+  quartierId: string;
+  quartierNom: string;
+  communeNom: string;
+  villeOuTerritoireNom: string;
+}
+
 interface Session {
   agentId: string;
   nom: string;
   role: string;
+  zone?: ZoneInfo;
 }
 
 interface SessionContextType {

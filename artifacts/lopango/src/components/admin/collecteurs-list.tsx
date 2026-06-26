@@ -23,10 +23,12 @@ import {
   Check,
   Copy,
   X,
+  MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Portal } from "@/components/ui/portal";
 import type { AgentCollecteur } from "@/db/schema";
+import { AffectationModal } from "./affectation-modal";
 
 const statutConfig: Record<
   string,
@@ -151,6 +153,7 @@ function AgentCard({ agent }: { agent: AgentCollecteur }) {
   const [editTelephone, setEditTelephone] = useState(agent.telephone || "");
   const [revealCode, setRevealCode] = useState(false);
   const [currentCode, setCurrentCode] = useState(agent.codeAcces);
+  const [affectationOpen, setAffectationOpen] = useState(false);
 
   const statut = agent.statut || "actif";
   const config = statutConfig[statut] || statutConfig.actif;
@@ -398,6 +401,27 @@ function AgentCard({ agent }: { agent: AgentCollecteur }) {
 
             {/* Actions */}
             <div className="flex items-center gap-1 flex-shrink-0">
+              {/* Affectation button */}
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 px-2 text-xs text-blue-600 border-blue-200 hover:bg-blue-50"
+                onClick={() => setAffectationOpen(true)}
+                disabled={loading !== null}
+                title="Affecter une zone"
+              >
+                <MapPin className="w-3.5 h-3.5" />
+              </Button>
+
+              {affectationOpen && (
+                <AffectationModal
+                  agentId={agent.id}
+                  agentNom={agent.nom}
+                  onClose={() => setAffectationOpen(false)}
+                  onSaved={() => { setAffectationOpen(false); router.refresh(); }}
+                />
+              )}
+
               {/* Quick status action */}
               {statut === "actif" && (
                 <Button

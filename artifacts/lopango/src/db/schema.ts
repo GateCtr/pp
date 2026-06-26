@@ -9,6 +9,7 @@ import {
   boolean,
   numeric,
   jsonb,
+  unique,
 } from "drizzle-orm/pg-core";
 
 // Enums
@@ -39,6 +40,40 @@ export const statutAgentEnum = pgEnum("statut_agent", [
   "archive",
 ]);
 
+export const typeLieuEnum = pgEnum("type_lieu", [
+  "ville",
+  "territoire",
+  "commune",
+  "secteur",
+  "chefferie",
+  "cite",
+  "quartier",
+  "village",
+]);
+
+// ─── Geographic hierarchy (Kongo Central) ────────────────────────────────────
+
+export const lieuxGeo = pgTable("lieux_geo", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  nom: varchar("nom", { length: 255 }).notNull(),
+  type: typeLieuEnum("type").notNull(),
+  // self-referencing: ville/territoire → commune/secteur → quartier/village
+  parentId: uuid("parent_id"),
+  code: varchar("code", { length: 50 }),
+  actif: boolean("actif").default(true).notNull(),
+  creeLe: timestamp("cree_le").defaultNow(),
+});
+
+export const avenues = pgTable("avenues", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  nom: varchar("nom", { length: 255 }).notNull(),
+  quartierId: uuid("quartier_id")
+    .references(() => lieuxGeo.id, { onDelete: "cascade" })
+    .notNull(),
+  actif: boolean("actif").default(true).notNull(),
+  creeLe: timestamp("cree_le").defaultNow(),
+});
+
 // Tables
 export const agentsCollecteurs = pgTable("agents_collecteurs", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -52,6 +87,20 @@ export const agentsCollecteurs = pgTable("agents_collecteurs", {
   modifiePar: varchar("modifie_par", { length: 255 }),
 });
 
+// Zone assignments — one agent can cover multiple avenues/quartiers
+export const affectationsAgents = pgTable("affectations_agents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  agentId: uuid("agent_id")
+    .references(() => agentsCollecteurs.id, { onDelete: "cascade" })
+    .notNull(),
+  avenueId: uuid("avenue_id").references(() => avenues.id),
+  quartierId: uuid("quartier_id").references(() => lieuxGeo.id),
+  actif: boolean("actif").default(true).notNull(),
+  dateDebut: timestamp("date_debut").defaultNow(),
+  dateFin: timestamp("date_fin"),
+  creeLe: timestamp("cree_le").defaultNow(),
+});
+
 export const parcelles = pgTable("parcelles", {
   id: uuid("id").defaultRandom().primaryKey(),
   // Identification
@@ -62,6 +111,8 @@ export const parcelles = pgTable("parcelles", {
   quartier: varchar("quartier", { length: 255 }).notNull(),
   avenue: varchar("avenue", { length: 255 }).notNull(),
   numero: varchar("numero", { length: 50 }).notNull(),
+  // FK to structured geo (set when agent has an affectation)
+  avenueId: uuid("avenue_id").references(() => avenues.id),
   // Propriétaire
   proprietaireNom: varchar("proprietaire_nom", { length: 255 }).notNull(),
   proprietaireTel: varchar("proprietaire_tel", { length: 20 }),
@@ -89,7 +140,10 @@ export const parcelles = pgTable("parcelles", {
   misAJour: timestamp("mis_a_jour").defaultNow(),
   modifiePar: varchar("modifie_par", { length: 255 }),
   motifModification: text("motif_modification"),
-});
+}, (t) => ({
+  // Prevent duplicate parcel numbers on the same avenue
+  avenueNumeroUnique: unique("parcelle_avenue_numero_unique").on(t.avenueId, t.numero),
+}));
 
 // Plate Templates
 export const plateTemplates = pgTable("plate_templates", {
@@ -137,6 +191,11 @@ export type NewMenage = typeof menages.$inferInsert;
 export type PlateTemplate = typeof plateTemplates.$inferSelect;
 export type NewPlateTemplate = typeof plateTemplates.$inferInsert;
 export type Asset = typeof assets.$inferSelect;
+export type LieuGeo = typeof lieuxGeo.$inferSelect;
+export type NewLieuGeo = typeof lieuxGeo.$inferInsert;
+export type Avenue = typeof avenues.$inferSelect;
+export type NewAvenue = typeof avenues.$inferInsert;
+export type AffectationAgent = typeof affectationsAgents.$inferSelect;
 
 // Variant design type
 export interface VariantDesign {
