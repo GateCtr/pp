@@ -157,25 +157,25 @@ function StepPlaqueFromTemplate({ variant, flagUrl, sealUrl }: {
         <rect x="20" y="68" width="320" height="26" rx="3" fill={v.borderColor} opacity="0.12" />
         <text x="180" y="85" textAnchor="middle" fill={v.textColor} fontSize="11" fontWeight="bold" fontFamily={v.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
 
-        {/* N° */}
-        <text x="120" y="115" textAnchor="middle" fill={v.accentColor} fontSize="22" fontWeight="bold" fontFamily={v.fontFamily}>N° 6</text>
+        {/* N° — centered and large */}
+        <text x="168" y="122" textAnchor="middle" fill={v.accentColor} fontSize="36" fontWeight="bold" fontFamily={v.fontFamily}>N° 6</text>
 
-        {/* QR on plate */}
-        <rect x="275" y="86" width="38" height="38" rx="3" fill="white" />
-        <rect x="279" y="90" width="7" height="7" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-        <rect x="280" y="91" width="4" height="4" fill="#1e293b" />
-        <rect x="303" y="90" width="7" height="7" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-        <rect x="304" y="91" width="4" height="4" fill="#1e293b" />
-        <rect x="279" y="113" width="7" height="7" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-        <rect x="280" y="114" width="4" height="4" fill="#1e293b" />
+        {/* QR on plate — smaller, tucked in right corner */}
+        <rect x="308" y="92" width="24" height="24" rx="2" fill="white" />
+        <rect x="311" y="95" width="5" height="5" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+        <rect x="312" y="96" width="3" height="3" fill="#1e293b" />
+        <rect x="324" y="95" width="5" height="5" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+        <rect x="325" y="96" width="3" height="3" fill="#1e293b" />
+        <rect x="311" y="108" width="5" height="5" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+        <rect x="312" y="109" width="3" height="3" fill="#1e293b" />
         {/* Seal in QR */}
         <clipPath id="step3qrSeal">
-          <circle cx="294" cy="105" r="5" />
+          <circle cx="320" cy="104" r="3.5" />
         </clipPath>
         {sealUrl ? (
-          <image href={sealUrl} x="289" y="100" width="10" height="10" clipPath="url(#step3qrSeal)" preserveAspectRatio="xMidYMid slice" />
+          <image href={sealUrl} x="316.5" y="100.5" width="7" height="7" clipPath="url(#step3qrSeal)" preserveAspectRatio="xMidYMid slice" />
         ) : (
-          <circle cx="294" cy="105" r="5" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+          <circle cx="320" cy="104" r="3.5" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
         )}
 
         {/* ===== Phone scanning animation ===== */}
@@ -193,7 +193,7 @@ function StepPlaqueFromTemplate({ variant, flagUrl, sealUrl }: {
         </line>
 
         {/* Arrow from QR to phone */}
-        <path d="M294 126 C297 140, 272 150, 260 158" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 2" fill="none" opacity="0.6" />
+        <path d="M320 116 C320 138, 278 150, 262 158" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeDasharray="3 2" fill="none" opacity="0.6" />
 
         {/* Checkmark badge */}
         <circle cx="60" cy="185" r="18" fill="#10b98120" stroke="#10b981" strokeWidth="1.5" />
