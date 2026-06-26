@@ -132,10 +132,14 @@ function StepPlaqueFromTemplate({ variant, flagUrl, sealUrl }: {
           <image href={flagUrl} x="24" y="22" width="40" height="28" preserveAspectRatio="xMidYMid meet" />
         ) : (
           <>
+            <clipPath id="flagClipStep3">
+              <rect x="24" y="22" width="40" height="28" rx="2" />
+            </clipPath>
             <rect x="24" y="22" width="40" height="28" rx="2" fill="#007FFF" />
-            {/* Diagonal: bottom-left → top-right, yellow border then red on top */}
-            <line x1="24" y1="50" x2="64" y2="22" stroke="#F7D618" strokeWidth="6" />
-            <line x1="24" y1="50" x2="64" y2="22" stroke="#CE1021" strokeWidth="3" />
+            <g clipPath="url(#flagClipStep3)">
+              <line x1="24" y1="50" x2="64" y2="22" stroke="#F7D618" strokeWidth="6" />
+              <line x1="24" y1="50" x2="64" y2="22" stroke="#CE1021" strokeWidth="3" />
+            </g>
             <polygon points="34,27 36,32 41,32 37,35 38,40 34,37 30,40 31,35 27,32 32,32" fill="#F7D618" />
           </>
         )}
