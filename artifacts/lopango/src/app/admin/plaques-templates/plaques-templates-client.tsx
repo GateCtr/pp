@@ -784,29 +784,29 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
       <rect x="14" y="64" width="332" height="28" rx="3" fill={variant.borderColor} opacity="0.15" />
       <text x="180" y="82" textAnchor="middle" fill={variant.textColor} fontSize="12" fontWeight="bold" fontFamily={variant.fontFamily}>AV. DE L&apos;INDÉPENDANCE</text>
 
-      {/* ── Bottom section: N° (left) + QR (right), same vertical center ── */}
-      {/* N° — large, left side, vertically centered at y=133 */}
-      <text x="148" y="147" textAnchor="middle" fill={variant.accentColor} fontSize="44" fontWeight="bold" fontFamily={variant.fontFamily}>N° 6</text>
+      {/* ── Bottom section: N° centré + QR aligné sur la même ligne à droite ── */}
+      {/* N° — centré pleine largeur, gros */}
+      <text x="180" y="147" textAnchor="middle" fill={variant.accentColor} fontSize="44" fontWeight="bold" fontFamily={variant.fontFamily}>N° 6</text>
 
-      {/* QR — 56×56, right side, top-left at (271,105), center at (299,133) */}
-      <rect x="271" y="105" width="56" height="56" rx="4" fill="white" />
+      {/* QR — 56×56, droite, centre vertical = 133 (même ligne que N°) */}
+      <rect x="291" y="105" width="56" height="56" rx="4" fill="white" />
       {/* TL corner */}
-      <rect x="274" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="276" y="110" width="7" height="7" fill="#1e293b" />
+      <rect x="294" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="296" y="110" width="7" height="7" fill="#1e293b" />
       {/* TR corner */}
-      <rect x="313" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="315" y="110" width="7" height="7" fill="#1e293b" />
+      <rect x="333" y="108" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="335" y="110" width="7" height="7" fill="#1e293b" />
       {/* BL corner */}
-      <rect x="274" y="147" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="276" y="149" width="7" height="7" fill="#1e293b" />
+      <rect x="294" y="147" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="296" y="149" width="7" height="7" fill="#1e293b" />
       {/* Seal in QR center */}
       <clipPath id="qrSealClip">
-        <circle cx="299" cy="133" r="7" />
+        <circle cx="319" cy="133" r="7" />
       </clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="292" y="126" width="14" height="14" clipPath="url(#qrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="312" y="126" width="14" height="14" clipPath="url(#qrSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="299" cy="133" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="319" cy="133" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );
