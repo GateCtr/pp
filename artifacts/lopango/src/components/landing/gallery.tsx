@@ -104,7 +104,9 @@ function VariantPlaque({ commune, quartier, avenue, numero, variant, flagUrl, se
       ) : (
         <>
           <rect x="16" y="14" width="44" height="30" rx="2" fill="#007FFF" />
-          <line x1="16" y1="14" x2="60" y2="44" stroke="#CE1021" strokeWidth="4" />
+          {/* Diagonal: bottom-left → top-right, yellow border then red on top */}
+          <line x1="16" y1="44" x2="60" y2="14" stroke="#F7D618" strokeWidth="7" />
+          <line x1="16" y1="44" x2="60" y2="14" stroke="#CE1021" strokeWidth="4" />
           <polygon points="26,19 28,25 34,25 29,28 31,34 26,30 21,34 23,28 18,25 24,25" fill="#F7D618" />
         </>
       )}
