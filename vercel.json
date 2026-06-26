@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @workspace/lopango run build",
+  "outputDirectory": "artifacts/lopango/.next",
+  "framework": "nextjs",
+  "installCommand": "pnpm install"
+}
