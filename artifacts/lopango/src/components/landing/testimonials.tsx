@@ -3,21 +3,21 @@ const testimonials = [
     quote:
       "Avant, je remplissais des formulaires papier qui se perdaient. Maintenant tout est sur mon téléphone, même sans internet. Un gain de temps incroyable.",
     name: "Agent Mbemba",
-    role: "Collecteur terrain — Ngiri Ngiri",
+    role: "Collecteur terrain — Matadi",
     avatar: "AM",
   },
   {
     quote:
       "La validation est instantanée. Je vois les fiches arriver en temps réel et je peux vérifier les données directement. Plus de dossiers qui traînent.",
     name: "Chef de Bureau Kalala",
-    role: "Administrateur — Commune de Lemba",
+    role: "Administrateur — Commune de Mbanza-Ngungu",
     avatar: "CK",
   },
   {
     quote:
       "Le QR Code sur la plaque permet à tout le monde de vérifier. C'est transparent, c'est moderne, et ça rassure les propriétaires.",
     name: "Mme Lukusa",
-    role: "Propriétaire parcellaire — Matete",
+    role: "Propriétaire parcellaire — Boma",
     avatar: "ML",
   },
 ];

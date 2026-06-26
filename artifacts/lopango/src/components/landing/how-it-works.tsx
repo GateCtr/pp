@@ -150,12 +150,12 @@ function StepPlaqueFromTemplate({ variant, flagUrl, sealUrl }: {
 
         {/* Text */}
         <text x="180" y="30" textAnchor="middle" fill={v.accentColor} fontSize="6" fontFamily={v.fontFamily}>COMMUNE DE</text>
-        <text x="180" y="44" textAnchor="middle" fill={v.textColor} fontSize="11" fontWeight="bold" fontFamily={v.fontFamily}>NGIRI NGIRI</text>
-        <text x="180" y="62" textAnchor="middle" fill={v.accentColor} fontSize="7" fontWeight="bold" fontFamily={v.fontFamily}>QUARTIER ELENGESA</text>
+        <text x="180" y="44" textAnchor="middle" fill={v.textColor} fontSize="11" fontWeight="bold" fontFamily={v.fontFamily}>MATADI</text>
+        <text x="180" y="62" textAnchor="middle" fill={v.accentColor} fontSize="7" fontWeight="bold" fontFamily={v.fontFamily}>QUARTIER MVUZI</text>
 
         {/* Avenue band */}
         <rect x="20" y="68" width="320" height="26" rx="3" fill={v.borderColor} opacity="0.12" />
-        <text x="180" y="85" textAnchor="middle" fill={v.textColor} fontSize="11" fontWeight="bold" fontFamily={v.fontFamily}>AVENUE ELENGESA</text>
+        <text x="180" y="85" textAnchor="middle" fill={v.textColor} fontSize="11" fontWeight="bold" fontFamily={v.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
 
         {/* N° */}
         <text x="120" y="115" textAnchor="middle" fill={v.accentColor} fontSize="22" fontWeight="bold" fontFamily={v.fontFamily}>N° 6</text>

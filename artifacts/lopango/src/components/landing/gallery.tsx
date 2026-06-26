@@ -15,11 +15,11 @@ export async function LandingGallery() {
   const allVariants: { commune: string; quartier: string; avenue: string; numero: string; variant: VariantDesign; flagUrl: string | null; sealUrl: string | null }[] = [];
 
   const sampleData = [
-    { commune: "NGIRI NGIRI", quartier: "ELENGESA", avenue: "AVENUE ELENGESA", numero: "6" },
-    { commune: "LEMBA", quartier: "RIGHINI", avenue: "AVENUE SHABA", numero: "42" },
-    { commune: "KINTAMBO", quartier: "MAKELELE", avenue: "AVENUE KABINDA", numero: "15" },
-    { commune: "MATETE", quartier: "TOMBA", avenue: "AVENUE KIKWIT", numero: "23" },
-    { commune: "LINGWALA", quartier: "BOYOMA", avenue: "AVENUE LUALABA", numero: "8" },
+    { commune: "MATADI", quartier: "MVUZI", avenue: "AVENUE DE L'INDÉPENDANCE", numero: "6" },
+    { commune: "BOMA", quartier: "KALAMU", avenue: "AVENUE DU FLEUVE CONGO", numero: "42" },
+    { commune: "MBANZA-NGUNGU", quartier: "NZANZA", avenue: "AVENUE LUFIMI", numero: "15" },
+    { commune: "LUKULA", quartier: "NTOMBO", avenue: "AVENUE NZINGA", numero: "23" },
+    { commune: "KINZADI", quartier: "SOYO", avenue: "AVENUE PATRICE LUMUMBA", numero: "8" },
   ];
 
   let dataIndex = 0;

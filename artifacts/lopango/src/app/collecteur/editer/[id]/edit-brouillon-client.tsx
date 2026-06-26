@@ -245,7 +245,7 @@ export function EditBrouillonClient({
                   </Label>
                   <Input
                     {...register("commune")}
-                    placeholder="ex: Ngiri Ngiri"
+                    placeholder="ex: Matadi"
                     className="h-11 bg-gray-50/50"
                   />
                   {errors.commune && (

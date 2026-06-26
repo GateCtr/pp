@@ -522,7 +522,7 @@ function TemplateEditor({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-gray-600">Nom du template *</Label>
-                    <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Standard Kinshasa" className="h-10" />
+                    <Input value={nom} onChange={(e) => setNom(e.target.value)} placeholder="ex: Standard Kongo Central" className="h-10" />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-gray-600">Description</Label>
