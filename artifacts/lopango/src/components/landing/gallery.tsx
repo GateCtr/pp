@@ -128,25 +128,25 @@ function VariantPlaque({ commune, quartier, avenue, numero, variant, flagUrl, se
       <rect x="14" y="64" width="332" height="28" rx="3" fill={variant.borderColor} opacity="0.12" />
       <text x="180" y="82" textAnchor="middle" fill={variant.textColor} fontSize="12" fontWeight="bold" fontFamily={variant.fontFamily}>{avenue}</text>
 
-      {/* N° */}
-      <text x="130" y="140" textAnchor="middle" fill={variant.accentColor} fontSize="32" fontWeight="bold" fontFamily={variant.fontFamily}>N° {numero}</text>
+      {/* N° — large, centered in left area */}
+      <text x="165" y="148" textAnchor="middle" fill={variant.accentColor} fontSize="44" fontWeight="bold" fontFamily={variant.fontFamily}>N° {numero}</text>
 
-      {/* QR placeholder */}
-      <rect x="290" y="100" width="48" height="48" rx="4" fill="white" />
-      <rect x="294" y="104" width="10" height="10" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="296" y="106" width="6" height="6" fill="#1e293b" />
-      <rect x="324" y="104" width="10" height="10" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="326" y="106" width="6" height="6" fill="#1e293b" />
-      <rect x="294" y="132" width="10" height="10" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
-      <rect x="296" y="134" width="6" height="6" fill="#1e293b" />
+      {/* QR — small, right corner, below avenue band */}
+      <rect x="312" y="98" width="30" height="30" rx="3" fill="white" />
+      <rect x="315" y="101" width="6" height="6" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="316" y="102" width="4" height="4" fill="#1e293b" />
+      <rect x="333" y="101" width="6" height="6" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="334" y="102" width="4" height="4" fill="#1e293b" />
+      <rect x="315" y="119" width="6" height="6" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="316" y="120" width="4" height="4" fill="#1e293b" />
       {/* Seal in QR center */}
       <clipPath id={`qrSeal-${commune}`}>
-        <circle cx="314" cy="124" r="8" />
+        <circle cx="327" cy="113" r="4" />
       </clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="306" y="116" width="16" height="16" clipPath={`url(#qrSeal-${commune})`} preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="323" y="109" width="8" height="8" clipPath={`url(#qrSeal-${commune})`} preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="314" cy="124" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="327" cy="113" r="4" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );
