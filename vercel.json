@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd artifacts/lopango && pnpm build",
-  "outputDirectory": "artifacts/lopango/.next",
-  "installCommand": "cd artifacts/lopango && pnpm install"
+  "installCommand": "cd artifacts/lopango && npm install --legacy-peer-deps",
+  "buildCommand": "cd artifacts/lopango && npm run build",
+  "outputDirectory": "artifacts/lopango/.next"
 }
