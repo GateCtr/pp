@@ -125,7 +125,6 @@ export default function AdminGeoPage() {
       setGrandchildren(data);
       setAvenues([]);
     }
-    setSelectedGrandchild(null);
   }
 
   function openAddLieu(parent: LieuGeo | null) {
@@ -400,7 +399,7 @@ export default function AdminGeoPage() {
               children.map((lieu) => (
                 <button
                   key={lieu.id}
-                  onClick={() => { setSelectedChild(lieu); fetchGrandchildren(lieu); }}
+                  onClick={() => { setSelectedChild(lieu); setSelectedGrandchild(null); setAvenues([]); fetchGrandchildren(lieu); }}
                   className={`w-full flex items-center justify-between px-4 py-3 text-left text-sm transition-colors group ${
                     selectedChild?.id === lieu.id
                       ? "bg-violet-50 text-violet-700"
