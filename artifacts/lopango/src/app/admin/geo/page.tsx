@@ -64,7 +64,7 @@ const TYPE_COLORS: Record<string, string> = {
 
 const CHILD_TYPES: Record<string, string[]> = {
   ville: ["commune"],
-  territoire: ["secteur", "chefferie", "cite"],
+  territoire: ["commune", "secteur", "chefferie", "cite"],
   commune: ["quartier"],
   secteur: ["quartier", "village"],
   chefferie: ["quartier", "village"],
