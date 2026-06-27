@@ -1,9 +1,8 @@
 "use client";
 
 import { UserButton } from "@clerk/nextjs";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useState, useTransition, useEffect } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -13,6 +12,7 @@ import {
   ChevronRight,
   Palette,
   Map,
+  Loader2,
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 
@@ -29,16 +29,39 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const router = useRouter();
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
 
-  // Sign-in page renders without the authenticated layout
+  // Clear pending when navigation settles
+  useEffect(() => {
+    if (!isPending) setPendingHref(null);
+  }, [isPending]);
+
   if (pathname?.includes("/sign-in")) {
     return <>{children}</>;
   }
 
+  function navigate(href: string) {
+    if (href === pathname) return;
+    setPendingHref(href);
+    setSidebarOpen(false);
+    startTransition(() => {
+      router.push(href);
+    });
+  }
+
   return (
     <div className="min-h-screen bg-gray-50/50">
+      {/* Top progress bar */}
+      {isPending && (
+        <div className="fixed top-0 left-0 right-0 z-[100] h-0.5 bg-blue-100 overflow-hidden">
+          <div className="h-full bg-blue-500 animate-[progress_1.2s_ease-in-out_infinite]" />
+        </div>
+      )}
+
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -55,13 +78,13 @@ export default function AdminLayout({
       >
         {/* Logo */}
         <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100">
-          <Link href="/admin" className="flex items-center gap-2.5">
+          <button onClick={() => navigate("/admin")} className="flex items-center gap-2.5">
             <Logo size="sm" />
             <div>
               <span className="font-bold text-gray-900 text-sm">Lopango</span>
               <span className="text-gray-400 text-[10px] block -mt-0.5">Administration</span>
             </div>
-          </Link>
+          </button>
           <button
             className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400"
             onClick={() => setSidebarOpen(false)}
@@ -73,28 +96,32 @@ export default function AdminLayout({
         {/* Nav */}
         <nav className="p-3 space-y-1 mt-2">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = (pendingHref ?? pathname) === item.href;
+            const isLoading = isPending && pendingHref === item.href;
             return (
-              <Link
+              <button
                 key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                onClick={() => navigate(item.href)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 group ${
                   isActive
                     ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-100"
                     : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
-                <item.icon
-                  className={`w-[18px] h-[18px] ${
-                    isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"
-                  }`}
-                />
+                {isLoading ? (
+                  <Loader2 className="w-[18px] h-[18px] text-blue-500 animate-spin" />
+                ) : (
+                  <item.icon
+                    className={`w-[18px] h-[18px] ${
+                      isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"
+                    }`}
+                  />
+                )}
                 {item.label}
-                {isActive && (
+                {isActive && !isLoading && (
                   <ChevronRight className="w-3.5 h-3.5 ml-auto text-blue-400" />
                 )}
-              </Link>
+              </button>
             );
           })}
         </nav>
@@ -124,14 +151,16 @@ export default function AdminLayout({
             </button>
             <div>
               <h1 className="font-semibold text-gray-900 text-sm sm:text-base">
-                {navItems.find((n) => n.href === pathname)?.label || "Administration"}
+                {navItems.find((n) => n.href === (pendingHref ?? pathname))?.label || "Administration"}
               </h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-              <span className="text-emerald-700 text-xs font-medium">En ligne</span>
+              <div className={`w-1.5 h-1.5 rounded-full ${isPending ? "bg-blue-400 animate-pulse" : "bg-emerald-400"}`} />
+              <span className={`text-xs font-medium ${isPending ? "text-blue-700" : "text-emerald-700"}`}>
+                {isPending ? "Chargement…" : "En ligne"}
+              </span>
             </div>
             <div className="md:hidden">
               <UserButton />
