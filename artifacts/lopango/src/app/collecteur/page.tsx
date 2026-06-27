@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 export default async function CollecteurPage() {
   const session = await getCollectorSession();
 
-  // Pas de session → le SessionProvider client gère la redirection
   if (!session) {
     return null;
   }

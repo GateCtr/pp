@@ -6,11 +6,16 @@ import { StepCollectIllustration, StepValidateIllustration } from "./illustratio
 
 export async function LandingHowItWorks() {
   // Fetch first template for step 3 illustration
-  const [template] = await db
-    .select()
-    .from(plateTemplates)
-    .orderBy(desc(plateTemplates.creeLe))
-    .limit(1);
+  let template: typeof plateTemplates.$inferSelect | undefined;
+  try {
+    [template] = await db
+      .select()
+      .from(plateTemplates)
+      .orderBy(desc(plateTemplates.creeLe))
+      .limit(1);
+  } catch {
+    // DB not available at build time — use static fallback below
+  }
 
   let variant: VariantDesign | null = null;
   let flagUrl: string | null = null;

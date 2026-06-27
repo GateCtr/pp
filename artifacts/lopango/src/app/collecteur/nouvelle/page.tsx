@@ -2,6 +2,8 @@ import { ParcelleForm } from "@/components/forms/parcelle-form";
 import { OfflineSyncBanner } from "@/components/offline-sync-banner";
 import { getCollectorSession } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function NouvellePage() {
   const session = await getCollectorSession();
 

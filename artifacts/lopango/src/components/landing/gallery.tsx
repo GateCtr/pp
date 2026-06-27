@@ -5,11 +5,16 @@ import type { VariantDesign } from "@/db/schema";
 
 // Server component — fetches real templates from DB
 export async function LandingGallery() {
-  const templates = await db
-    .select()
-    .from(plateTemplates)
-    .orderBy(desc(plateTemplates.creeLe))
-    .limit(5);
+  let templates: (typeof plateTemplates.$inferSelect)[] = [];
+  try {
+    templates = await db
+      .select()
+      .from(plateTemplates)
+      .orderBy(desc(plateTemplates.creeLe))
+      .limit(5);
+  } catch {
+    // DB not available at build time — use static fallback below
+  }
 
   // Collect all variants from all templates
   const allVariants: { commune: string; quartier: string; avenue: string; numero: string; variant: VariantDesign; flagUrl: string | null; sealUrl: string | null }[] = [];
