@@ -1,5 +1,1 @@
-{
-  "installCommand": "cd artifacts/lopango && npm install --legacy-peer-deps --ignore-scripts",
-  "buildCommand": "cd artifacts/lopango && npm run build",
-  "outputDirectory": "artifacts/lopango/.next"
-}
+{}
