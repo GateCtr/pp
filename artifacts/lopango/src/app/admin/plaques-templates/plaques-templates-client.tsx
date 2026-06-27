@@ -23,13 +23,24 @@ const DEFAULT_VARIANT: VariantDesign = {
   shape: "rounded",
 };
 
-const FONT_OPTIONS = [
-  "Arial, sans-serif",
-  "Georgia, serif",
-  "Courier New, monospace",
-  "Verdana, sans-serif",
-  "Trebuchet MS, sans-serif",
-  "Impact, sans-serif",
+const FONT_OPTIONS: { value: string; label: string }[] = [
+  { value: "Arial, sans-serif",                      label: "Arial" },
+  { value: "Verdana, sans-serif",                    label: "Verdana" },
+  { value: "Trebuchet MS, sans-serif",               label: "Trebuchet MS" },
+  { value: "Impact, sans-serif",                     label: "Impact" },
+  { value: "Georgia, serif",                         label: "Georgia" },
+  { value: "'Times New Roman', serif",               label: "Times New Roman" },
+  { value: "Courier New, monospace",                 label: "Courier New" },
+  { value: "'Oswald', sans-serif",                   label: "Oswald" },
+  { value: "'Bebas Neue', sans-serif",               label: "Bebas Neue" },
+  { value: "'Anton', sans-serif",                    label: "Anton" },
+  { value: "'Montserrat', sans-serif",               label: "Montserrat" },
+  { value: "'Raleway', sans-serif",                  label: "Raleway" },
+  { value: "'Barlow Condensed', sans-serif",         label: "Barlow Condensed" },
+  { value: "'Roboto Condensed', sans-serif",         label: "Roboto Condensed" },
+  { value: "'Ubuntu', sans-serif",                   label: "Ubuntu" },
+  { value: "'Playfair Display', serif",              label: "Playfair Display" },
+  { value: "'Cinzel', serif",                        label: "Cinzel" },
 ];
 
 const SHAPE_OPTIONS: { value: VariantDesign["shape"]; label: string }[] = [
@@ -666,9 +677,10 @@ function TemplateEditor({
                                 onChange={(e) => updateVariant(i, "fontFamily", e.target.value)}
                                 onClick={(e) => e.stopPropagation()}
                                 className="w-full h-7 text-[10px] rounded border border-gray-200 bg-white px-1"
+                                style={{ fontFamily: v.fontFamily }}
                               >
                                 {FONT_OPTIONS.map((f) => (
-                                  <option key={f} value={f}>{f.split(",")[0]}</option>
+                                  <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>{f.label}</option>
                                 ))}
                               </select>
                             </div>
