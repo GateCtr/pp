@@ -1243,7 +1243,6 @@ const parcelles = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modul
     }),
     motifModification: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$45$2e$2_$40$neondatabase$2b$serverless$40$1$2e$1$2e$0_$40$types$2b$pg$40$8$2e$20$2e$0_pg$40$8$2e$22$2e$0$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$columns$2f$text$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["text"])("motif_modification")
 }, (t)=>({
-        // Prevent duplicate parcel numbers on the same avenue
         avenueNumeroUnique: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$45$2e$2_$40$neondatabase$2b$serverless$40$1$2e$1$2e$0_$40$types$2b$pg$40$8$2e$20$2e$0_pg$40$8$2e$22$2e$0$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$unique$2d$constraint$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["unique"])("parcelle_avenue_numero_unique").on(t.avenueId, t.numero)
     }));
 const plateTemplates = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f2e$pnpm$2f$drizzle$2d$orm$40$0$2e$45$2e$2_$40$neondatabase$2b$serverless$40$1$2e$1$2e$0_$40$types$2b$pg$40$8$2e$20$2e$0_pg$40$8$2e$22$2e$0$2f$node_modules$2f$drizzle$2d$orm$2f$pg$2d$core$2f$table$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["pgTable"])("plate_templates", {

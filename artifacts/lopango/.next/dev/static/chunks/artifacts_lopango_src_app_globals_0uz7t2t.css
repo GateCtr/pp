@@ -1144,6 +1144,10 @@
     max-height: calc(var(--spacing) * 40);
   }
 
+  .max-h-64 {
+    max-height: calc(var(--spacing) * 64);
+  }
+
   .max-h-\[50vh\] {
     max-height: 50vh;
   }
@@ -4268,6 +4272,12 @@
   @media (hover: hover) {
     .hover\:text-foreground:hover {
       color: var(--foreground);
+    }
+  }
+
+  @media (hover: hover) {
+    .hover\:text-gray-500:hover {
+      color: var(--color-gray-500);
     }
   }
 

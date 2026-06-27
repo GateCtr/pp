@@ -23,6 +23,7 @@ import {
   Road,
   X,
   Layers,
+  Search,
 } from "lucide-react";
 
 interface LieuGeo {
@@ -88,6 +89,10 @@ export default function AdminGeoPage() {
   const [sel3, setSel3] = useState<LieuGeo | null>(null);
   const [sel4, setSel4] = useState<LieuGeo | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<LieuGeo[]>([]);
+  const [searching, setSearching] = useState(false);
+
   const [showAddLieu, setShowAddLieu] = useState(false);
   const [showAddAvenue, setShowAddAvenue] = useState(false);
   const [addParent, setAddParent] = useState<LieuGeo | null>(null);
@@ -106,6 +111,24 @@ export default function AdminGeoPage() {
   }, []);
 
   useEffect(() => { fetchLevel1(); }, [fetchLevel1]);
+
+  // Debounced search
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const res = await fetch(`/api/geo?search=${encodeURIComponent(searchQuery.trim())}`);
+        setSearchResults(await res.json());
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const refreshLevel2 = useCallback(async (parent: LieuGeo) => {
     const res = await fetch(`/api/geo?parentId=${parent.id}`);
@@ -273,6 +296,61 @@ export default function AdminGeoPage() {
           Ajouter
         </Button>
       </div>
+
+      {/* Search bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+        {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 animate-spin" />}
+        {searchQuery && !searching && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+        <Input
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Rechercher une commune, secteur, quartier, avenue… (min. 2 caractères)"
+          className="pl-9 h-10 bg-white"
+        />
+      </div>
+
+      {/* Search results */}
+      {searchQuery.trim().length >= 2 && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-4 py-2.5 border-b border-gray-50 bg-gray-50/50 flex items-center justify-between">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              {searching ? "Recherche…" : `${searchResults.length} résultat${searchResults.length !== 1 ? "s" : ""} pour « ${searchQuery} »`}
+            </span>
+            {searchResults.length > 0 && (
+              <button onClick={() => setSearchQuery("")} className="text-xs text-blue-500 hover:underline">Fermer</button>
+            )}
+          </div>
+          {searchResults.length === 0 && !searching ? (
+            <div className="text-center py-6 text-gray-400 text-sm">Aucun lieu trouvé</div>
+          ) : (
+            <div className="divide-y divide-gray-50 max-h-64 overflow-y-auto">
+              {searchResults.map((lieu) => (
+                <div
+                  key={lieu.id}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer group"
+                  onClick={() => setSearchQuery("")}
+                >
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium flex-shrink-0 ${TYPE_COLORS[lieu.type]}`}>
+                    {TYPE_LABELS[lieu.type]}
+                  </span>
+                  <span className="text-sm font-medium text-gray-800 truncate">{lieu.nom}</span>
+                  {lieu.code && (
+                    <span className="text-[10px] text-gray-400 font-mono">{lieu.code}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Add lieu form */}
       {showAddLieu && (

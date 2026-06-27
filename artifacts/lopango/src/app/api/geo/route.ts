@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { lieuxGeo, avenues } from "@/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, ilike } from "drizzle-orm";
 
 // GET /api/geo?type=ville|territoire|commune|...&parentId=<uuid>
 // GET /api/geo/avenues?quartierId=<uuid>
@@ -20,6 +20,18 @@ export async function GET(request: NextRequest) {
         .from(avenues)
         .where(and(eq(avenues.quartierId, quartierId), eq(avenues.actif, true)))
         .orderBy(avenues.nom);
+      return NextResponse.json(rows);
+    }
+
+    // Search across all lieux by name
+    const search = searchParams.get("search");
+    if (search && search.trim().length >= 2) {
+      const rows = await db
+        .select()
+        .from(lieuxGeo)
+        .where(and(eq(lieuxGeo.actif, true), ilike(lieuxGeo.nom, `%${search.trim()}%`)))
+        .orderBy(lieuxGeo.nom)
+        .limit(30);
       return NextResponse.json(rows);
     }
 
