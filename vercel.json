@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd artifacts/lopango && pnpm build",
-  "outputDirectory": "artifacts/lopango/.next",
-  "installCommand": "pnpm install"
+  "installCommand": "cd .migration-backup/artifacts/lopango && pnpm install",
+  "buildCommand": "cd .migration-backup/artifacts/lopango && pnpm build",
+  "outputDirectory": ".migration-backup/artifacts/lopango/.next"
 }
