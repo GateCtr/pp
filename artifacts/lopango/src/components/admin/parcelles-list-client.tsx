@@ -223,8 +223,18 @@ function ParcelleCard({
                 {parcelle.avenue} N° {parcelle.numero}
               </h4>
               <p className="text-xs text-gray-500 mt-0.5 truncate">
-                {parcelle.commune} &bull; Q. {parcelle.quartier}
+                {[parcelle.commune && `${parcelle.commune}`, parcelle.quartier && `Q. ${parcelle.quartier}`]
+                  .filter(Boolean).join(" • ")}
               </p>
+              {(parcelle.secteur || parcelle.district || parcelle.cite) && (
+                <p className="text-[10px] text-gray-400 mt-0.5 truncate">
+                  {[
+                    parcelle.district,
+                    parcelle.secteur,
+                    parcelle.cite && `Cité ${parcelle.cite}`,
+                  ].filter(Boolean).join(" › ")}
+                </p>
+              )}
             </div>
           </Link>
           <div className="flex items-center gap-2 flex-shrink-0">

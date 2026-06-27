@@ -31,6 +31,7 @@ import {
   Lock,
   AlertTriangle,
 } from "lucide-react";
+import { GeoSelector, type GeoSelection } from "@/components/forms/geo-selector";
 import { toast } from "sonner";
 
 const STEPS = [
@@ -51,8 +52,11 @@ export function ParcelleForm({ zone }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [numeroExists, setNumeroExists] = useState(false);
   const [checkingNumero, setCheckingNumero] = useState(false);
+  const [geoSelection, setGeoSelection] = useState<GeoSelection | null>(null);
 
   const hasZone = Boolean(zone?.avenueId);
+  // effective avenueId: either from locked zone or from manually selected geo
+  const effectiveAvenueId = zone?.avenueId ?? geoSelection?.avenueId ?? "";
 
   const form = useForm<ParcelleFormData>({
     defaultValues: {
@@ -90,14 +94,14 @@ export function ParcelleForm({ zone }: Props) {
 
   const checkDuplicate = useCallback(
     async (numero: string) => {
-      if (!zone?.avenueId || !numero.trim()) {
+      if (!effectiveAvenueId || !numero.trim()) {
         setNumeroExists(false);
         return;
       }
       setCheckingNumero(true);
       try {
         const res = await fetch(
-          `/api/parcelles/check-numero?avenueId=${encodeURIComponent(zone.avenueId)}&numero=${encodeURIComponent(numero)}`
+          `/api/parcelles/check-numero?avenueId=${encodeURIComponent(effectiveAvenueId)}&numero=${encodeURIComponent(numero)}`
         );
         const data = await res.json();
         setNumeroExists(data.exists);
@@ -107,7 +111,8 @@ export function ParcelleForm({ zone }: Props) {
         setCheckingNumero(false);
       }
     },
-    [zone?.avenueId]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [effectiveAvenueId]
   );
 
   useEffect(() => {
@@ -183,6 +188,7 @@ export function ParcelleForm({ zone }: Props) {
               menages: [],
             });
             setNumeroExists(false);
+            setGeoSelection(null);
           }}
           className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20"
         >
@@ -332,78 +338,80 @@ export function ParcelleForm({ zone }: Props) {
                   </div>
                 </div>
               ) : (
-                /* No zone — free-form input (legacy) */
+                /* No zone — cascading geo tree selector */
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-gray-600">District / Ville</Label>
-                      <Input {...register("district")} placeholder="ex: Matadi" className="h-11 bg-gray-50/50" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-gray-600">
-                        Commune <span className="text-red-400">*</span>
+                  {/* Hidden form fields kept in sync by the GeoSelector */}
+                  <input type="hidden" {...register("avenueId")} />
+                  <input type="hidden" {...register("commune")} />
+                  <input type="hidden" {...register("secteur")} />
+                  <input type="hidden" {...register("quartier")} />
+                  <input type="hidden" {...register("avenue")} />
+                  <input type="hidden" {...register("district")} />
+
+                  <GeoSelector
+                    selected={geoSelection}
+                    onSelect={(sel) => {
+                      setGeoSelection(sel);
+                      setValue("avenueId", sel.avenueId);
+                      setValue("commune", sel.commune);
+                      setValue("secteur", sel.secteur);
+                      setValue("quartier", sel.quartier);
+                      setValue("avenue", sel.avenueNom);
+                      setValue("district", sel.district);
+                      setNumeroExists(false);
+                    }}
+                    onClear={() => {
+                      setGeoSelection(null);
+                      setValue("avenueId", "");
+                      setValue("commune", "");
+                      setValue("secteur", "");
+                      setValue("quartier", "");
+                      setValue("avenue", "");
+                      setValue("district", "");
+                      setValue("numero", "");
+                      setNumeroExists(false);
+                    }}
+                  />
+
+                  {/* Numero input — only shown once an avenue is selected */}
+                  {geoSelection && (
+                    <div className="space-y-1.5 pt-1">
+                      <Label className="text-xs font-semibold text-gray-700">
+                        Numéro de parcelle <span className="text-red-400">*</span>
                       </Label>
-                      <Input
-                        {...register("commune")}
-                        placeholder="ex: Commune Matadi"
-                        className="h-11 bg-gray-50/50"
-                      />
-                      {errors.commune && (
-                        <p className="text-red-500 text-xs">{errors.commune.message}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-gray-600">Secteur</Label>
-                      <Input {...register("secteur")} className="h-11 bg-gray-50/50" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-gray-600">Cité</Label>
-                      <Input {...register("cite")} className="h-11 bg-gray-50/50" />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-gray-600">
-                      Quartier <span className="text-red-400">*</span>
-                    </Label>
-                    <Input
-                      {...register("quartier")}
-                      placeholder="ex: Soyo"
-                      className="h-11 bg-gray-50/50"
-                    />
-                    {errors.quartier && (
-                      <p className="text-red-500 text-xs">{errors.quartier.message}</p>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="col-span-2 space-y-1.5">
-                      <Label className="text-xs font-medium text-gray-600">
-                        Avenue / Rue <span className="text-red-400">*</span>
-                      </Label>
-                      <Input
-                        {...register("avenue")}
-                        placeholder="ex: Avenue de l'Indépendance"
-                        className="h-11 bg-gray-50/50"
-                      />
-                      {errors.avenue && (
-                        <p className="text-red-500 text-xs">{errors.avenue.message}</p>
-                      )}
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-medium text-gray-600">
-                        N° <span className="text-red-400">*</span>
-                      </Label>
-                      <Input
-                        {...register("numero")}
-                        placeholder="6"
-                        className="h-11 bg-gray-50/50 text-center font-semibold"
-                      />
+                      <div className="relative">
+                        <Input
+                          {...register("numero")}
+                          placeholder="ex: 47"
+                          className={`h-12 text-lg font-bold text-center ${
+                            numeroExists
+                              ? "border-red-300 bg-red-50 text-red-700"
+                              : "bg-white border-blue-200 focus:border-blue-400"
+                          }`}
+                          autoFocus
+                        />
+                        {checkingNumero && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <Loader2 className="w-4 h-4 animate-spin text-gray-300" />
+                          </div>
+                        )}
+                      </div>
                       {errors.numero && (
                         <p className="text-red-500 text-xs">{errors.numero.message}</p>
                       )}
+                      {numeroExists && !checkingNumero && (
+                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-red-50 border border-red-100 text-xs text-red-700">
+                          <AlertTriangle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                          <span>Ce numéro existe déjà sur cette avenue. Vérifiez sur le terrain avant de continuer.</span>
+                        </div>
+                      )}
+                      {!numeroExists && watchNumero && !checkingNumero && (
+                        <p className="text-emerald-600 text-xs flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" /> Numéro disponible
+                        </p>
+                      )}
                     </div>
-                  </div>
+                  )}
                 </>
               )}
             </CardContent>
