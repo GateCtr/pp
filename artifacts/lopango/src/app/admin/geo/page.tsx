@@ -66,7 +66,7 @@ const CHILD_TYPES: Record<string, string[]> = {
   ville: ["commune"],
   territoire: ["commune", "secteur", "chefferie", "cite"],
   commune: ["quartier"],
-  secteur: ["quartier", "village"],
+  secteur: ["commune", "quartier", "village"],
   chefferie: ["commune", "quartier", "village"],
   cite: ["quartier"],
   quartier: [],
