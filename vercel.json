@@ -1,3 +1,5 @@
 {
-  "rootDirectory": "artifacts/lopango"
+  "buildCommand": "cd artifacts/lopango && pnpm build",
+  "outputDirectory": "artifacts/lopango/.next",
+  "installCommand": "pnpm install"
 }
