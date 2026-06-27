@@ -32,8 +32,12 @@ export function GeneratePlatesModal({ parcelles, onClose }: GeneratePlatesModalP
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<{ generated: number; failed: number } | null>(null);
 
-  const eligible = parcelles.filter((p) => p.variantIndex === null && p.templateId === null);
-  const alreadyAssigned = parcelles.filter((p) => p.variantIndex !== null || p.templateId !== null);
+  const eligible = parcelles.filter(
+    (p) => (p.variantIndex == null) && (p.templateId == null)
+  );
+  const alreadyAssigned = parcelles.filter(
+    (p) => (p.variantIndex != null) || (p.templateId != null)
+  );
 
   useEffect(() => {
     fetch("/api/plate-templates").then((r) => r.json()).then((data) => setTemplates(Array.isArray(data) ? data : [])).catch(() => toast.error("Erreur chargement templates")).finally(() => setLoadingTemplates(false));

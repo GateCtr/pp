@@ -73,40 +73,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check that none already have a variant assigned (immutable once set)
+    // Skip parcelles that already have a variant assigned (immutable once set)
     const alreadyAssigned = targetParcelles.filter(
-      (p) => p.variantIndex !== null && p.templateId !== null
+      (p) => p.variantIndex != null && p.templateId != null
+    );
+    const toProcess = targetParcelles.filter(
+      (p) => p.variantIndex == null || p.templateId == null
     );
 
-    if (alreadyAssigned.length > 0) {
+    // Also skip non-validated parcelles
+    const notValidated = toProcess.filter(
+      (p) => p.statutValidation !== "valide"
+    );
+    const eligible = toProcess.filter(
+      (p) => p.statutValidation === "valide"
+    );
+
+    if (eligible.length === 0) {
       return NextResponse.json(
         {
-          error: `${alreadyAssigned.length} parcelle(s) ont déjà une variante assignée (non modifiable)`,
+          error:
+            alreadyAssigned.length > 0
+              ? `Toutes les parcelles sélectionnées ont déjà une plaque assignée.`
+              : `Aucune parcelle éligible (non validées ou déjà assignées).`,
           alreadyAssigned: alreadyAssigned.map((p) => p.id),
+          notValidated: notValidated.map((p) => p.id),
         },
         { status: 409 }
       );
     }
 
-    // Only validated parcelles can get plates
-    const notValidated = targetParcelles.filter(
-      (p) => p.statutValidation !== "valide"
-    );
+    // Generate plates for each eligible parcelle
+    const results: { id: string; success: boolean; skipped?: boolean; error?: string }[] = [
+      ...alreadyAssigned.map((p) => ({ id: p.id, success: true, skipped: true })),
+      ...notValidated.map((p) => ({ id: p.id, success: false, skipped: true, error: "Non validée" })),
+    ];
 
-    if (notValidated.length > 0) {
-      return NextResponse.json(
-        {
-          error: `${notValidated.length} parcelle(s) ne sont pas validées`,
-          notValidated: notValidated.map((p) => p.id),
-        },
-        { status: 400 }
-      );
-    }
-
-    // Generate plates for each parcelle
-    const results: { id: string; success: boolean; error?: string }[] = [];
-
-    for (const parcelle of targetParcelles) {
+    for (const parcelle of eligible) {
       try {
         const { plaqueUrl, qrCodeUrl } = await generatePlateWithTemplate(
           {
