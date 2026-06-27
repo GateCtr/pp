@@ -1,0 +1,1 @@
+- [Lopango Next.js project](lopango-nextjs.md) — Ce projet est Next.js et ne doit JAMAIS être converti vers Vite/React SPA.
