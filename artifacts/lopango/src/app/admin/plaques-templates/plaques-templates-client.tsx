@@ -790,12 +790,12 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
         </g>
       )}
 
-      {/* Seal (top right) */}
-      <clipPath id="prvSealClip"><circle cx="345" cy="17" r="12" /></clipPath>
+      {/* Seal (top right) — aligned with flag center Y=17 */}
+      <clipPath id="prvSealClip"><circle cx="343" cy="17" r="12" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="333" y="5" width="24" height="24" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="331" y="5" width="24" height="24" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="345" cy="17" r="12" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
+        <circle cx="343" cy="17" r="12" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
       )}
 
       {/* COMMUNE DE label */}
@@ -809,32 +809,32 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
       {/* Quartier */}
       <text x="180" y="53" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
-      {/* Avenue band (full inner width) */}
-      <rect x="3" y="57" width="354" height="33" fill={aColor} />
+      {/* Avenue band (full inner width) — moved down for spacing */}
+      <rect x="3" y="62" width="354" height="33" fill={aColor} />
       {/* Avenue name */}
-      <text x="180" y="79" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
+      <text x="180" y="84" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
 
       {/* Vertical separator */}
-      <line x1="240" y1="93" x2="240" y2="160" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
+      <line x1="240" y1="97" x2="240" y2="162" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
 
-      {/* N° label */}
-      <text x="105" y="108" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
+      {/* N° label — centered in left zone */}
+      <text x="122" y="112" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
       {/* Numero large */}
-      <text x="105" y="153" textAnchor="middle" fill={variant.textColor} fontSize="48" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
+      <text x="122" y="155" textAnchor="middle" fill={variant.textColor} fontSize="48" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
 
       {/* QR mock */}
-      <rect x="249" y="92" width="66" height="66" rx="2" fill="white" opacity="0.9"/>
-      <rect x="252" y="95" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="254" y="97" width="7" height="7" fill="#1e293b" />
-      <rect x="270" y="95" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="272" y="97" width="7" height="7" fill="#1e293b" />
-      <rect x="252" y="113" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="254" y="115" width="7" height="7" fill="#1e293b" />
-      <clipPath id="prvQrSealClip"><circle cx="304" cy="125" r="8" /></clipPath>
+      <rect x="249" y="97" width="66" height="66" rx="2" fill="white" opacity="0.9"/>
+      <rect x="252" y="100" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="254" y="102" width="7" height="7" fill="#1e293b" />
+      <rect x="270" y="100" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="272" y="102" width="7" height="7" fill="#1e293b" />
+      <rect x="252" y="118" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="254" y="120" width="7" height="7" fill="#1e293b" />
+      <clipPath id="prvQrSealClip"><circle cx="304" cy="130" r="8" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="296" y="117" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="296" y="122" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="304" cy="125" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="304" cy="130" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );
