@@ -1,2 +1,0 @@
-- [Tailwind v4 PostCSS config required](tailwind-postcss-required.md) — Next.js+Turbopack won't process @import "tailwindcss" without postcss.config.mjs
-- [tw-animate-css import quirk](tw-animate-css-import.md) — Turbopack can't resolve package-name CSS imports from artifact-local node_modules; must use relative path

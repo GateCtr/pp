@@ -780,61 +780,61 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
       {/* Inner bg */}
       <rect x="3" y="3" width="354" height="159" rx={innerRx} fill={variant.bgColor} />
 
-      {/* Flag (top left) */}
+      {/* Flag (top left: x=18, y=7 → 29px inside inner rect) */}
       {flagUrl ? (
-        <image href={flagUrl} x="10" y="7" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
+        <image href={flagUrl} x="18" y="7" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <g transform="translate(10,7)">
+        <g transform="translate(18,7)">
           <rect width="29" height="20" fill="#007FFF" rx="1" opacity="0.7"/>
           <polygon points="0,14 0,20 22,6 22,0 29,0 29,6 6,20 0,20" fill="#CE1021" opacity="0.7"/>
         </g>
       )}
 
-      {/* Seal (top right) */}
-      <clipPath id="prvSealClip"><circle cx="345" cy="17" r="12" /></clipPath>
+      {/* Seal (top right: cx=336, cy=15, r=11 → right=347, top=4, 14px inside inner rect) */}
+      <clipPath id="prvSealClip"><circle cx="336" cy="15" r="11" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="333" y="5" width="24" height="24" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="325" y="4" width="22" height="22" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="345" cy="17" r="12" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
+        <circle cx="336" cy="15" r="11" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
       )}
 
-      {/* COMMUNE DE label */}
-      <text x="180" y="17" textAnchor="middle" fill={variant.accentColor} fontSize="5.5" fontFamily={variant.fontFamily} letterSpacing="1">COMMUNE DE</text>
+      {/* "COMMUNE DE" label */}
+      <text x="180" y="23" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily} letterSpacing="0.5">COMMUNE DE</text>
+
       {/* Commune name */}
-      <text x="180" y="31" textAnchor="middle" fill={variant.textColor} fontSize="15" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
+      <text x="180" y="33" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
 
       {/* Separator */}
-      <line x1="10" y1="40" x2="350" y2="40" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.25" />
+      <line x1="10" y1="38" x2="350" y2="38" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.25" />
 
       {/* Quartier */}
-      <text x="180" y="53" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
+      <text x="180" y="46" textAnchor="middle" fill={variant.accentColor} fontSize="9" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
-      {/* Avenue band (full inner width) */}
-      <rect x="3" y="57" width="354" height="33" fill={aColor} />
+      {/* Avenue band (y=51, h=36) */}
+      <rect x="3" y="51" width="354" height="36" fill={aColor} />
       {/* Avenue name */}
-      <text x="180" y="79" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
+      <text x="180" y="72" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
 
-      {/* Vertical separator */}
-      <line x1="240" y1="93" x2="240" y2="160" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
+      {/* Vertical separator (y=89) */}
+      <line x1="240" y1="89" x2="240" y2="162" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
 
-      {/* N° label */}
-      <text x="105" y="108" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
-      {/* Numero large */}
-      <text x="105" y="153" textAnchor="middle" fill={variant.textColor} fontSize="48" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
+      {/* N° and numero on same line (y=125, centered in bottom section) */}
+      <text x="116" y="125" textAnchor="end" fill={variant.accentColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
+      <text x="124" y="125" textAnchor="start" fill={variant.textColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
 
-      {/* QR mock */}
-      <rect x="249" y="92" width="66" height="66" rx="2" fill="white" opacity="0.9"/>
-      <rect x="252" y="95" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="254" y="97" width="7" height="7" fill="#1e293b" />
-      <rect x="270" y="95" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="272" y="97" width="7" height="7" fill="#1e293b" />
-      <rect x="252" y="113" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="254" y="115" width="7" height="7" fill="#1e293b" />
-      <clipPath id="prvQrSealClip"><circle cx="304" cy="125" r="8" /></clipPath>
+      {/* QR mock — right edge 273+74=347 aligns with seal right 336+11=347 */}
+      <rect x="273" y="88" width="74" height="74" rx="2" fill="white" opacity="0.9"/>
+      <rect x="276" y="91" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="278" y="93" width="7" height="7" fill="#1e293b" />
+      <rect x="294" y="91" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="296" y="93" width="7" height="7" fill="#1e293b" />
+      <rect x="276" y="109" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="278" y="111" width="7" height="7" fill="#1e293b" />
+      <clipPath id="prvQrSealClip"><circle cx="310" cy="125" r="8" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="296" y="117" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="302" y="117" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="304" cy="125" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="310" cy="125" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );

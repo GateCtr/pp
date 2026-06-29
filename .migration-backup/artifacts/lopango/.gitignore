@@ -1,3 +1,11 @@
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# Next.js build output — never commit
+/.next/
+/dist/
+
+# local env files
+.env.local
+.env*.local

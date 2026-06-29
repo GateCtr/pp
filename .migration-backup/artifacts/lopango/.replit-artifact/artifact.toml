@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Lopango"
+title = "DIGIPARC"
 version = "1.0.0"
 id = "artifacts/lopango"
 router = "path"
