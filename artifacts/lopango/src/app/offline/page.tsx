@@ -33,7 +33,7 @@ export default function OfflinePage() {
         </a>
 
         <p className="mt-6 text-xs text-blue-300/40">
-          Lopango fonctionne en mode hors-ligne pour la collecte terrain.
+          DIGIPARC fonctionne en mode hors-ligne pour la collecte terrain.
         </p>
       </div>
     </div>

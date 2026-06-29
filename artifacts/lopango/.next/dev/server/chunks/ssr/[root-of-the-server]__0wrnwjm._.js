@@ -464,7 +464,7 @@ const dynamic = "force-dynamic";
 const revalidate = 0;
 const metadata = {
     title: "Mes Collectes",
-    description: "Gérez vos fiches parcellaires en cours - Tableau de bord agent collecteur Lopango",
+    description: "Gérez vos fiches parcellaires en cours - Tableau de bord agent collecteur DIGIPARC",
     robots: {
         index: false,
         follow: false

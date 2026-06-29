@@ -56,7 +56,7 @@ export function PlatePreviewModal({
   }
 
   function handlePrint() {
-    // Ouvrir une nouvelle fenêtre avec le design d'impression Lopango
+    // Ouvrir une nouvelle fenêtre avec le design d'impression DIGIPARC
     const printWindow = window.open("", "_blank", "width=900,height=700");
     if (!printWindow) return;
 
@@ -89,9 +89,9 @@ export function PlatePreviewModal({
       <body>
         <div class="header">
           <div class="header-left">
-            <img src="${appUrl}/favicon-96x96.png" alt="Lopango" />
+            <img src="${appUrl}/favicon-96x96.png" alt="DIGIPARC" />
             <div>
-              <div class="brand">LOPANGO</div>
+              <div class="brand">DIGIPARC</div>
               <div class="sub">Système de Cartographie & Recensement — RDC</div>
             </div>
           </div>
@@ -113,7 +113,7 @@ export function PlatePreviewModal({
         </div>
 
         <div class="footer">
-          Généré par <a href="${appUrl}">Lopango</a> — ${appUrl}
+          Généré par <a href="${appUrl}">DIGIPARC</a> — ${appUrl}
         </div>
 
         <script>

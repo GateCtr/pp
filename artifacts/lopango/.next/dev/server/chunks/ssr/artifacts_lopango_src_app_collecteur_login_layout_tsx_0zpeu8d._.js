@@ -10,7 +10,7 @@ __turbopack_context__.s([
 ]);
 const metadata = {
     title: "Connexion Agent Collecteur",
-    description: "Connectez-vous avec votre code d'accès pour accéder à l'application de collecte terrain Lopango.",
+    description: "Connectez-vous avec votre code d'accès pour accéder à l'application de collecte terrain DIGIPARC.",
     robots: {
         index: false,
         follow: false

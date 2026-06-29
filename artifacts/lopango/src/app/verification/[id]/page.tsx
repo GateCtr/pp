@@ -39,7 +39,7 @@ export default async function VerificationPage({
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg mb-3">
             <Image
               src="/favicon-96x96.png"
-              alt="Lopango"
+              alt="DIGIPARC"
               width={36}
               height={36}
               className="rounded-lg"
@@ -163,13 +163,13 @@ export default async function VerificationPage({
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 border border-gray-100">
                 <Image
                   src="/favicon-96x96.png"
-                  alt="Lopango"
+                  alt="DIGIPARC"
                   width={16}
                   height={16}
                   className="w-4 h-4 rounded"
                 />
                 <span className="text-[10px] text-gray-500 font-medium">
-                  Lopango — Cartographie &amp; Recensement RDC
+                  DIGIPARC — Cartographie &amp; Recensement RDC
                 </span>
               </div>
             </div>

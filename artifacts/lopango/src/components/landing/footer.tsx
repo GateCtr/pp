@@ -9,7 +9,7 @@ export function LandingFooter() {
           <div className="flex items-center gap-3">
             <Logo size="sm" />
             <div>
-              <p className="text-white font-semibold text-sm">Lopango</p>
+              <p className="text-white font-semibold text-sm">DIGIPARC</p>
               <p className="text-blue-300/50 text-xs">
                 Cartographie & Recensement &mdash; RDC
               </p>

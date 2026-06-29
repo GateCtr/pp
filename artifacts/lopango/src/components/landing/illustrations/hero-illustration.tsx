@@ -12,9 +12,9 @@ export function HeroIllustration() {
           <div className="px-4 pt-10 pb-3 flex items-center gap-2 border-b border-white/10">
             <div className="w-7 h-7 rounded-lg overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/favicon-96x96.png" alt="Lopango" className="w-full h-full object-contain" />
+              <img src="/favicon-96x96.png" alt="DIGIPARC" className="w-full h-full object-contain" />
             </div>
-            <span className="text-white text-xs font-semibold">Lopango</span>
+            <span className="text-white text-xs font-semibold">DIGIPARC</span>
           </div>
 
           {/* Form preview */}
