@@ -1,45 +1,49 @@
-# [Project name]
+# DIGIPARC — Système de Cartographie & Recensement (RDC)
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Application Next.js de gestion des plaques parcellaires pour les communes de la RDC. Permet de générer des plaques SVG vectorielles avec QR code, de gérer des templates de design multi-variantes, et de cartographier les parcelles.
+
+> **Ce projet est déjà configuré pour Replit.** Ne pas relancer de migration.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `cd artifacts/lopango && PORT=3000 pnpm dev` — serveur de développement (port 3000)
+- `pnpm run typecheck` — vérification TypeScript complète
+- `pnpm run build` — typecheck + build tous les packages
+- Env requis : `DATABASE_URL` (PostgreSQL), `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- **Framework** : Next.js 16 (App Router, Turbopack) — `artifacts/lopango/`
+- **Runtime** : Node.js 24, TypeScript 5.9, pnpm workspaces
+- **DB** : PostgreSQL (Neon) + Drizzle ORM — schema dans `artifacts/lopango/src/db/schema.ts`
+- **Auth** : Clerk (`@clerk/nextjs`)
+- **Génération plaques** : SVG vectoriel 2400×1100px — `artifacts/lopango/src/lib/plate-generator.ts`
+- **UI** : Tailwind CSS v4, shadcn/ui, Lucide
 
-## Where things live
+## Où sont les fichiers
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- **Source principale** : `artifacts/lopango/src/`
+- **Générateur de plaques SVG** : `artifacts/lopango/src/lib/plate-generator.ts`
+- **Schéma DB** : `artifacts/lopango/src/db/schema.ts`
+- **Templates admin** : `artifacts/lopango/src/app/admin/plaques-templates/`
+- **API routes** : `artifacts/lopango/src/app/api/`
 
-## Architecture decisions
+## Architecture — décisions clés
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Plaques générées en SVG vectoriel (pas PNG) pour qualité d'impression maximale
+- `VariantDesign` stocké en JSON dans la colonne `variants` de `plateTemplates`
+- Nouvelles couleurs individuelles par élément : `communeNameColor`, `avenueTextColor`, `numeroLabelColor`, `numeroColor`, `hLineColor`, `vLineColor` — toutes avec fallback rétrocompatible
+- Le workflow Replit lance `PORT=3000 pnpm dev` depuis `artifacts/lopango/`
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Utiliser le français dans les réponses
+- Les fichiers sources du projet sont dans `artifacts/lopango/src/`
+- Ne pas relancer de migration Replit — le projet est déjà natif
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Le port par défaut dans `package.json` est 24203 — toujours passer `PORT=3000` dans le workflow
+- `pnpm install` doit être lancé à la **racine** du workspace (pas dans `artifacts/lopango/`)
+- Les Google Fonts dans les SVG ne se chargent que côté navigateur (pas lors de la conversion canvas→PNG)
+- La conversion PNG dans `plate-preview-modal.tsx` utilise `canvas height=1200` — la vraie hauteur est 1100
