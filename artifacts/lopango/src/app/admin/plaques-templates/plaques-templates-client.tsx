@@ -820,64 +820,73 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
       {/* Inner bg */}
       <rect x="3" y="3" width="354" height="167" rx={innerRx} fill={variant.bgColor} />
 
-      {/* Flag (top left: x=18, y=6) */}
+      {/* Drapeau — centré dans zone top-left (x=2..85, y=2..44), centre=(44,23)
+           full plate: x=220,y=90,w=280,h=200 → scale 0.1219: x=27,y=11,w=34,h=24 */}
       {flagUrl ? (
-        <image href={flagUrl} x="18" y="6" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
+        <image href={flagUrl} x="27" y="11" width="34" height="24" preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <g transform="translate(18,6)">
-          <rect width="29" height="20" fill="#007FFF" rx="1" opacity="0.7"/>
-          <polygon points="0,14 0,20 23,6 23,0 29,0 29,6 6,20 0,20" fill="#CE1021" opacity="0.7"/>
+        <g transform="translate(27,11)">
+          <rect width="34" height="24" fill="#007FFF" rx="1" opacity="0.85"/>
+          <polygon points="0,17 0,24 28,7 28,0 34,0 34,7 8,24 0,24" fill="#CE1021" opacity="0.85"/>
+          <line x1="0" y1="16" x2="29" y2="0" stroke="#F7D618" strokeWidth="1"/>
+          <line x1="6" y1="24" x2="34" y2="8" stroke="#F7D618" strokeWidth="1"/>
         </g>
       )}
 
-      {/* Seal (top right: cx=336, cy=16, r=11) */}
-      <clipPath id="prvSealClip"><circle cx="336" cy="16" r="11" /></clipPath>
+      {/* Sceau — centré dans zone top-right (cx=337, cy=23, r=14)
+           full plate: cx=2766, cy=190, r=115 → scale 0.1219 */}
+      <clipPath id="prvSealClip"><circle cx="337" cy="23" r="14" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="325" y="5" width="22" height="22" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="323" y="9" width="28" height="28" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="336" cy="16" r="11" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
+        <>
+          <circle cx="337" cy="23" r="14" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.5" />
+          <circle cx="337" cy="23" r="10" fill="none" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.3" />
+        </>
       )}
 
-      {/* "COMMUNE DE" — accent — y=13 (106*0.1219) */}
-      <text x="180" y="13" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily} letterSpacing="0.5">COMMUNE DE</text>
+      {/* "COMMUNE DE" — accent — y=13 (108*0.1219) */}
+      <text x="180" y="13" textAnchor="middle" fill={variant.accentColor} fontSize="9" fontWeight="600" fontFamily={variant.fontFamily} letterSpacing="0.5">COMMUNE DE</text>
 
-      {/* Commune name — y=27 (222*0.1219) */}
-      <text x="180" y="27" textAnchor="middle" fill={cNameColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>KISANTU</text>
+      {/* Commune name — y=29 (240*0.1219) */}
+      <text x="180" y="29" textAnchor="middle" fill={cNameColor} fontSize="16" fontWeight="bold" fontFamily={variant.fontFamily}>KISANTU</text>
 
-      {/* QUARTIER — accent — y=39 (320*0.1219) — AU-DESSUS de la ligne */}
-      <text x="180" y="39" textAnchor="middle" fill={variant.accentColor} fontSize="9" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
+      {/* QUARTIER — accent — y=40 (325*0.1219) — AU-DESSUS de la ligne */}
+      <text x="180" y="40" textAnchor="middle" fill={variant.accentColor} fontSize="10" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
-      {/* H-separator — y=44 (358*0.1219) — SOUS le quartier */}
+      {/* H-separator — y=44 (362*0.1219) */}
       <line x1="10" y1="44" x2="350" y2="44" stroke={hLineColor} strokeWidth="0.5" opacity="0.5" />
 
-      {/* Avenue band — y=46 (380*0.1219), h=37 (302*0.1219) */}
-      <rect x="3" y="46" width="354" height="37" fill={aColor} />
+      {/* Avenue band — y=47 (382*0.1219), h=37 (302*0.1219) */}
+      <rect x="3" y="47" width="354" height="37" fill={aColor} />
       {/* Avenue text — y=71 (583*0.1219) */}
       <text x="180" y="71" textAnchor="middle" fill={aTextColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE KINGOMA</text>
 
       {/* V-separator — x=255 (2091*0.1219), y1=84, y2=170 */}
       <line x1="255" y1="84" x2="255" y2="170" stroke={vLineColor} strokeWidth="0.5" opacity="0.3" />
 
-      {/* N°+15 centré dans zone gauche (centre x=129) via tspan — y=130 (1063*0.1219) */}
-      <text x="129" y="130" textAnchor="middle" fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily}>
+      {/* N°+15 centré dans zone gauche (centre x=129) via tspan — y=140 (1150*0.1219)
+           font=49 (400*0.1219) — dominant sur le QR */}
+      <text x="129" y="140" textAnchor="middle" fontSize="49" fontWeight="bold" fontFamily={variant.fontFamily}>
         <tspan fill={nLabelColor}>N° </tspan><tspan fill={nColor}>15</tspan>
       </text>
 
-      {/* QR mock — x=293 (2401*0.1219), y=98 (800*0.1219), 56×56 (456*0.1219) */}
-      <rect x="293" y="98" width="56" height="56" rx="2" fill="white" opacity="0.9"/>
-      <rect x="296" y="101" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
-      <rect x="298" y="103" width="5" height="5" fill="#1e293b" />
-      <rect x="311" y="101" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
-      <rect x="313" y="103" width="5" height="5" fill="#1e293b" />
-      <rect x="296" y="116" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
-      <rect x="298" y="118" width="5" height="5" fill="#1e293b" />
+      {/* QR mock — 46×46 (380*0.1219), x=283 (2322*0.1219), y=104 (854*0.1219)
+           centré en cx=306 (2512*0.1219), cy=127 (1044*0.1219) */}
+      <rect x="283" y="104" width="46" height="46" rx="2" fill="white" opacity="0.9"/>
+      <rect x="286" y="107" width="8" height="8" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+      <rect x="288" y="109" width="4" height="4" fill="#1e293b" />
+      <rect x="299" y="107" width="8" height="8" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+      <rect x="301" y="109" width="4" height="4" fill="#1e293b" />
+      <rect x="286" y="121" width="8" height="8" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+      <rect x="288" y="123" width="4" height="4" fill="#1e293b" />
       {sealUrl ? (
         <>
-          <clipPath id="prvQrSealClip"><circle cx="328" cy="130" r="7" /></clipPath>
-          <image href={sealUrl} x="321" y="123" width="14" height="14" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
+          <clipPath id="prvQrSealClip"><circle cx="306" cy="127" r="6" /></clipPath>
+          <image href={sealUrl} x="300" y="121" width="12" height="12" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
         </>
       ) : (
-        <circle cx="328" cy="130" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="306" cy="127" r="6" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );
