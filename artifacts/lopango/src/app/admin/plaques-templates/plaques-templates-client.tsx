@@ -21,6 +21,8 @@ const DEFAULT_VARIANT: VariantDesign = {
   accentColor: "#87CEEB",
   fontFamily: "Arial, sans-serif",
   shape: "rounded",
+  avenueColor: "#2d5a8e",
+  headerColor: "#87CEEB",
 };
 
 const FONT_OPTIONS: { value: string; label: string }[] = [
@@ -669,6 +671,10 @@ function TemplateEditor({
                             <ColorField label="Texte" value={v.textColor} onChange={(val) => updateVariant(i, "textColor", val)} />
                             <ColorField label="Accent" value={v.accentColor} onChange={(val) => updateVariant(i, "accentColor", val)} />
                           </div>
+                          <div className="grid grid-cols-2 gap-2 mt-1">
+                            <ColorField label="Bandeau avenue" value={v.avenueColor || v.borderColor} onChange={(val) => updateVariant(i, "avenueColor", val)} />
+                            <ColorField label="En-tête (REP/PR/VILLE)" value={v.headerColor || v.accentColor} onChange={(val) => updateVariant(i, "headerColor", val)} />
+                          </div>
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             <div>
                               <span className="text-[9px] text-gray-500">Police</span>
@@ -762,63 +768,71 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 
 function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; flagUrl: string; sealUrl: string }) {
   const rx = variant.shape === "rectangle" ? "4" : variant.shape === "rounded" ? "10" : "18";
+  const innerRx = String(Math.max(0, Number(rx) - 1));
+  const hColor = variant.headerColor || variant.accentColor;
+  const aColor = variant.avenueColor || variant.borderColor;
+  const aOpacity = variant.avenueColor ? "1" : "0.15";
 
   return (
-    <svg viewBox="0 0 360 180" className="w-full max-w-[320px] drop-shadow-lg">
+    <svg viewBox="0 0 360 210" className="w-full max-w-[320px] drop-shadow-lg">
       {/* Outer frame */}
-      <rect x="2" y="2" width="356" height="176" rx={rx} fill={variant.borderColor} />
+      <rect x="2" y="2" width="356" height="206" rx={rx} fill={variant.borderColor} />
       {/* Inner bg */}
-      <rect x="6" y="6" width="348" height="168" rx={String(Math.max(0, Number(rx) - 2))} fill={variant.bgColor} />
+      <rect x="5" y="5" width="350" height="200" rx={innerRx} fill={variant.bgColor} />
 
       {/* Flag */}
       {flagUrl ? (
-        <image href={flagUrl} x="16" y="14" width="44" height="30" preserveAspectRatio="xMidYMid meet" />
+        <image href={flagUrl} x="10" y="10" width="42" height="30" preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <rect x="16" y="14" width="44" height="30" rx="2" fill="#007FFF" opacity="0.5" />
+        <rect x="10" y="10" width="42" height="30" rx="2" fill="#007FFF" opacity="0.5" />
       )}
 
-      {/* Seal (always round) */}
+      {/* Seal */}
       <clipPath id="sealClip">
-        <circle cx="326" cy="30" r="16" />
+        <circle cx="330" cy="25" r="14" />
       </clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="310" y="14" width="32" height="32" clipPath="url(#sealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="316" y="11" width="28" height="28" clipPath="url(#sealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="326" cy="30" r="16" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.5" />
+        <circle cx="330" cy="25" r="14" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.5" />
       )}
 
-      {/* Text */}
-      <text x="180" y="24" textAnchor="middle" fill={variant.accentColor} fontSize="6" fontFamily={variant.fontFamily}>COMMUNE DE</text>
-      <text x="180" y="38" textAnchor="middle" fill={variant.textColor} fontSize="11" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
-      <text x="180" y="56" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="bold" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
+      {/* REP. DEM. CONGO */}
+      <text x="180" y="15" textAnchor="middle" fill={hColor} fontSize="5" fontFamily={variant.fontFamily} letterSpacing="1">REP. DEM. CONGO</text>
+      {/* PR. KONGO-CENTRALE */}
+      <text x="180" y="23" textAnchor="middle" fill={hColor} fontSize="5" fontFamily={variant.fontFamily}>PR. KONGO-CENTRALE</text>
+      {/* VILLE DE MATADI */}
+      <text x="180" y="34" textAnchor="middle" fill={hColor} fontSize="7" fontWeight="bold" fontFamily={variant.fontFamily}>VILLE DE MATADI</text>
+
+      {/* COMMUNE DE */}
+      <text x="180" y="46" textAnchor="middle" fill={variant.accentColor} fontSize="6" fontFamily={variant.fontFamily}>COMMUNE DE</text>
+      {/* Commune name */}
+      <text x="180" y="59" textAnchor="middle" fill={variant.textColor} fontSize="11" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
+      {/* Quartier */}
+      <text x="180" y="72" textAnchor="middle" fill={variant.accentColor} fontSize="7.5" fontWeight="bold" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
       {/* Avenue band */}
-      <rect x="14" y="64" width="332" height="28" rx="3" fill={variant.borderColor} opacity="0.15" />
-      <text x="180" y="82" textAnchor="middle" fill={variant.textColor} fontSize="12" fontWeight="bold" fontFamily={variant.fontFamily}>AV. DE L&apos;INDÉPENDANCE</text>
+      <rect x="10" y="78" width="340" height="26" rx="3" fill={aColor} opacity={aOpacity} />
+      <text x="180" y="95" textAnchor="middle" fill={variant.textColor} fontSize="11" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
 
-      {/* ── Bottom section: N° centré + QR aligné sur la même ligne à droite ── */}
-      {/* N° — centré pleine largeur, gros */}
-      <text x="180" y="147" textAnchor="middle" fill={variant.accentColor} fontSize="44" fontWeight="bold" fontFamily={variant.fontFamily}>N° 6</text>
+      {/* N° */}
+      <text x="155" y="172" textAnchor="middle" fill={variant.accentColor} fontSize="52" fontWeight="bold" fontFamily={variant.fontFamily}>N° 6</text>
 
-      {/* QR — 44×44, droite, centre vertical = 133 (même ligne que N°) */}
-      <rect x="303" y="111" width="44" height="44" rx="3" fill="white" />
-      {/* TL corner */}
-      <rect x="306" y="114" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
-      <rect x="308" y="116" width="5" height="5" fill="#1e293b" />
-      {/* TR corner */}
-      <rect x="335" y="114" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
-      <rect x="337" y="116" width="5" height="5" fill="#1e293b" />
-      {/* BL corner */}
-      <rect x="306" y="143" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
-      <rect x="308" y="145" width="5" height="5" fill="#1e293b" />
-      {/* Seal in QR center */}
+      {/* QR mock */}
+      <rect x="283" y="118" width="62" height="62" rx="3" fill="white" />
+      <rect x="286" y="121" width="12" height="12" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="288.5" y="123.5" width="7" height="7" fill="#1e293b" />
+      <rect x="308" y="121" width="12" height="12" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="310.5" y="123.5" width="7" height="7" fill="#1e293b" />
+      <rect x="286" y="141" width="12" height="12" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.5" />
+      <rect x="288.5" y="143.5" width="7" height="7" fill="#1e293b" />
       <clipPath id="qrSealClip">
-        <circle cx="325" cy="133" r="6" />
+        <circle cx="325" cy="149" r="7" />
       </clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="319" y="127" width="12" height="12" clipPath="url(#qrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="318" y="142" width="14" height="14" clipPath="url(#qrSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="325" cy="133" r="6" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="325" cy="149" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );

@@ -1,5 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
   "/collecteur/login/page": "app/collecteur/login/page.js",
   "/collecteur/nouvelle/page": "app/collecteur/nouvelle/page.js",
   "/collecteur/page": "app/collecteur/page.js",

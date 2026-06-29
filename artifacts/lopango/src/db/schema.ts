@@ -205,4 +205,6 @@ export interface VariantDesign {
   accentColor: string;
   fontFamily: string;
   shape: "rectangle" | "rounded" | "rounded-lg";
+  avenueColor?: string;
+  headerColor?: string;
 }

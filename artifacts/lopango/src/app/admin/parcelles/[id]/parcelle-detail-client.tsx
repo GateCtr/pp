@@ -363,8 +363,57 @@ export function ParcelleDetailClient({
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
+              {/* Administrative hierarchy header */}
+              <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 space-y-1">
+                <p className="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Hiérarchie administrative</p>
+                <div className="flex flex-wrap items-center gap-1 text-xs text-blue-700 font-medium">
+                  <span className="bg-white rounded px-1.5 py-0.5 border border-blue-100">
+                    République Démocratique du Congo
+                  </span>
+                  <span className="text-blue-300">›</span>
+                  <span className="bg-white rounded px-1.5 py-0.5 border border-blue-100">
+                    Province du Kongo-Central
+                  </span>
+                  {parcelle.district && (
+                    <>
+                      <span className="text-blue-300">›</span>
+                      <span className="bg-white rounded px-1.5 py-0.5 border border-blue-100">
+                        {parcelle.district}
+                      </span>
+                    </>
+                  )}
+                  {parcelle.secteur && (
+                    <>
+                      <span className="text-blue-300">›</span>
+                      <span className="bg-white rounded px-1.5 py-0.5 border border-blue-100">
+                        {parcelle.secteur}
+                      </span>
+                    </>
+                  )}
+                  {parcelle.cite && (
+                    <>
+                      <span className="text-blue-300">›</span>
+                      <span className="bg-white rounded px-1.5 py-0.5 border border-blue-100">
+                        {parcelle.cite}
+                      </span>
+                    </>
+                  )}
+                  <span className="text-blue-300">›</span>
+                  <span className="bg-blue-600 text-white rounded px-1.5 py-0.5">
+                    Commune {parcelle.commune}
+                  </span>
+                  <span className="text-blue-300">›</span>
+                  <span className="bg-white rounded px-1.5 py-0.5 border border-blue-100">
+                    Q. {parcelle.quartier}
+                  </span>
+                  <span className="text-blue-300">›</span>
+                  <span className="bg-white rounded px-1.5 py-0.5 border border-blue-100">
+                    Av. {parcelle.avenue} N°{parcelle.numero}
+                  </span>
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-3">
-                <InfoField label="District" value={parcelle.district} />
+                <InfoField label="District / Ville / Territoire" value={parcelle.district} />
                 <InfoField label="Commune" value={parcelle.commune} />
                 <InfoField label="Secteur" value={parcelle.secteur} />
                 <InfoField label="Cité" value={parcelle.cite} />
