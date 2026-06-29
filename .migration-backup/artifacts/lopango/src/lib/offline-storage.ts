@@ -3,7 +3,7 @@
  * Utilise IndexedDB pour stocker les formulaires en attente de synchronisation.
  */
 
-const DB_NAME = "lopango-offline";
+const DB_NAME = "digiparc-offline";
 const DB_VERSION = 1;
 const STORE_NAME = "pending-parcelles";
 

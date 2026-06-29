@@ -16,7 +16,7 @@ export function LandingCTA() {
               <span className="text-gradient">gestion parcellaire</span>
             </h3>
             <p className="text-blue-200/70 text-sm sm:text-base max-w-md mx-auto mb-8 leading-relaxed">
-              Lopango centralise la collecte terrain, la validation administrative
+              DIGIPARC centralise la collecte terrain, la validation administrative
               et la génération de plaques officielles avec QR Code — le tout dans
               un seul système sécurisé.
             </p>

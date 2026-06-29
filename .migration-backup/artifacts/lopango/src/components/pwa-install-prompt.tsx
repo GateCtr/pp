@@ -101,7 +101,7 @@ export function PWAInstallPrompt() {
 
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-gray-900">
-              Installer Lopango
+              Installer DIGIPARC
             </h3>
             <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
               Accédez rapidement à l&apos;app depuis votre écran d&apos;accueil,

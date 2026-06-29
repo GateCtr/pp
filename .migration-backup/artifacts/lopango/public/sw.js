@@ -1,5 +1,5 @@
-const CACHE_NAME = "lopango-v3";
-const STATIC_CACHE = "lopango-static-v3";
+const CACHE_NAME = "digiparc-v3";
+const STATIC_CACHE = "digiparc-static-v3";
 
 // Pages à cacher pour l'accès hors-ligne
 const OFFLINE_PAGES = [
@@ -165,7 +165,7 @@ self.addEventListener("push", (event) => {
 
   const data = event.data.json();
   const options = {
-    body: data.body || "Nouvelle notification Lopango",
+    body: data.body || "Nouvelle notification DIGIPARC",
     icon: "/web-app-manifest-192x192.png",
     badge: "/favicon-96x96.png",
     vibrate: [100, 50, 100],
@@ -175,7 +175,7 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title || "Lopango", options)
+    self.registration.showNotification(data.title || "DIGIPARC", options)
   );
 });
 

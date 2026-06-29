@@ -9,8 +9,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://lopango.cd";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Lopango - Cartographie et Recensement Parcellaire RDC",
-    template: "%s | Lopango",
+    default: "DIGIPARC - Cartographie et Recensement Parcellaire RDC",
+    template: "%s | DIGIPARC",
   },
   description:
     "Plateforme digitale de cartographie, recensement et signalétique parcellaire pour la République Démocratique du Congo. Collecte terrain, gestion des parcelles et génération de plaques d'identification.",
@@ -23,14 +23,14 @@ export const metadata: Metadata = {
     "collecte terrain",
     "signalétique",
     "plaques",
-    "lopango",
+    "digiparc",
     "cadastre",
     "géolocalisation",
   ],
-  authors: [{ name: "Lopango", url: SITE_URL }],
-  creator: "Lopango",
-  publisher: "Lopango",
-  applicationName: "Lopango",
+  authors: [{ name: "DIGIPARC", url: SITE_URL }],
+  creator: "DIGIPARC",
+  publisher: "DIGIPARC",
+  applicationName: "DIGIPARC",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   formatDetection: {
@@ -44,8 +44,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_CD",
     url: SITE_URL,
-    siteName: "Lopango",
-    title: "Lopango - Cartographie et Recensement Parcellaire RDC",
+    siteName: "DIGIPARC",
+    title: "DIGIPARC - Cartographie et Recensement Parcellaire RDC",
     description:
       "Plateforme digitale de cartographie, recensement et signalétique parcellaire pour la République Démocratique du Congo.",
     images: [
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Lopango - Système de cartographie et recensement parcellaire",
+        alt: "DIGIPARC - Système de cartographie et recensement parcellaire",
         type: "image/png",
       },
     ],
@@ -62,11 +62,11 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "Lopango - Cartographie et Recensement Parcellaire RDC",
+    title: "DIGIPARC - Cartographie et Recensement Parcellaire RDC",
     description:
       "Plateforme digitale de cartographie, recensement et signalétique parcellaire pour la République Démocratique du Congo.",
     images: ["/og-image.png"],
-    creator: "@lopango_cd",
+    creator: "@digiparc_cd",
   },
 
   // Robots
@@ -104,7 +104,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Lopango",
+    title: "DIGIPARC",
   },
 
   // Category
@@ -140,7 +140,7 @@ export default function RootLayout({
           <meta name="mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-          <meta name="apple-mobile-web-app-title" content="Lopango" />
+          <meta name="apple-mobile-web-app-title" content="DIGIPARC" />
           <meta name="msapplication-TileColor" content="#1e3a5f" />
           <meta name="msapplication-tap-highlight" content="no" />
         </head>

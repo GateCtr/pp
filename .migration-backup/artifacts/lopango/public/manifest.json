@@ -1,7 +1,7 @@
 {
   "id": "/collecteur",
-  "name": "Lopango - Collecte Terrain RDC",
-  "short_name": "Lopango",
+  "name": "DIGIPARC - Collecte Terrain RDC",
+  "short_name": "DIGIPARC",
   "description": "Application mobile de collecte terrain pour les agents recenseurs - Cartographie et signalétique parcellaire en République Démocratique du Congo",
   "start_url": "/collecteur",
   "scope": "/",

@@ -19,7 +19,7 @@ export function CollectorHeader() {
         <div className="flex items-center gap-3">
           <Logo size="sm" />
           <div>
-            <span className="font-semibold text-gray-900 text-sm">Lopango</span>
+            <span className="font-semibold text-gray-900 text-sm">DIGIPARC</span>
             <span className="text-gray-400 text-xs ml-2 hidden sm:inline">Collecte terrain</span>
           </div>
         </div>

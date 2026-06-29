@@ -81,7 +81,7 @@ export default function AdminLayout({
           <button onClick={() => navigate("/admin")} className="flex items-center gap-2.5">
             <Logo size="sm" />
             <div>
-              <span className="font-bold text-gray-900 text-sm">Lopango</span>
+              <span className="font-bold text-gray-900 text-sm">DIGIPARC</span>
               <span className="text-gray-400 text-[10px] block -mt-0.5">Administration</span>
             </div>
           </button>

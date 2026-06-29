@@ -21,6 +21,7 @@ const DEFAULT_VARIANT: VariantDesign = {
   accentColor: "#87CEEB",
   fontFamily: "Arial, sans-serif",
   shape: "rounded",
+  avenueColor: "#c8a84b",
 };
 
 const FONT_OPTIONS: { value: string; label: string }[] = [
@@ -669,6 +670,12 @@ function TemplateEditor({
                             <ColorField label="Texte" value={v.textColor} onChange={(val) => updateVariant(i, "textColor", val)} />
                             <ColorField label="Accent" value={v.accentColor} onChange={(val) => updateVariant(i, "accentColor", val)} />
                           </div>
+                          <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+                            <span className="text-[9px] font-semibold text-amber-600 uppercase tracking-wider">Bandeau Avenue</span>
+                            <div className="mt-1">
+                              <ColorField label="Couleur du bandeau" value={v.avenueColor || v.borderColor} onChange={(val) => updateVariant(i, "avenueColor", val)} highlight />
+                            </div>
+                          </div>
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             <div>
                               <span className="text-[9px] text-gray-500">Police</span>
@@ -737,22 +744,22 @@ function TemplateEditor({
 
 
 // ============ HELPERS ============
-function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function ColorField({ label, value, onChange, highlight }: { label: string; value: string; onChange: (v: string) => void; highlight?: boolean }) {
   return (
-    <div onClick={(e) => e.stopPropagation()}>
-      <span className="text-[9px] text-gray-500">{label}</span>
+    <div onClick={(e) => e.stopPropagation()} className={highlight ? "p-1.5 rounded-lg bg-amber-50 border border-amber-200" : ""}>
+      <span className={`text-[9px] ${highlight ? "text-amber-700 font-medium" : "text-gray-500"}`}>{label}</span>
       <div className="flex items-center gap-1 mt-0.5">
         <input
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-6 h-6 rounded border border-gray-200 cursor-pointer p-0"
+          className={`h-7 rounded cursor-pointer p-0 ${highlight ? "w-10 border-2 border-amber-300" : "w-6 border border-gray-200"}`}
         />
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full h-6 text-[9px] font-mono border border-gray-200 rounded px-1"
+          className={`w-full h-6 text-[9px] font-mono rounded px-1 ${highlight ? "border border-amber-300 bg-white" : "border border-gray-200"}`}
         />
       </div>
     </div>
@@ -761,64 +768,73 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 
 
 function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; flagUrl: string; sealUrl: string }) {
-  const rx = variant.shape === "rectangle" ? "4" : variant.shape === "rounded" ? "10" : "18";
+  // viewBox mirrors 2400×1100 at scale 360/2400 = 0.15 → height = 165
+  const rx = variant.shape === "rectangle" ? "3" : variant.shape === "rounded" ? "8" : "14";
+  const innerRx = String(Math.max(0, Number(rx) - 1));
+  const aColor = variant.avenueColor || variant.borderColor;
 
   return (
-    <svg viewBox="0 0 360 180" className="w-full max-w-[320px] drop-shadow-lg">
+    <svg viewBox="0 0 360 165" className="w-full max-w-[320px] drop-shadow-lg">
       {/* Outer frame */}
-      <rect x="2" y="2" width="356" height="176" rx={rx} fill={variant.borderColor} />
+      <rect x="1" y="1" width="358" height="163" rx={rx} fill={variant.borderColor} />
       {/* Inner bg */}
-      <rect x="6" y="6" width="348" height="168" rx={String(Math.max(0, Number(rx) - 2))} fill={variant.bgColor} />
+      <rect x="3" y="3" width="354" height="159" rx={innerRx} fill={variant.bgColor} />
 
-      {/* Flag */}
+      {/* Flag (top left) */}
       {flagUrl ? (
-        <image href={flagUrl} x="16" y="14" width="44" height="30" preserveAspectRatio="xMidYMid meet" />
+        <image href={flagUrl} x="10" y="7" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <rect x="16" y="14" width="44" height="30" rx="2" fill="#007FFF" opacity="0.5" />
+        <g transform="translate(10,7)">
+          <rect width="29" height="20" fill="#007FFF" rx="1" opacity="0.7"/>
+          <polygon points="0,14 0,20 22,6 22,0 29,0 29,6 6,20 0,20" fill="#CE1021" opacity="0.7"/>
+        </g>
       )}
 
-      {/* Seal (always round) */}
-      <clipPath id="sealClip">
-        <circle cx="326" cy="30" r="16" />
-      </clipPath>
+      {/* Seal (top right) */}
+      <clipPath id="prvSealClip"><circle cx="345" cy="17" r="12" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="310" y="14" width="32" height="32" clipPath="url(#sealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="333" y="5" width="24" height="24" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="326" cy="30" r="16" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.5" />
+        <circle cx="345" cy="17" r="12" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
       )}
 
-      {/* Text */}
-      <text x="180" y="24" textAnchor="middle" fill={variant.accentColor} fontSize="6" fontFamily={variant.fontFamily}>COMMUNE DE</text>
-      <text x="180" y="38" textAnchor="middle" fill={variant.textColor} fontSize="11" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
-      <text x="180" y="56" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="bold" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
+      {/* COMMUNE DE label */}
+      <text x="180" y="17" textAnchor="middle" fill={variant.accentColor} fontSize="5.5" fontFamily={variant.fontFamily} letterSpacing="1">COMMUNE DE</text>
+      {/* Commune name */}
+      <text x="180" y="31" textAnchor="middle" fill={variant.textColor} fontSize="15" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
 
-      {/* Avenue band */}
-      <rect x="14" y="64" width="332" height="28" rx="3" fill={variant.borderColor} opacity="0.15" />
-      <text x="180" y="82" textAnchor="middle" fill={variant.textColor} fontSize="12" fontWeight="bold" fontFamily={variant.fontFamily}>AV. DE L&apos;INDÉPENDANCE</text>
+      {/* Separator */}
+      <line x1="10" y1="40" x2="350" y2="40" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.25" />
 
-      {/* ── Bottom section: N° centré + QR aligné sur la même ligne à droite ── */}
-      {/* N° — centré pleine largeur, gros */}
-      <text x="180" y="147" textAnchor="middle" fill={variant.accentColor} fontSize="44" fontWeight="bold" fontFamily={variant.fontFamily}>N° 6</text>
+      {/* Quartier */}
+      <text x="180" y="53" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
-      {/* QR — 44×44, droite, centre vertical = 133 (même ligne que N°) */}
-      <rect x="303" y="111" width="44" height="44" rx="3" fill="white" />
-      {/* TL corner */}
-      <rect x="306" y="114" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
-      <rect x="308" y="116" width="5" height="5" fill="#1e293b" />
-      {/* TR corner */}
-      <rect x="335" y="114" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
-      <rect x="337" y="116" width="5" height="5" fill="#1e293b" />
-      {/* BL corner */}
-      <rect x="306" y="143" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.4" />
-      <rect x="308" y="145" width="5" height="5" fill="#1e293b" />
-      {/* Seal in QR center */}
-      <clipPath id="qrSealClip">
-        <circle cx="325" cy="133" r="6" />
-      </clipPath>
+      {/* Avenue band (full inner width) */}
+      <rect x="3" y="57" width="354" height="33" fill={aColor} />
+      {/* Avenue name */}
+      <text x="180" y="79" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
+
+      {/* Vertical separator */}
+      <line x1="240" y1="93" x2="240" y2="160" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
+
+      {/* N° label */}
+      <text x="105" y="108" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
+      {/* Numero large */}
+      <text x="105" y="153" textAnchor="middle" fill={variant.textColor} fontSize="48" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
+
+      {/* QR mock */}
+      <rect x="249" y="92" width="66" height="66" rx="2" fill="white" opacity="0.9"/>
+      <rect x="252" y="95" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="254" y="97" width="7" height="7" fill="#1e293b" />
+      <rect x="270" y="95" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="272" y="97" width="7" height="7" fill="#1e293b" />
+      <rect x="252" y="113" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="254" y="115" width="7" height="7" fill="#1e293b" />
+      <clipPath id="prvQrSealClip"><circle cx="304" cy="125" r="8" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="319" y="127" width="12" height="12" clipPath="url(#qrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="296" y="117" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="325" cy="133" r="6" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="304" cy="125" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );

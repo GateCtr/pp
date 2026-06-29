@@ -40,20 +40,25 @@ interface Props {
   onSaved: () => void;
 }
 
+const LEAF = new Set(["quartier", "village"]);
+
 export function AffectationModal({ agentId, agentNom, onClose, onSaved }: Props) {
   const [topLevel, setTopLevel] = useState<LieuGeo[]>([]);
   const [level2, setLevel2] = useState<LieuGeo[]>([]);
   const [level3, setLevel3] = useState<LieuGeo[]>([]);
+  const [level4, setLevel4] = useState<LieuGeo[]>([]);
   const [avenuesList, setAvenuesList] = useState<Avenue[]>([]);
   const [currentAffectations, setCurrentAffectations] = useState<Affectation[]>([]);
 
   const [sel1, setSel1] = useState<LieuGeo | null>(null);
   const [sel2, setSel2] = useState<LieuGeo | null>(null);
   const [sel3, setSel3] = useState<LieuGeo | null>(null);
+  const [sel4, setSel4] = useState<LieuGeo | null>(null);
   const [selAvenue, setSelAvenue] = useState<Avenue | null>(null);
 
   const [saving, setSaving] = useState(false);
   const [loadingAffectations, setLoadingAffectations] = useState(true);
+  const [loadingLevel, setLoadingLevel] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/geo").then(r => r.json()).then(setTopLevel);
@@ -70,26 +75,51 @@ export function AffectationModal({ agentId, agentNom, onClose, onSaved }: Props)
   }
 
   async function selectL1(lieu: LieuGeo) {
-    setSel1(lieu); setSel2(null); setSel3(null); setSelAvenue(null);
-    setLevel3([]); setAvenuesList([]);
+    setSel1(lieu); setSel2(null); setSel3(null); setSel4(null); setSelAvenue(null);
+    setLevel2([]); setLevel3([]); setLevel4([]); setAvenuesList([]);
+    setLoadingLevel(2);
     const res = await fetch(`/api/geo?parentId=${lieu.id}`);
     setLevel2(await res.json());
+    setLoadingLevel(null);
   }
 
   async function selectL2(lieu: LieuGeo) {
-    setSel2(lieu); setSel3(null); setSelAvenue(null); setAvenuesList([]);
+    setSel2(lieu); setSel3(null); setSel4(null); setSelAvenue(null);
+    setLevel3([]); setLevel4([]); setAvenuesList([]);
+    setLoadingLevel(3);
     const res = await fetch(`/api/geo?parentId=${lieu.id}`);
     setLevel3(await res.json());
+    setLoadingLevel(null);
   }
 
   async function selectL3(lieu: LieuGeo) {
-    setSel3(lieu); setSelAvenue(null);
-    const res = await fetch(`/api/geo?avenues=1&quartierId=${lieu.id}`);
-    setAvenuesList(await res.json());
+    setSel3(lieu); setSel4(null); setSelAvenue(null);
+    setLevel4([]); setAvenuesList([]);
+    if (LEAF.has(lieu.type)) {
+      setLoadingLevel(5);
+      const res = await fetch(`/api/geo?avenues=1&quartierId=${lieu.id}`);
+      setAvenuesList(await res.json());
+    } else {
+      setLoadingLevel(4);
+      const res = await fetch(`/api/geo?parentId=${lieu.id}`);
+      setLevel4(await res.json());
+    }
+    setLoadingLevel(null);
   }
 
+  async function selectL4(lieu: LieuGeo) {
+    setSel4(lieu); setSelAvenue(null); setAvenuesList([]);
+    setLoadingLevel(5);
+    const res = await fetch(`/api/geo?avenues=1&quartierId=${lieu.id}`);
+    setAvenuesList(await res.json());
+    setLoadingLevel(null);
+  }
+
+  const leafNode = (sel4 && LEAF.has(sel4.type) ? sel4 : null)
+    ?? (sel3 && LEAF.has(sel3.type) ? sel3 : null);
+
   async function handleSave() {
-    if (!selAvenue || !sel3) {
+    if (!selAvenue || !leafNode) {
       toast.error("Sélectionnez une avenue");
       return;
     }
@@ -100,7 +130,7 @@ export function AffectationModal({ agentId, agentNom, onClose, onSaved }: Props)
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           avenueId: selAvenue.id,
-          quartierId: sel3.id,
+          quartierId: leafNode.id,
         }),
       });
       if (!res.ok) throw new Error();
@@ -124,10 +154,14 @@ export function AffectationModal({ agentId, agentNom, onClose, onSaved }: Props)
     onSaved();
   }
 
+  const showL4 = level4.length > 0 || (sel3 && !LEAF.has(sel3.type));
+  const showAvenues = (leafNode !== null) || loadingLevel === 5;
+  const hasAvenues = avenuesList.length > 0;
+
   return (
     <Portal>
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-scale-in">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col animate-scale-in">
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-gray-100">
             <div>
@@ -186,108 +220,169 @@ export function AffectationModal({ agentId, agentNom, onClose, onSaved }: Props)
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                 Ajouter une nouvelle zone
               </p>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {/* Level 1 */}
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase">Ville / Territoire</p>
-                  <div className="border border-gray-100 rounded-lg overflow-hidden max-h-40 overflow-y-auto">
-                    {topLevel.map((l) => (
-                      <button
-                        key={l.id}
-                        onClick={() => selectL1(l)}
-                        className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
-                          sel1?.id === l.id
-                            ? "bg-blue-500 text-white"
-                            : "hover:bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        {l.nom}
-                      </button>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Level 2 */}
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase">Commune / Secteur</p>
-                  <div className="border border-gray-100 rounded-lg overflow-hidden max-h-40 overflow-y-auto">
-                    {level2.length === 0 ? (
-                      <div className="text-center py-4 text-gray-300 text-[10px]">
-                        {sel1 ? "Aucune subdivision" : "—"}
-                      </div>
-                    ) : level2.map((l) => (
-                      <button
-                        key={l.id}
-                        onClick={() => selectL2(l)}
-                        className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
-                          sel2?.id === l.id
-                            ? "bg-violet-500 text-white"
-                            : "hover:bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        {l.nom}
-                      </button>
-                    ))}
+              {/* Scrollable column grid */}
+              <div className="overflow-x-auto pb-1">
+                <div className="flex gap-2 min-w-max">
+                  {/* Level 1: Ville / Territoire */}
+                  <div className="w-36 space-y-1 flex-shrink-0">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase truncate">
+                      Ville / Territoire
+                    </p>
+                    <div className="border border-gray-100 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                      {topLevel.map((l) => (
+                        <button
+                          key={l.id}
+                          onClick={() => selectL1(l)}
+                          className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
+                            sel1?.id === l.id
+                              ? "bg-blue-500 text-white"
+                              : "hover:bg-gray-50 text-gray-700"
+                          }`}
+                        >
+                          {l.nom}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Level 3: Quartier */}
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase">Quartier</p>
-                  <div className="border border-gray-100 rounded-lg overflow-hidden max-h-40 overflow-y-auto">
-                    {level3.length === 0 ? (
-                      <div className="text-center py-4 text-gray-300 text-[10px]">
-                        {sel2 ? "Aucun quartier" : "—"}
-                      </div>
-                    ) : level3.map((l) => (
-                      <button
-                        key={l.id}
-                        onClick={() => selectL3(l)}
-                        className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
-                          sel3?.id === l.id
-                            ? "bg-emerald-500 text-white"
-                            : "hover:bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        {l.nom}
-                      </button>
-                    ))}
+                  {/* Level 2 */}
+                  <div className="w-36 space-y-1 flex-shrink-0">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase truncate">
+                      Subdivision
+                    </p>
+                    <div className="border border-gray-100 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                      {loadingLevel === 2 ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-300" />
+                        </div>
+                      ) : level2.length === 0 ? (
+                        <div className="text-center py-4 text-gray-300 text-[10px]">
+                          {sel1 ? "Aucune subdivision" : "—"}
+                        </div>
+                      ) : level2.map((l) => (
+                        <button
+                          key={l.id}
+                          onClick={() => selectL2(l)}
+                          className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
+                            sel2?.id === l.id
+                              ? "bg-violet-500 text-white"
+                              : "hover:bg-gray-50 text-gray-700"
+                          }`}
+                        >
+                          {l.nom}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {/* Level 4: Avenue */}
-                <div className="space-y-1">
-                  <p className="text-[10px] font-semibold text-gray-400 uppercase">Avenue</p>
-                  <div className="border border-gray-100 rounded-lg overflow-hidden max-h-40 overflow-y-auto">
-                    {avenuesList.length === 0 ? (
-                      <div className="text-center py-4 text-gray-300 text-[10px]">
-                        {sel3 ? "Aucune avenue" : "—"}
+                  {/* Level 3 */}
+                  <div className="w-36 space-y-1 flex-shrink-0">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase truncate">
+                      Niveau 3
+                    </p>
+                    <div className="border border-gray-100 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                      {loadingLevel === 3 ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-300" />
+                        </div>
+                      ) : level3.length === 0 ? (
+                        <div className="text-center py-4 text-gray-300 text-[10px]">
+                          {sel2 ? "Aucun" : "—"}
+                        </div>
+                      ) : level3.map((l) => (
+                        <button
+                          key={l.id}
+                          onClick={() => selectL3(l)}
+                          className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
+                            sel3?.id === l.id
+                              ? "bg-emerald-500 text-white"
+                              : "hover:bg-gray-50 text-gray-700"
+                          }`}
+                        >
+                          {l.nom}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Level 4 — shown when L3 is an intermediate node (not a leaf) */}
+                  {showL4 && (
+                    <div className="w-36 space-y-1 flex-shrink-0">
+                      <p className="text-[10px] font-semibold text-gray-400 uppercase truncate">
+                        Quartier / Village
+                      </p>
+                      <div className="border border-gray-100 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                        {loadingLevel === 4 ? (
+                          <div className="flex justify-center py-4">
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-300" />
+                          </div>
+                        ) : level4.length === 0 ? (
+                          <div className="text-center py-4 text-gray-300 text-[10px]">
+                            {sel3 ? "Aucun quartier" : "—"}
+                          </div>
+                        ) : level4.map((l) => (
+                          <button
+                            key={l.id}
+                            onClick={() => selectL4(l)}
+                            className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
+                              sel4?.id === l.id
+                                ? "bg-teal-500 text-white"
+                                : "hover:bg-gray-50 text-gray-700"
+                            }`}
+                          >
+                            {l.nom}
+                          </button>
+                        ))}
                       </div>
-                    ) : avenuesList.map((av) => (
-                      <button
-                        key={av.id}
-                        onClick={() => setSelAvenue(av)}
-                        className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
-                          selAvenue?.id === av.id
-                            ? "bg-orange-400 text-white"
-                            : "hover:bg-gray-50 text-gray-700"
-                        }`}
-                      >
-                        {av.nom}
-                      </button>
-                    ))}
+                    </div>
+                  )}
+
+                  {/* Avenues */}
+                  <div className="w-36 space-y-1 flex-shrink-0">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase">Avenue</p>
+                    <div className="border border-gray-100 rounded-lg overflow-hidden max-h-48 overflow-y-auto">
+                      {loadingLevel === 5 ? (
+                        <div className="flex justify-center py-4">
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-300" />
+                        </div>
+                      ) : !showAvenues ? (
+                        <div className="text-center py-4 text-gray-300 text-[10px]">—</div>
+                      ) : !hasAvenues ? (
+                        <div className="text-center py-4 text-gray-300 text-[10px]">
+                          Aucune avenue
+                        </div>
+                      ) : avenuesList.map((av) => (
+                        <button
+                          key={av.id}
+                          onClick={() => setSelAvenue(av)}
+                          className={`w-full text-left px-2.5 py-2 text-xs transition-colors ${
+                            selAvenue?.id === av.id
+                              ? "bg-orange-400 text-white"
+                              : "hover:bg-gray-50 text-gray-700"
+                          }`}
+                        >
+                          {av.nom}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Preview */}
-              {selAvenue && sel3 && (
+              {selAvenue && leafNode && (
                 <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-emerald-50 border border-blue-100 rounded-xl flex items-center gap-3">
                   <Road className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                  <div>
-                    <p className="text-xs font-semibold text-gray-700">{selAvenue.nom}</p>
-                    <p className="text-[10px] text-gray-500">
-                      {sel1?.nom} › {sel2?.nom} › {sel3.nom}
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-700 truncate">{selAvenue.nom}</p>
+                    <p className="text-[10px] text-gray-500 flex items-center gap-1 flex-wrap">
+                      {sel1 && <span>{sel1.nom}</span>}
+                      {sel2 && <><ChevronRight className="w-3 h-3" /><span>{sel2.nom}</span></>}
+                      {sel3 && <><ChevronRight className="w-3 h-3" /><span>{sel3.nom}</span></>}
+                      {sel4 && <><ChevronRight className="w-3 h-3" /><span>{sel4.nom}</span></>}
+                      <ChevronRight className="w-3 h-3" />
+                      <strong>{selAvenue.nom}</strong>
                     </p>
                   </div>
                 </div>

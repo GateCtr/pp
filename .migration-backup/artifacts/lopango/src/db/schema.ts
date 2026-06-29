@@ -141,7 +141,6 @@ export const parcelles = pgTable("parcelles", {
   modifiePar: varchar("modifie_par", { length: 255 }),
   motifModification: text("motif_modification"),
 }, (t) => ({
-  // Prevent duplicate parcel numbers on the same avenue
   avenueNumeroUnique: unique("parcelle_avenue_numero_unique").on(t.avenueId, t.numero),
 }));
 
@@ -206,4 +205,6 @@ export interface VariantDesign {
   accentColor: string;
   fontFamily: string;
   shape: "rectangle" | "rounded" | "rounded-lg";
+  avenueColor?: string;
+  headerColor?: string;
 }

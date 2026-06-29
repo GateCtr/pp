@@ -70,7 +70,7 @@ export default function CollectorLoginPage() {
           <div className="flex justify-center mb-4">
             <Logo size="xl" className="shadow-xl shadow-blue-500/25" />
           </div>
-          <h1 className="text-white font-bold text-xl">Lopango</h1>
+          <h1 className="text-white font-bold text-xl">DIGIPARC</h1>
           <p className="text-blue-300/60 text-sm mt-1">Portail Agent Collecteur</p>
         </div>
 

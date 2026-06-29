@@ -1,72 +1,45 @@
-# Lopango
+# [Project name]
 
-Plateforme digitale de cartographie, recensement et signalétique parcellaire pour la République Démocratique du Congo.
-
-## ⚠️ NE PAS CONVERTIR — Projet Next.js
-
-**Ce projet est en Next.js et doit rester en Next.js.** Ne jamais tenter de convertir vers Vite + React ou tout autre framework. L'artifact `artifacts/lopango/` est une application Next.js 16 autonome.
+_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/lopango run dev` — démarrer l'app Next.js (port 24203)
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm run typecheck` — full typecheck across all packages
+- `pnpm run build` — typecheck + build all packages
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- Required env: `DATABASE_URL` — Postgres connection string
 
 ## Stack
 
-- **Frontend/Backend**: Next.js 16 (App Router), React 19, TypeScript
-- **Auth admin**: Clerk (`@clerk/nextjs`)
-- **Auth collecteur**: JWT custom (cookie `collector-session`)
-- **DB**: PostgreSQL + Drizzle ORM + Neon Serverless
-- **CSS**: Tailwind CSS v4
-- **PWA**: Service Worker, manifest, offline support
+- pnpm workspaces, Node.js 24, TypeScript 5.9
+- API: Express 5
+- DB: PostgreSQL + Drizzle ORM
+- Validation: Zod (`zod/v4`), `drizzle-zod`
+- API codegen: Orval (from OpenAPI spec)
+- Build: esbuild (CJS bundle)
 
 ## Where things live
 
-- `artifacts/lopango/src/app/` — Next.js App Router (pages + API routes)
-- `artifacts/lopango/src/app/api/` — API routes Next.js (auth, parcelles, collecteurs, geo, plates)
-- `artifacts/lopango/src/components/` — Composants React partagés
-- `artifacts/lopango/src/db/` — Schema Drizzle + connexion Neon
-- `artifacts/lopango/src/lib/` — Utilitaires (auth, plate-generator, validations)
-- `artifacts/lopango/public/` — Assets PWA (icons, manifest, service worker)
-
-## Routes principales
-
-- `/` — Landing page publique
-- `/admin` — Dashboard administrateur (protégé Clerk)
-- `/admin/parcelles` — Gestion des parcelles
-- `/admin/collecteurs` — Gestion des agents
-- `/admin/geo` — Arbre géographique
-- `/admin/plaques-templates` — Templates de plaques
-- `/collecteur` — App mobile agent (protégé JWT)
-- `/collecteur/login` — Connexion agent par code d'accès
-- `/verification/[id]` — Vérification publique d'une parcelle (QR code)
-
-## Variables d'environnement requises
-
-- `DATABASE_URL` — Connexion Postgres (Neon)
-- `CLERK_SECRET_KEY` — Clé secrète Clerk (admin auth)
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` — Clé publique Clerk
-- `COLLECTOR_JWT_SECRET` — Secret JWT pour les agents collecteurs
-- `NEXT_PUBLIC_APP_URL` — URL publique de l'app
-- `CLOUDFLARE_R2_*` — Stockage des assets (flag, seal, plate images)
+_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
 
 ## Architecture decisions
 
-- Next.js App Router avec RSC (React Server Components) pour les pages admin
-- JWT cookie-based auth pour les collecteurs (sans Clerk, pour usage mobile offline)
-- PWA avec service worker pour collecte terrain hors ligne
-- Drizzle ORM sur Neon (postgres serverless)
+_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+
+## Product
+
+_Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-- Le projet est Next.js et doit rester Next.js — ne jamais convertir vers Vite/React SPA
-- Ne pas modifier la structure du projet sans instruction explicite
+_Populate as you build — explicit user instructions worth remembering across sessions._
 
 ## Gotchas
 
-- Les pages admin (`/admin/*`) sont des Server Components qui font des requêtes DB directes
-- Les routes API Next.js (`/api/*`) gèrent auth, parcelles, geo, collecteurs et plate generation
-- Le service worker (`public/sw.js`) gère le mode offline pour les collecteurs
-- `artifacts/lopango/parcellaire/` est une sous-app distincte (ne pas confondre avec `src/`)
+_Populate as you build — sharp edges, "always run X before Y" rules._
+
+## Pointers
+
+- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details

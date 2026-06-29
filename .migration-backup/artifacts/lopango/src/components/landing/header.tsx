@@ -11,7 +11,7 @@ export function LandingHeader() {
         <div className="flex items-center gap-3">
           <Logo size="md" className="shadow-lg shadow-blue-500/25" />
           <div>
-            <h1 className="text-white font-bold text-lg leading-tight">Lopango</h1>
+            <h1 className="text-white font-bold text-lg leading-tight">DIGIPARC</h1>
             <p className="text-blue-300/70 text-xs hidden sm:block">Kongo Central — RDC</p>
           </div>
         </div>

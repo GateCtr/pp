@@ -22,7 +22,7 @@ export function Logo({ size = "sm", className = "" }: LogoProps) {
     <div className={`${container} rounded-xl overflow-hidden flex items-center justify-center ${className}`}>
       <Image
         src="/favicon.svg"
-        alt="Lopango"
+        alt="DIGIPARC"
         width={img}
         height={img}
         className="w-full h-full object-contain"

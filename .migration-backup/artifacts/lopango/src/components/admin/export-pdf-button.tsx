@@ -59,7 +59,7 @@ export function ExportPdfButton({ parcelles, filterLabel }: ExportPdfButtonProps
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text("LOPANGO", textOffsetX, 12);
+      doc.text("DIGIPARC", textOffsetX, 12);
 
       doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
@@ -163,7 +163,7 @@ export function ExportPdfButton({ parcelles, filterLabel }: ExportPdfButtonProps
           doc.setTextColor(130, 130, 130);
           doc.setFont("helvetica", "italic");
           doc.text(
-            `Généré par Lopango — ${now}`,
+            `Généré par DIGIPARC — ${now}`,
             pageWidth / 2,
             pageHeight - 8,
             { align: "center" }
@@ -171,7 +171,7 @@ export function ExportPdfButton({ parcelles, filterLabel }: ExportPdfButtonProps
         },
       });
 
-      doc.save(`lopango-parcelles-${Date.now()}.pdf`);
+      doc.save(`digiparc-parcelles-${Date.now()}.pdf`);
       toast.success("PDF exporté avec succès");
     } catch (error) {
       console.error("PDF export error:", error);
