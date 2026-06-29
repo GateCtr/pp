@@ -1,0 +1,1 @@
+- [DIGIPARC Next.js monorepo quirks](digiparc-nextjs-monorepo.md) — CSS @import for packages in artifact node_modules fails under Turbopack; use relative path instead.
