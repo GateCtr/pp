@@ -780,56 +780,59 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
       {/* Inner bg */}
       <rect x="3" y="3" width="354" height="159" rx={innerRx} fill={variant.bgColor} />
 
-      {/* Flag (top left) */}
+      {/* Flag (top left, with margin from border) */}
       {flagUrl ? (
-        <image href={flagUrl} x="10" y="5" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
+        <image href={flagUrl} x="18" y="4" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <g transform="translate(10,5)">
+        <g transform="translate(18,4)">
           <rect width="29" height="20" fill="#007FFF" rx="1" opacity="0.7"/>
           <polygon points="0,14 0,20 22,6 22,0 29,0 29,6 6,20 0,20" fill="#CE1021" opacity="0.7"/>
         </g>
       )}
 
-      {/* Seal (top right) — aligned with flag center */}
-      <clipPath id="prvSealClip"><circle cx="343" cy="14" r="12" /></clipPath>
+      {/* Seal (top right, with margin from border) */}
+      <clipPath id="prvSealClip"><circle cx="338" cy="13" r="12" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="331" y="2" width="24" height="24" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="326" y="1" width="24" height="24" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="343" cy="14" r="12" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
+        <circle cx="338" cy="13" r="12" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
       )}
 
-      {/* Separator (just below flag/seal) */}
-      <line x1="10" y1="30" x2="350" y2="30" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.25" />
+      {/* Commune name */}
+      <text x="180" y="26" textAnchor="middle" fill={variant.textColor} fontSize="15" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
+
+      {/* Separator */}
+      <line x1="10" y1="32" x2="350" y2="32" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.25" />
 
       {/* Quartier */}
-      <text x="180" y="40" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
+      <text x="180" y="42" textAnchor="middle" fill={variant.accentColor} fontSize="9" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
       {/* Avenue band */}
-      <rect x="3" y="45" width="354" height="38" fill={aColor} />
+      <rect x="3" y="48" width="354" height="36" fill={aColor} />
       {/* Avenue name */}
-      <text x="180" y="68" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
+      <text x="180" y="70" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
 
       {/* Vertical separator */}
-      <line x1="240" y1="85" x2="240" y2="162" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
+      <line x1="240" y1="86" x2="240" y2="162" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
 
-      {/* N° label — centered in left zone */}
-      <text x="122" y="99" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
-      {/* Numero large */}
-      <text x="122" y="148" textAnchor="middle" fill={variant.textColor} fontSize="48" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
+      {/* N° — same size as numero */}
+      <text x="122" y="114" textAnchor="middle" fill={variant.accentColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
+      {/* Numero */}
+      <text x="122" y="153" textAnchor="middle" fill={variant.textColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
 
-      {/* QR mock */}
-      <rect x="249" y="86" width="66" height="66" rx="2" fill="white" opacity="0.9"/>
-      <rect x="252" y="89" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="254" y="91" width="7" height="7" fill="#1e293b" />
-      <rect x="270" y="89" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="272" y="91" width="7" height="7" fill="#1e293b" />
-      <rect x="252" y="107" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="254" y="109" width="7" height="7" fill="#1e293b" />
-      <clipPath id="prvQrSealClip"><circle cx="304" cy="119" r="8" /></clipPath>
+      {/* QR mock — right edge aligns with seal right edge (338+12=350) */}
+      <rect x="277" y="86" width="73" height="73" rx="2" fill="white" opacity="0.9"/>
+      <rect x="280" y="89" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="282" y="91" width="7" height="7" fill="#1e293b" />
+      <rect x="298" y="89" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="300" y="91" width="7" height="7" fill="#1e293b" />
+      <rect x="280" y="107" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
+      <rect x="282" y="109" width="7" height="7" fill="#1e293b" />
+      <clipPath id="prvQrSealClip"><circle cx="313" cy="122" r="8" /></clipPath>
       {sealUrl ? (
-        <image href={sealUrl} x="296" y="111" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <image href={sealUrl} x="305" y="114" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
       ) : (
-        <circle cx="304" cy="119" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="313" cy="122" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );

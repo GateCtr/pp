@@ -122,17 +122,17 @@ function generateTemplatePlateSVG(
 
   const aColor = escapeXml(variant.avenueColor || variant.borderColor);
 
-  // QR: bottom-right, 490×490 starting at (1860, 570)
+  // QR: bottom-right, right edge aligned with seal right edge (2256+80=2336)
   const qrSvgContent = sealUrl
-    ? `<image x="1860" y="570" width="490" height="490" href="${qrDataUrl}"/>
-       <circle cx="2105" cy="815" r="52" fill="white"/>
-       <clipPath id="qrSeal"><circle cx="2105" cy="815" r="44"/></clipPath>
-       <image x="2061" y="771" width="88" height="88" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
-    : `<image x="1860" y="570" width="490" height="490" href="${qrDataUrl}"/>`;
+    ? `<image x="1846" y="575" width="490" height="490" href="${qrDataUrl}"/>
+       <circle cx="2091" cy="820" r="52" fill="white"/>
+       <clipPath id="qrSeal"><circle cx="2091" cy="820" r="44"/></clipPath>
+       <image x="2047" y="776" width="88" height="88" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
+    : `<image x="1846" y="575" width="490" height="490" href="${qrDataUrl}"/>`;
 
   const flagContent = flagUrl
-    ? `<image x="65" y="30" width="190" height="130" href="${escapeXml(flagUrl)}" preserveAspectRatio="xMidYMid meet"/>`
-    : `<g transform="translate(65, 30)">
+    ? `<image x="120" y="25" width="190" height="130" href="${escapeXml(flagUrl)}" preserveAspectRatio="xMidYMid meet"/>`
+    : `<g transform="translate(120, 25)">
         <rect width="190" height="130" fill="#007FFF" rx="6"/>
         <polygon points="0,92 0,130 149,39 149,0 190,0 190,39 41,130 0,130" fill="#CE1021"/>
         <line x1="0" y1="86" x2="153" y2="0" stroke="#F7D618" stroke-width="5"/>
@@ -141,10 +141,10 @@ function generateTemplatePlateSVG(
       </g>`;
 
   const sealContent = sealUrl
-    ? `<clipPath id="plateSeal"><circle cx="2300" cy="95" r="80"/></clipPath>
-       <image x="2220" y="15" width="160" height="160" href="${escapeXml(sealUrl)}" clip-path="url(#plateSeal)" preserveAspectRatio="xMidYMid slice"/>`
-    : `<circle cx="2300" cy="95" r="80" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="4" opacity="0.5"/>
-       <circle cx="2300" cy="95" r="60" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="2" opacity="0.3"/>`;
+    ? `<clipPath id="plateSeal"><circle cx="2256" cy="85" r="80"/></clipPath>
+       <image x="2176" y="5" width="160" height="160" href="${escapeXml(sealUrl)}" clip-path="url(#plateSeal)" preserveAspectRatio="xMidYMid slice"/>`
+    : `<circle cx="2256" cy="85" r="80" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="4" opacity="0.5"/>
+       <circle cx="2256" cy="85" r="60" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="2" opacity="0.3"/>`;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -161,26 +161,29 @@ function generateTemplatePlateSVG(
   <!-- Seal (top right) -->
   ${sealContent}
 
-  <!-- Horizontal separator (below flag/seal) -->
-  <line x1="65" y1="200" x2="2335" y2="200" stroke="${escapeXml(variant.borderColor)}" stroke-width="2" opacity="0.25"/>
+  <!-- Commune name (centered in header) -->
+  <text x="1200" y="170" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="100" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">${escapeXml(commune)}</text>
+
+  <!-- Horizontal separator -->
+  <line x1="65" y1="215" x2="2335" y2="215" stroke="${escapeXml(variant.borderColor)}" stroke-width="2" opacity="0.25"/>
 
   <!-- QUARTIER -->
-  <text x="1200" y="265" text-anchor="middle" fill="${escapeXml(variant.accentColor)}" font-size="60" font-family="${escapeXml(variant.fontFamily)}" font-weight="600" letter-spacing="2">QUARTIER ${escapeXml(quartier)}</text>
+  <text x="1200" y="278" text-anchor="middle" fill="${escapeXml(variant.accentColor)}" font-size="60" font-family="${escapeXml(variant.fontFamily)}" font-weight="600" letter-spacing="2">QUARTIER ${escapeXml(quartier)}</text>
 
   <!-- Avenue band (full inner width) -->
-  <rect x="16" y="300" width="${PLATE_WIDTH - 32}" height="250" rx="0" fill="${aColor}"/>
+  <rect x="16" y="320" width="${PLATE_WIDTH - 32}" height="240" rx="0" fill="${aColor}"/>
 
   <!-- Avenue name (centered on band) -->
-  <text x="1200" y="450" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="118" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">${escapeXml(avenue)}</text>
+  <text x="1200" y="463" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="118" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">${escapeXml(avenue)}</text>
 
   <!-- Bottom: vertical separator -->
-  <line x1="1600" y1="565" x2="1600" y2="1080" stroke="${escapeXml(variant.borderColor)}" stroke-width="2" opacity="0.15"/>
+  <line x1="1600" y1="575" x2="1600" y2="1080" stroke="${escapeXml(variant.borderColor)}" stroke-width="2" opacity="0.15"/>
 
-  <!-- N° label -->
-  <text x="810" y="660" text-anchor="middle" fill="${escapeXml(variant.accentColor)}" font-size="56" font-family="${escapeXml(variant.fontFamily)}" font-weight="normal" letter-spacing="4">N°</text>
+  <!-- N° (same size as numero) -->
+  <text x="810" y="758" text-anchor="middle" fill="${escapeXml(variant.accentColor)}" font-size="240" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold" letter-spacing="4">N°</text>
 
-  <!-- Numero (large) -->
-  <text x="810" y="985" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="280" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">${escapeXml(numero)}</text>
+  <!-- Numero -->
+  <text x="810" y="1020" text-anchor="middle" fill="${escapeXml(variant.textColor)}" font-size="240" font-family="${escapeXml(variant.fontFamily)}" font-weight="bold">${escapeXml(numero)}</text>
 
   <!-- QR Code -->
   ${qrSvgContent}
@@ -206,8 +209,8 @@ function generateDefaultPlateSVG(data: PlateData, qrDataUrl: string): string {
   <rect x="16" y="16" width="${PLATE_WIDTH - 32}" height="${PLATE_HEIGHT - 32}" rx="18" ry="18" fill="#1a3a6b"/>
   <rect x="16" y="16" width="${PLATE_WIDTH - 32}" height="${PLATE_HEIGHT - 32}" rx="18" ry="18" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.3"/>
 
-  <!-- DRC Flag -->
-  <g transform="translate(65, 30)">
+  <!-- DRC Flag (with margin from left border) -->
+  <g transform="translate(120, 25)">
     <rect width="190" height="130" fill="#007FFF" rx="6"/>
     <polygon points="0,92 0,130 149,39 149,0 190,0 190,39 41,130 0,130" fill="#CE1021"/>
     <line x1="0" y1="86" x2="153" y2="0" stroke="#F7D618" stroke-width="5"/>
@@ -215,21 +218,25 @@ function generateDefaultPlateSVG(data: PlateData, qrDataUrl: string): string {
     <polygon points="41,30 46,47 62,47 49,57 54,74 41,64 27,74 32,57 19,47 35,47" fill="#F7D618"/>
   </g>
 
-  <circle cx="2300" cy="95" r="80" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.4"/>
-  <circle cx="2300" cy="95" r="60" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+  <!-- Seal placeholder (with margin from right border) -->
+  <circle cx="2256" cy="85" r="80" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.4"/>
+  <circle cx="2256" cy="85" r="60" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
 
-  <line x1="65" y1="200" x2="2335" y2="200" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
-  <text x="1200" y="265" text-anchor="middle" fill="#87CEEB" font-size="60" font-family="Arial, sans-serif" font-weight="600" letter-spacing="2">QUARTIER ${escapeXml(quartier)}</text>
+  <!-- Commune name -->
+  <text x="1200" y="170" text-anchor="middle" fill="#ffffff" font-size="100" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(commune)}</text>
 
-  <rect x="16" y="300" width="${PLATE_WIDTH - 32}" height="250" rx="0" fill="#2d5a8e"/>
-  <text x="1200" y="450" text-anchor="middle" fill="#ffffff" font-size="118" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
+  <line x1="65" y1="215" x2="2335" y2="215" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+  <text x="1200" y="278" text-anchor="middle" fill="#87CEEB" font-size="60" font-family="Arial, sans-serif" font-weight="600" letter-spacing="2">QUARTIER ${escapeXml(quartier)}</text>
 
-  <line x1="1600" y1="565" x2="1600" y2="1080" stroke="#ffffff" stroke-width="2" opacity="0.12"/>
+  <rect x="16" y="320" width="${PLATE_WIDTH - 32}" height="240" rx="0" fill="#2d5a8e"/>
+  <text x="1200" y="463" text-anchor="middle" fill="#ffffff" font-size="118" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
 
-  <text x="810" y="660" text-anchor="middle" fill="#87CEEB" font-size="56" font-family="Arial, sans-serif" letter-spacing="4">N°</text>
-  <text x="810" y="985" text-anchor="middle" fill="#ffffff" font-size="280" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
+  <line x1="1600" y1="575" x2="1600" y2="1080" stroke="#ffffff" stroke-width="2" opacity="0.12"/>
 
-  <image x="1860" y="570" width="490" height="490" href="${qrDataUrl}"/>
+  <text x="810" y="758" text-anchor="middle" fill="#87CEEB" font-size="240" font-family="Arial, sans-serif" font-weight="bold" letter-spacing="4">N°</text>
+  <text x="810" y="1020" text-anchor="middle" fill="#ffffff" font-size="240" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
+
+  <image x="1846" y="575" width="490" height="490" href="${qrDataUrl}"/>
 
 </svg>`;
 }
