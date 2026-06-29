@@ -207,4 +207,11 @@ export interface VariantDesign {
   shape: "rectangle" | "rounded" | "rounded-lg";
   avenueColor?: string;
   headerColor?: string;
+  // Couleurs individuelles par élément
+  communeNameColor?: string;   // nom de la commune (ex: KISANTU)
+  avenueTextColor?: string;    // texte de l'avenue (ex: AVENUE KINGOMA)
+  numeroLabelColor?: string;   // libellé "N°"
+  numeroColor?: string;        // le chiffre du numéro
+  hLineColor?: string;         // ligne horizontale séparant l'en-tête
+  vLineColor?: string;         // ligne verticale séparant N° et QR code
 }

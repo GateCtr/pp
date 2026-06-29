@@ -22,6 +22,13 @@ const DEFAULT_VARIANT: VariantDesign = {
   fontFamily: "Arial, sans-serif",
   shape: "rounded",
   avenueColor: "#c8a84b",
+  // Couleurs individuelles par élément
+  communeNameColor: "#ffffff",
+  avenueTextColor: "#ffffff",
+  numeroLabelColor: "#87CEEB",
+  numeroColor: "#ffffff",
+  hLineColor: "#ffffff",
+  vLineColor: "#ffffff",
 };
 
 const FONT_OPTIONS: { value: string; label: string }[] = [
@@ -664,16 +671,38 @@ function TemplateEditor({
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-4 gap-2">
+                          {/* Couleurs de base */}
+                          <div className="grid grid-cols-2 gap-2">
                             <ColorField label="Fond" value={v.bgColor} onChange={(val) => updateVariant(i, "bgColor", val)} />
-                            <ColorField label="Bordure" value={v.borderColor} onChange={(val) => updateVariant(i, "borderColor", val)} />
-                            <ColorField label="Texte" value={v.textColor} onChange={(val) => updateVariant(i, "textColor", val)} />
-                            <ColorField label="Accent" value={v.accentColor} onChange={(val) => updateVariant(i, "accentColor", val)} />
+                            <ColorField label="Cadre/Bordure" value={v.borderColor} onChange={(val) => updateVariant(i, "borderColor", val)} />
                           </div>
+
+                          {/* Couleurs de texte individuelles */}
+                          <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+                            <span className="text-[9px] font-semibold text-blue-600 uppercase tracking-wider">Textes</span>
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                              <ColorField label='"Commune de" + "Quartier"' value={v.accentColor} onChange={(val) => updateVariant(i, "accentColor", val)} />
+                              <ColorField label="Nom de la commune" value={v.communeNameColor || v.textColor} onChange={(val) => updateVariant(i, "communeNameColor", val)} />
+                            </div>
+                          </div>
+
+                          {/* Bandeau avenue */}
                           <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
                             <span className="text-[9px] font-semibold text-amber-600 uppercase tracking-wider">Bandeau Avenue</span>
-                            <div className="mt-1">
-                              <ColorField label="Couleur du bandeau" value={v.avenueColor || v.borderColor} onChange={(val) => updateVariant(i, "avenueColor", val)} highlight />
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                              <ColorField label="Fond du bandeau" value={v.avenueColor || v.borderColor} onChange={(val) => updateVariant(i, "avenueColor", val)} highlight />
+                              <ColorField label="Texte de l&apos;avenue" value={v.avenueTextColor || v.textColor} onChange={(val) => updateVariant(i, "avenueTextColor", val)} />
+                            </div>
+                          </div>
+
+                          {/* N° et lignes */}
+                          <div className="mt-2 pt-2 border-t border-dashed border-gray-200">
+                            <span className="text-[9px] font-semibold text-purple-600 uppercase tracking-wider">Numéro &amp; Séparateurs</span>
+                            <div className="grid grid-cols-2 gap-2 mt-1">
+                              <ColorField label='Libellé "N°"' value={v.numeroLabelColor || v.accentColor} onChange={(val) => updateVariant(i, "numeroLabelColor", val)} />
+                              <ColorField label="Chiffre du numéro" value={v.numeroColor || v.textColor} onChange={(val) => updateVariant(i, "numeroColor", val)} />
+                              <ColorField label="Ligne horizontale" value={v.hLineColor || v.borderColor} onChange={(val) => updateVariant(i, "hLineColor", val)} />
+                              <ColorField label="Ligne verticale" value={v.vLineColor || v.borderColor} onChange={(val) => updateVariant(i, "vLineColor", val)} />
                             </div>
                           </div>
                           <div className="grid grid-cols-2 gap-2 mt-2">
@@ -769,9 +798,18 @@ function ColorField({ label, value, onChange, highlight }: { label: string; valu
 
 function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; flagUrl: string; sealUrl: string }) {
   // viewBox mirrors 2400×1100 at scale 360/2400 = 0.15 → height = 165
+  // Layout matches plate-generator.ts exactly at 0.15 scale
   const rx = variant.shape === "rectangle" ? "3" : variant.shape === "rounded" ? "8" : "14";
   const innerRx = String(Math.max(0, Number(rx) - 1));
-  const aColor = variant.avenueColor || variant.borderColor;
+
+  // Color resolution with fallbacks (mirrors plate-generator.ts)
+  const aColor       = variant.avenueColor      || variant.borderColor;
+  const aTextColor   = variant.avenueTextColor   || variant.textColor;
+  const cNameColor   = variant.communeNameColor  || variant.textColor;
+  const nLabelColor  = variant.numeroLabelColor  || variant.accentColor;
+  const nColor       = variant.numeroColor       || variant.textColor;
+  const hLineColor   = variant.hLineColor        || variant.borderColor;
+  const vLineColor   = variant.vLineColor        || variant.borderColor;
 
   return (
     <svg viewBox="0 0 360 165" className="w-full max-w-[320px] drop-shadow-lg">
@@ -780,17 +818,17 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
       {/* Inner bg */}
       <rect x="3" y="3" width="354" height="159" rx={innerRx} fill={variant.bgColor} />
 
-      {/* Flag (top left: x=18, y=7 → 29px inside inner rect) */}
+      {/* Flag (top left: x=18, y=6 → scale of x=120,y=40 in full plate) */}
       {flagUrl ? (
-        <image href={flagUrl} x="18" y="7" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
+        <image href={flagUrl} x="18" y="6" width="29" height="20" preserveAspectRatio="xMidYMid meet" />
       ) : (
-        <g transform="translate(18,7)">
+        <g transform="translate(18,6)">
           <rect width="29" height="20" fill="#007FFF" rx="1" opacity="0.7"/>
           <polygon points="0,14 0,20 22,6 22,0 29,0 29,6 6,20 0,20" fill="#CE1021" opacity="0.7"/>
         </g>
       )}
 
-      {/* Seal (top right: cx=336, cy=15, r=11 → right=347, top=4, 14px inside inner rect) */}
+      {/* Seal (top right: cx=336, cy=15, r=11) */}
       <clipPath id="prvSealClip"><circle cx="336" cy="15" r="11" /></clipPath>
       {sealUrl ? (
         <image href={sealUrl} x="325" y="4" width="22" height="22" clipPath="url(#prvSealClip)" preserveAspectRatio="xMidYMid slice" />
@@ -798,43 +836,46 @@ function PlatePreview({ variant, flagUrl, sealUrl }: { variant: VariantDesign; f
         <circle cx="336" cy="15" r="11" fill="none" stroke={variant.borderColor} strokeWidth="1" opacity="0.4" />
       )}
 
-      {/* "COMMUNE DE" label */}
-      <text x="180" y="23" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily} letterSpacing="0.5">COMMUNE DE</text>
+      {/* "COMMUNE DE" — accent color (variante) — y=12 (82*0.15) */}
+      <text x="180" y="12" textAnchor="middle" fill={variant.accentColor} fontSize="7.5" fontWeight="600" fontFamily={variant.fontFamily} letterSpacing="0.5">COMMUNE DE</text>
 
-      {/* Commune name */}
-      <text x="180" y="33" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>MATADI</text>
+      {/* Commune name — couleur propre — y=26 (172*0.15) */}
+      <text x="180" y="26" textAnchor="middle" fill={cNameColor} fontSize="13" fontWeight="bold" fontFamily={variant.fontFamily}>KISANTU</text>
 
-      {/* Separator */}
-      <line x1="10" y1="38" x2="350" y2="38" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.25" />
+      {/* QUARTIER — accent color — y=37 (248*0.15) — AU-DESSUS de la ligne */}
+      <text x="180" y="37" textAnchor="middle" fill={variant.accentColor} fontSize="8" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
 
-      {/* Quartier */}
-      <text x="180" y="46" textAnchor="middle" fill={variant.accentColor} fontSize="9" fontWeight="600" fontFamily={variant.fontFamily}>QUARTIER MVUZI</text>
+      {/* Horizontal separator — couleur propre — y=42 (278*0.15) — SOUS le quartier */}
+      <line x1="10" y1="42" x2="350" y2="42" stroke={hLineColor} strokeWidth="0.5" opacity="0.5" />
 
-      {/* Avenue band (y=51, h=36) */}
-      <rect x="3" y="51" width="354" height="36" fill={aColor} />
-      {/* Avenue name */}
-      <text x="180" y="72" textAnchor="middle" fill={variant.textColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE DE L&apos;INDÉPENDANCE</text>
+      {/* Avenue band — y=44 (294*0.15), h=35 (234*0.15) */}
+      <rect x="3" y="44" width="354" height="35" fill={aColor} />
+      {/* Avenue name — couleur propre — y=68 (452*0.15) */}
+      <text x="180" y="68" textAnchor="middle" fill={aTextColor} fontSize="14" fontWeight="bold" fontFamily={variant.fontFamily}>AVENUE KINGOMA</text>
 
-      {/* Vertical separator (y=89) */}
-      <line x1="240" y1="89" x2="240" y2="162" stroke={variant.borderColor} strokeWidth="0.5" opacity="0.2" />
+      {/* Vertical separator — couleur propre — x=255 (1700*0.15) */}
+      <line x1="255" y1="80" x2="255" y2="162" stroke={vLineColor} strokeWidth="0.5" opacity="0.3" />
 
-      {/* N° and numero on same line (y=125, centered in bottom section) */}
-      <text x="116" y="125" textAnchor="end" fill={variant.accentColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily} letterSpacing="1">N°</text>
-      <text x="124" y="125" textAnchor="start" fill={variant.textColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
+      {/* N° — couleur propre, centré dans zone gauche (centre x≈129) — y=124 (825*0.15) */}
+      <text x="126" y="124" textAnchor="end" fill={nLabelColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily} letterSpacing="0.5">N°</text>
+      {/* Numéro — couleur propre */}
+      <text x="132" y="124" textAnchor="start" fill={nColor} fontSize="36" fontWeight="bold" fontFamily={variant.fontFamily}>15</text>
 
-      {/* QR mock — right edge 273+74=347 aligns with seal right 336+11=347 */}
-      <rect x="273" y="88" width="74" height="74" rx="2" fill="white" opacity="0.9"/>
-      <rect x="276" y="91" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="278" y="93" width="7" height="7" fill="#1e293b" />
-      <rect x="294" y="91" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="296" y="93" width="7" height="7" fill="#1e293b" />
-      <rect x="276" y="109" width="11" height="11" rx="1" fill="none" stroke="#1e293b" strokeWidth="1.2" />
-      <rect x="278" y="111" width="7" height="7" fill="#1e293b" />
-      <clipPath id="prvQrSealClip"><circle cx="310" cy="125" r="8" /></clipPath>
+      {/* QR mock (réduit) — x=290 (1930*0.15), y=93 (618*0.15), 54×54 (360*0.15) */}
+      <rect x="290" y="93" width="54" height="54" rx="2" fill="white" opacity="0.9"/>
+      <rect x="293" y="96" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+      <rect x="295" y="98" width="5" height="5" fill="#1e293b" />
+      <rect x="308" y="96" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+      <rect x="310" y="98" width="5" height="5" fill="#1e293b" />
+      <rect x="293" y="112" width="9" height="9" rx="1" fill="none" stroke="#1e293b" strokeWidth="1" />
+      <rect x="295" y="114" width="5" height="5" fill="#1e293b" />
       {sealUrl ? (
-        <image href={sealUrl} x="302" y="117" width="16" height="16" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        <>
+          <clipPath id="prvQrSealClip"><circle cx="322" cy="124" r="7" /></clipPath>
+          <image href={sealUrl} x="315" y="117" width="14" height="14" clipPath="url(#prvQrSealClip)" preserveAspectRatio="xMidYMid slice" />
+        </>
       ) : (
-        <circle cx="310" cy="125" r="8" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
+        <circle cx="322" cy="124" r="7" fill="#f0f0f0" stroke="#ddd" strokeWidth="0.5" />
       )}
     </svg>
   );
