@@ -29,7 +29,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd .migration-backup/artifacts/lopango && PORT=3000 pnpm dev"
+args = "cd artifacts/lopango && PORT=3000 pnpm dev"
 waitForPort = 3000
 
 [agent]
