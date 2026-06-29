@@ -1,9 +1,10 @@
 import QRCode from "qrcode";
 import type { VariantDesign } from "@/db/schema";
 
-// Output: 2400×1100px SVG (print quality @ 300 DPI for ~20×9cm plate)
-const PLATE_WIDTH = 2400;
-const PLATE_HEIGHT = 1100;
+// Output: 2953×1417px SVG — corresponds to 25×12cm at 300 DPI (standard address plate)
+// Being SVG (vector), it can be printed at any size without quality loss.
+const PLATE_WIDTH = 2953;
+const PLATE_HEIGHT = 1417;
 
 export interface PlateData {
   id: string;
@@ -50,7 +51,7 @@ export async function generatePlateWithTemplate(
   const verificationUrl = `${appUrl}/verification/${data.id}`;
 
   const qrBuffer = await QRCode.toBuffer(verificationUrl, {
-    width: 400,
+    width: 500,
     margin: 1,
     color: { dark: "#000000", light: "#ffffff" },
     errorCorrectionLevel: templateConfig?.sealUrl ? "H" : "M",
@@ -115,12 +116,16 @@ function buildFontStyle(fontFamily: string): string {
 }
 
 // ============================================================
-// TEMPLATE-BASED PLATE — elegant professional layout 2400×1100
-// Layout:
-//   Top    : flag (left) | COMMUNE DE / [commune] / QUARTIER [xxx] (center) | seal (right)
-//   Separator: thin horizontal line BELOW quartier
-//   Middle : full-width avenue band with AVENUE [xxx]
-//   Bottom : large N° (left) | QR code (right)
+// TEMPLATE-BASED PLATE — layout 2953×1417 (25×12cm @ 300 DPI)
+// Layout (all coords scaled from 2400×1100 reference):
+//   BORDER    : 20px inner padding
+//   Header    : COMMUNE DE (y=106) / Commune (y=222) / QUARTIER (y=320)
+//   H-line    : y=358 (below quartier)
+//   Avenue    : y=380..682 (h=302), text baseline y=583
+//   V-sep     : x=2091 (y=688..1397)
+//   Left zone : x=20..2091, centre=1055
+//   N°+num    : tspan centré x=1055, y=1063, font=300
+//   QR (456²) : x=2361 y=800 (right-aligned in right zone)
 // ============================================================
 function generateTemplatePlateSVG(
   data: PlateData,
@@ -133,12 +138,12 @@ function generateTemplatePlateSVG(
   const avenue = prefixAvenue(data.avenue);
   const numero = data.numero;
 
-  const rx = variant.shape === "rectangle" ? "8" : variant.shape === "rounded" ? "24" : "40";
-  const innerRx = String(Math.max(0, Number(rx) - 4));
+  const rx = variant.shape === "rectangle" ? "10" : variant.shape === "rounded" ? "30" : "50";
+  const innerRx = String(Math.max(0, Number(rx) - 5));
 
   // Resolve colors with fallbacks for backward compatibility
-  const aColor       = escapeXml(variant.avenueColor   || variant.borderColor);
-  const aTextColor   = escapeXml(variant.avenueTextColor  || variant.textColor);
+  const aColor       = escapeXml(variant.avenueColor      || variant.borderColor);
+  const aTextColor   = escapeXml(variant.avenueTextColor   || variant.textColor);
   const cNameColor   = escapeXml(variant.communeNameColor  || variant.textColor);
   const nLabelColor  = escapeXml(variant.numeroLabelColor  || variant.accentColor);
   const nColor       = escapeXml(variant.numeroColor       || variant.textColor);
@@ -147,52 +152,40 @@ function generateTemplatePlateSVG(
   const accentColor  = escapeXml(variant.accentColor);
   const fontFamily   = escapeXml(variant.fontFamily);
 
-  // ── Layout measurements ──────────────────────────────────────
-  // Header zone: y=16..290
-  //   "COMMUNE DE"   baseline y=82  (font 50)
-  //   Commune name   baseline y=172 (font 90)
-  //   QUARTIER       baseline y=248 (font 56) ← above separator
-  //   H-separator    y=278
-  // Avenue band: y=294..528 (h=234)
-  //   Avenue text    baseline y=452
-  // Bottom zone: y=534..1084
-  //   V-separator    x=1700
-  //   Left center    x=858
-  //   N°             x=840 textAnchor=end   y=825
-  //   Numero         x=880 textAnchor=start y=825
-  //   QR (360×360)   x=1930 y=618 → right=2290, bottom=978
-  //   QR seal center cx=2110 cy=798
-
-  const QR_X = 1930;
-  const QR_Y = 618;
-  const QR_SIZE = 360;
+  // QR: 456×456, right-aligned in right zone (x=2091..2933), margin=76px from right inner edge
+  const QR_SIZE = 456;
+  const QR_X = PLATE_WIDTH - 20 - 76 - QR_SIZE; // = 2401
+  const QR_Y = 800;
   const QR_CX = QR_X + QR_SIZE / 2;
   const QR_CY = QR_Y + QR_SIZE / 2;
 
   const qrSvgContent = sealUrl
     ? `<image x="${QR_X}" y="${QR_Y}" width="${QR_SIZE}" height="${QR_SIZE}" href="${qrDataUrl}"/>
-       <circle cx="${QR_CX}" cy="${QR_CY}" r="46" fill="white"/>
-       <clipPath id="qrSeal"><circle cx="${QR_CX}" cy="${QR_CY}" r="39"/></clipPath>
-       <image x="${QR_CX - 39}" y="${QR_CY - 39}" width="78" height="78" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
+       <circle cx="${QR_CX}" cy="${QR_CY}" r="58" fill="white"/>
+       <clipPath id="qrSeal"><circle cx="${QR_CX}" cy="${QR_CY}" r="49"/></clipPath>
+       <image x="${QR_CX - 49}" y="${QR_CY - 49}" width="98" height="98" href="${escapeXml(sealUrl)}" clip-path="url(#qrSeal)" preserveAspectRatio="xMidYMid slice"/>`
     : `<image x="${QR_X}" y="${QR_Y}" width="${QR_SIZE}" height="${QR_SIZE}" href="${qrDataUrl}"/>`;
 
-  // Flag: margin from left (x=120) and top (y=40)
+  // Flag: x=148, y=52, w=234, h=167
   const flagContent = flagUrl
-    ? `<image x="120" y="40" width="190" height="130" href="${escapeXml(flagUrl)}" preserveAspectRatio="xMidYMid meet"/>`
-    : `<g transform="translate(120, 40)">
-        <rect width="190" height="130" fill="#007FFF" rx="6"/>
-        <polygon points="0,92 0,130 149,39 149,0 190,0 190,39 41,130 0,130" fill="#CE1021"/>
-        <line x1="0" y1="86" x2="153" y2="0" stroke="#F7D618" stroke-width="5"/>
-        <line x1="35" y1="130" x2="190" y2="44" stroke="#F7D618" stroke-width="5"/>
-        <polygon points="41,30 46,47 62,47 49,57 54,74 41,64 27,74 32,57 19,47 35,47" fill="#F7D618"/>
+    ? `<image x="148" y="52" width="234" height="167" href="${escapeXml(flagUrl)}" preserveAspectRatio="xMidYMid meet"/>`
+    : `<g transform="translate(148, 52)">
+        <rect width="234" height="167" fill="#007FFF" rx="7"/>
+        <polygon points="0,118 0,167 192,50 192,0 234,0 234,50 53,167 0,167" fill="#CE1021"/>
+        <line x1="0" y1="111" x2="196" y2="0" stroke="#F7D618" stroke-width="6"/>
+        <line x1="43" y1="167" x2="234" y2="57" stroke="#F7D618" stroke-width="6"/>
+        <polygon points="53,38 59,60 80,60 63,73 69,95 53,82 37,95 43,73 26,60 47,60" fill="#F7D618"/>
       </g>`;
 
-  // Seal: top-right (cx=2240, cy=100, r=70)
+  // Seal: top-right — cx=2753, cy=130, r=88
+  const SEAL_CX = 2753;
+  const SEAL_CY = 130;
+  const SEAL_R  = 88;
   const sealContent = sealUrl
-    ? `<clipPath id="plateSeal"><circle cx="2240" cy="100" r="70"/></clipPath>
-       <image x="2170" y="30" width="140" height="140" href="${escapeXml(sealUrl)}" clip-path="url(#plateSeal)" preserveAspectRatio="xMidYMid slice"/>`
-    : `<circle cx="2240" cy="100" r="70" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="4" opacity="0.5"/>
-       <circle cx="2240" cy="100" r="52" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="2" opacity="0.3"/>`;
+    ? `<clipPath id="plateSeal"><circle cx="${SEAL_CX}" cy="${SEAL_CY}" r="${SEAL_R}"/></clipPath>
+       <image x="${SEAL_CX - SEAL_R}" y="${SEAL_CY - SEAL_R}" width="${SEAL_R * 2}" height="${SEAL_R * 2}" href="${escapeXml(sealUrl)}" clip-path="url(#plateSeal)" preserveAspectRatio="xMidYMid slice"/>`
+    : `<circle cx="${SEAL_CX}" cy="${SEAL_CY}" r="${SEAL_R}" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="5" opacity="0.5"/>
+       <circle cx="${SEAL_CX}" cy="${SEAL_CY}" r="${Math.round(SEAL_R * 0.74)}" fill="none" stroke="${escapeXml(variant.borderColor)}" stroke-width="3" opacity="0.3"/>`;
 
   const fontStyle = buildFontStyle(variant.fontFamily);
 
@@ -204,7 +197,7 @@ function generateTemplatePlateSVG(
   <!-- Outer frame -->
   <rect x="0" y="0" width="${PLATE_WIDTH}" height="${PLATE_HEIGHT}" rx="${rx}" ry="${rx}" fill="${escapeXml(variant.borderColor)}"/>
   <!-- Inner background -->
-  <rect x="16" y="16" width="${PLATE_WIDTH - 32}" height="${PLATE_HEIGHT - 32}" rx="${innerRx}" ry="${innerRx}" fill="${escapeXml(variant.bgColor)}"/>
+  <rect x="20" y="20" width="${PLATE_WIDTH - 40}" height="${PLATE_HEIGHT - 40}" rx="${innerRx}" ry="${innerRx}" fill="${escapeXml(variant.bgColor)}"/>
 
   <!-- Flag (top left) -->
   ${flagContent}
@@ -212,34 +205,34 @@ function generateTemplatePlateSVG(
   <!-- Seal (top right) -->
   ${sealContent}
 
-  <!-- "COMMUNE DE" label — accent color (variante) -->
-  <text x="1200" y="82" text-anchor="middle" fill="${accentColor}" font-size="50" font-family="${fontFamily}" font-weight="600" letter-spacing="3">COMMUNE DE</text>
+  <!-- "COMMUNE DE" — accent color (variante) — y=106 -->
+  <text x="1477" y="106" text-anchor="middle" fill="${accentColor}" font-size="62" font-family="${fontFamily}" font-weight="600" letter-spacing="4">COMMUNE DE</text>
 
-  <!-- Commune name — couleur propre -->
-  <text x="1200" y="172" text-anchor="middle" fill="${cNameColor}" font-size="90" font-family="${fontFamily}" font-weight="bold">${escapeXml(commune)}</text>
+  <!-- Commune name — couleur propre — y=222 -->
+  <text x="1477" y="222" text-anchor="middle" fill="${cNameColor}" font-size="114" font-family="${fontFamily}" font-weight="bold">${escapeXml(commune)}</text>
 
-  <!-- QUARTIER — accent color (variante) — AU-DESSUS de la ligne -->
-  <text x="1200" y="248" text-anchor="middle" fill="${accentColor}" font-size="56" font-family="${fontFamily}" font-weight="600" letter-spacing="2">QUARTIER ${escapeXml(quartier)}</text>
+  <!-- QUARTIER — accent color (variante) — y=320 — AU-DESSUS de la ligne -->
+  <text x="1477" y="320" text-anchor="middle" fill="${accentColor}" font-size="71" font-family="${fontFamily}" font-weight="600" letter-spacing="3">QUARTIER ${escapeXml(quartier)}</text>
 
-  <!-- Horizontal separator — couleur propre — SOUS le quartier -->
-  <line x1="65" y1="278" x2="2335" y2="278" stroke="${hLineColor}" stroke-width="2" opacity="0.5"/>
+  <!-- Horizontal separator — couleur propre — y=358 — SOUS le quartier -->
+  <line x1="80" y1="358" x2="2873" y2="358" stroke="${hLineColor}" stroke-width="3" opacity="0.5"/>
 
-  <!-- Avenue band (full inner width) -->
-  <rect x="16" y="294" width="${PLATE_WIDTH - 32}" height="234" rx="0" fill="${aColor}"/>
+  <!-- Avenue band (full inner width) — y=380, h=302 -->
+  <rect x="20" y="380" width="${PLATE_WIDTH - 40}" height="302" rx="0" fill="${aColor}"/>
 
-  <!-- Avenue name — couleur propre (centered on band, baseline ≈ 452) -->
-  <text x="1200" y="452" text-anchor="middle" fill="${aTextColor}" font-size="118" font-family="${fontFamily}" font-weight="bold">${escapeXml(avenue)}</text>
+  <!-- Avenue name — couleur propre — baseline y=583 -->
+  <text x="1477" y="583" text-anchor="middle" fill="${aTextColor}" font-size="150" font-family="${fontFamily}" font-weight="bold">${escapeXml(avenue)}</text>
 
-  <!-- Vertical separator — couleur propre -->
-  <line x1="1700" y1="534" x2="1700" y2="1084" stroke="${vLineColor}" stroke-width="2" opacity="0.3"/>
+  <!-- Vertical separator — couleur propre — x=2091 -->
+  <line x1="2091" y1="688" x2="2091" y2="1397" stroke="${vLineColor}" stroke-width="3" opacity="0.3"/>
 
-  <!-- N° — couleur propre, centré dans la zone gauche (x=16..1700, centre=858) -->
-  <text x="840" y="825" text-anchor="end" fill="${nLabelColor}" font-size="240" font-family="${fontFamily}" font-weight="bold" letter-spacing="4">N°</text>
+  <!-- N°+numéro centré dans zone gauche (x=20..2091, centre=1055)
+       tspan = 2 couleurs, textAnchor=middle garantit le centrage pour tout numéro -->
+  <text x="1055" y="1063" text-anchor="middle" font-size="300" font-family="${fontFamily}" font-weight="bold">
+    <tspan fill="${nLabelColor}">N° </tspan><tspan fill="${nColor}">${escapeXml(numero)}</tspan>
+  </text>
 
-  <!-- Numéro — couleur propre -->
-  <text x="880" y="825" text-anchor="start" fill="${nColor}" font-size="240" font-family="${fontFamily}" font-weight="bold">${escapeXml(numero)}</text>
-
-  <!-- QR Code (réduit: ${QR_SIZE}×${QR_SIZE}) -->
+  <!-- QR Code (${QR_SIZE}×${QR_SIZE}) -->
   ${qrSvgContent}
 
 </svg>`;
@@ -247,7 +240,7 @@ function generateTemplatePlateSVG(
 
 
 // ============================================================
-// DEFAULT PLATE (legacy / no template) — same elegant layout
+// DEFAULT PLATE (legacy / no template) — same layout 2953×1417
 // ============================================================
 function generateDefaultPlateSVG(data: PlateData, qrDataUrl: string): string {
   const commune = data.commune.toUpperCase();
@@ -255,55 +248,56 @@ function generateDefaultPlateSVG(data: PlateData, qrDataUrl: string): string {
   const avenue = prefixAvenue(data.avenue);
   const numero = data.numero;
 
-  const QR_X = 1930;
-  const QR_Y = 618;
-  const QR_SIZE = 360;
+  const QR_SIZE = 456;
+  const QR_X = PLATE_WIDTH - 20 - 76 - QR_SIZE;
+  const QR_Y = 800;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
      viewBox="0 0 ${PLATE_WIDTH} ${PLATE_HEIGHT}" width="${PLATE_WIDTH}" height="${PLATE_HEIGHT}">
 
-  <rect x="0" y="0" width="${PLATE_WIDTH}" height="${PLATE_HEIGHT}" rx="24" ry="24" fill="#1a3a6b"/>
-  <rect x="16" y="16" width="${PLATE_WIDTH - 32}" height="${PLATE_HEIGHT - 32}" rx="18" ry="18" fill="#1a3a6b"/>
-  <rect x="16" y="16" width="${PLATE_WIDTH - 32}" height="${PLATE_HEIGHT - 32}" rx="18" ry="18" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.3"/>
+  <rect x="0" y="0" width="${PLATE_WIDTH}" height="${PLATE_HEIGHT}" rx="30" ry="30" fill="#1a3a6b"/>
+  <rect x="20" y="20" width="${PLATE_WIDTH - 40}" height="${PLATE_HEIGHT - 40}" rx="24" ry="24" fill="#1a3a6b"/>
+  <rect x="20" y="20" width="${PLATE_WIDTH - 40}" height="${PLATE_HEIGHT - 40}" rx="24" ry="24" fill="none" stroke="#ffffff" stroke-width="5" opacity="0.3"/>
 
   <!-- DRC Flag -->
-  <g transform="translate(120, 40)">
-    <rect width="190" height="130" fill="#007FFF" rx="6"/>
-    <polygon points="0,92 0,130 149,39 149,0 190,0 190,39 41,130 0,130" fill="#CE1021"/>
-    <line x1="0" y1="86" x2="153" y2="0" stroke="#F7D618" stroke-width="5"/>
-    <line x1="35" y1="130" x2="190" y2="44" stroke="#F7D618" stroke-width="5"/>
-    <polygon points="41,30 46,47 62,47 49,57 54,74 41,64 27,74 32,57 19,47 35,47" fill="#F7D618"/>
+  <g transform="translate(148, 52)">
+    <rect width="234" height="167" fill="#007FFF" rx="7"/>
+    <polygon points="0,118 0,167 192,50 192,0 234,0 234,50 53,167 0,167" fill="#CE1021"/>
+    <line x1="0" y1="111" x2="196" y2="0" stroke="#F7D618" stroke-width="6"/>
+    <line x1="43" y1="167" x2="234" y2="57" stroke="#F7D618" stroke-width="6"/>
+    <polygon points="53,38 59,60 80,60 63,73 69,95 53,82 37,95 43,73 26,60 47,60" fill="#F7D618"/>
   </g>
 
   <!-- Seal placeholder -->
-  <circle cx="2240" cy="100" r="70" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.4"/>
-  <circle cx="2240" cy="100" r="52" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.2"/>
+  <circle cx="2753" cy="130" r="88" fill="none" stroke="#ffffff" stroke-width="5" opacity="0.4"/>
+  <circle cx="2753" cy="130" r="65" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.2"/>
 
   <!-- "COMMUNE DE" label -->
-  <text x="1200" y="82" text-anchor="middle" fill="#87CEEB" font-size="50" font-family="Arial, sans-serif" font-weight="600" letter-spacing="3">COMMUNE DE</text>
+  <text x="1477" y="106" text-anchor="middle" fill="#87CEEB" font-size="62" font-family="Arial, sans-serif" font-weight="600" letter-spacing="4">COMMUNE DE</text>
 
   <!-- Commune name -->
-  <text x="1200" y="172" text-anchor="middle" fill="#ffffff" font-size="90" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(commune)}</text>
+  <text x="1477" y="222" text-anchor="middle" fill="#ffffff" font-size="114" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(commune)}</text>
 
   <!-- QUARTIER — au-dessus de la ligne -->
-  <text x="1200" y="248" text-anchor="middle" fill="#87CEEB" font-size="56" font-family="Arial, sans-serif" font-weight="600" letter-spacing="2">QUARTIER ${escapeXml(quartier)}</text>
+  <text x="1477" y="320" text-anchor="middle" fill="#87CEEB" font-size="71" font-family="Arial, sans-serif" font-weight="600" letter-spacing="3">QUARTIER ${escapeXml(quartier)}</text>
 
   <!-- Horizontal separator — sous le quartier -->
-  <line x1="65" y1="278" x2="2335" y2="278" stroke="#ffffff" stroke-width="2" opacity="0.3"/>
+  <line x1="80" y1="358" x2="2873" y2="358" stroke="#ffffff" stroke-width="3" opacity="0.3"/>
 
   <!-- Avenue band -->
-  <rect x="16" y="294" width="${PLATE_WIDTH - 32}" height="234" rx="0" fill="#2d5a8e"/>
-  <text x="1200" y="452" text-anchor="middle" fill="#ffffff" font-size="118" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
+  <rect x="20" y="380" width="${PLATE_WIDTH - 40}" height="302" rx="0" fill="#2d5a8e"/>
+  <text x="1477" y="583" text-anchor="middle" fill="#ffffff" font-size="150" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(avenue)}</text>
 
   <!-- Vertical separator -->
-  <line x1="1700" y1="534" x2="1700" y2="1084" stroke="#ffffff" stroke-width="2" opacity="0.15"/>
+  <line x1="2091" y1="688" x2="2091" y2="1397" stroke="#ffffff" stroke-width="3" opacity="0.15"/>
 
-  <!-- N° centré dans zone gauche (centre x=858) -->
-  <text x="840" y="825" text-anchor="end" fill="#87CEEB" font-size="240" font-family="Arial, sans-serif" font-weight="bold" letter-spacing="4">N°</text>
-  <text x="880" y="825" text-anchor="start" fill="#ffffff" font-size="240" font-family="Arial, sans-serif" font-weight="bold">${escapeXml(numero)}</text>
+  <!-- N°+numéro centré dans zone gauche (centre x=1055) — tspan pour centrage parfait -->
+  <text x="1055" y="1063" text-anchor="middle" font-size="300" font-family="Arial, sans-serif" font-weight="bold">
+    <tspan fill="#87CEEB">N° </tspan><tspan fill="#ffffff">${escapeXml(numero)}</tspan>
+  </text>
 
-  <!-- QR Code (réduit: ${QR_SIZE}×${QR_SIZE}) -->
+  <!-- QR Code (${QR_SIZE}×${QR_SIZE}) -->
   <image x="${QR_X}" y="${QR_Y}" width="${QR_SIZE}" height="${QR_SIZE}" href="${qrDataUrl}"/>
 
 </svg>`;
